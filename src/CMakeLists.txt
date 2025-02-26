@@ -19,7 +19,8 @@ target_include_directories(${MVP_TARGET_NAME}
 set(SOURCES 
 	main.
 	logger.cpp
-	model/model.cpp)
+	model/model.cpp
+	os/clipboardController/windowsClipboardController.cpp)
 	
 add_executable(${TARGET_NAME} ${SOURCES})
 
