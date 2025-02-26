@@ -12,4 +12,24 @@ target_link_libraries(${MVP_TARGET_NAME}
 		-lkernel32
 )
 
-add_executable(${TARGET_NAME} main.cpp)
+target_include_directories(${MVP_TARGET_NAME}
+	PRIVATE 
+		${CMAKE_CURRENT_SOURCE_DIR})
+
+set(SOURCES 
+	main.
+	logger.cpp
+	model/model.cpp)
+	
+add_executable(${TARGET_NAME} ${SOURCES})
+
+target_include_directories(${TARGET_NAME}
+	PRIVATE 
+		${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(${MVP_TARGET_NAME} 
+	PRIVATE
+		-lgdi32
+		-luser32
+		-lkernel32
+)
