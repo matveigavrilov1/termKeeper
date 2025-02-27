@@ -1,61 +1,109 @@
-#include <iostream>
-#include <string>
-#include <windows.h>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <conio.h> // Для получения нажатий клавиш
+#include "cli/cliCore.h"
 
-void hideCursor() {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO cursorInfo;
-    GetConsoleCursorInfo(hConsole, &cursorInfo);
-    cursorInfo.bVisible = false; // Скрываем курсор
-    SetConsoleCursorInfo(hConsole, &cursorInfo);
-}
+using namespace tk;
 
-void overwriteLine(const std::string& text) {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
+class CLIListManager
+{
+private:
+	std::vector<std::vector<std::string>> lists;
+	size_t currentListIndex = 0;
+	size_t currentItemIndex = 0;
 
-    // Получаем текущую информацию о консоли
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-        std::cerr << "Ошибка GetConsoleScreenBufferInfo: " << GetLastError() << std::endl;
-        return;
-    }
+public:
+	CLIListManager(const std::vector<std::vector<std::string>>& lists)
+	: lists(lists)
+	{ }
 
-    // Перемещаем курсор в начало текущей строки
-    COORD newCursorPosition = { 0, csbi.dwCursorPosition.Y };
-    if (!SetConsoleCursorPosition(hConsole, newCursorPosition)) {
-        std::cerr << "Ошибка SetConsoleCursorPosition: " << GetLastError() << std::endl;
-        return;
-    }
+	void display()
+	{
+		tk::cliCore::clearScreen();
 
-    // Обрезаем или дополняем строку до ширины консоли
-    std::string adjustedText = text;
-    if (adjustedText.length() > csbi.dwSize.X) {
-        adjustedText = adjustedText.substr(0, csbi.dwSize.X);
-    } else if (adjustedText.length() < csbi.dwSize.X) {
-        adjustedText.append(csbi.dwSize.X - adjustedText.length(), ' ');
-    }
+		// Отображение текущего списка
+		const auto& currentList = lists[currentListIndex];
+		for (size_t i = 0; i < currentList.size(); ++i)
+		{
+			tk::cliCore::insertStr(0, i, currentList[i]);
+			if (i == currentItemIndex)
+			{
+				tk::cliCore::highlightLine(i);
+			}
+			else
+			{
+				tk::cliCore::resetHighlightLine(i);
+			}
+		}
 
-    // Выводим текст
-    DWORD charsWritten;
-    if (!WriteConsoleA(hConsole, adjustedText.c_str(), adjustedText.length(), &charsWritten, NULL)) {
-        std::cerr << "Ошибка WriteConsoleA: " << GetLastError() << std::endl;
-        return;
-    }
-}
+		// Отображение подсказок для пользователя
+		std::string hints = "Up/Down: Select, Left/Right: Switch lists, Q: Quit";
+		tk::cliCore::insertStr(0, tk::cliCore::height() - 1, hints);
 
-int main() {
-    hideCursor(); // Скрываем курсор
+		tk::cliCore::update();
+	}
 
-    overwriteLine("This is some initial text!");
-    Sleep(1000);
-    overwriteLine("This text will overwrite the previous line!");
-    Sleep(1000);
-    overwriteLine("A shorter line."); // Очищает остаток строки пробелами
-    Sleep(1000);
+	void handleInput()
+	{
+		if (kbhit())
+		{
+			char input = _getch();
+			switch (input)
+			{
+				case 72: // Стрелка вверх
+					if (currentItemIndex > 0)
+					{
+						--currentItemIndex;
+					}
+					break;
+				case 80: // Стрелка вниз
+					if (currentItemIndex < lists[currentListIndex].size() - 1)
+					{
+						++currentItemIndex;
+					}
+					break;
+				case 75: // Стрелка влево
+					if (currentListIndex > 0)
+					{
+						--currentListIndex;
+						currentItemIndex = 0;
+					}
+					break;
+				case 77: // Стрелка вправо
+					if (currentListIndex < lists.size() - 1)
+					{
+						++currentListIndex;
+						currentItemIndex = 0;
+					}
+					break;
+				case 'q': // Выход
+					exit(0);
+					break;
+			}
+		}
+		display();
+	}
 
-    // После завершения работы overwriteLine, последующий вывод продолжится с новой строки
-    std::cout << "\nThis is a new line after overwriting.";
+	void run()
+	{
+		tk::cliCore::init();
+		display();
+		while (true)
+		{
+			handleInput();
+		}
+	}
+};
 
-    return 0;
+int main()
+{
+
+	std::vector<std::vector<std::string>> lists = { { "Item 1.1", "Item 1.2", "Item 1.3" }, { "Item 2.1", "Item 2.2" },
+		{ "Item 3.1", "Item 3.2", "Item 3.3", "Item 3.4" } };
+
+	CLIListManager manager(lists);
+	manager.run();
+
+	return 0;
 }

@@ -4,64 +4,60 @@
 #include <errhandlingapi.h>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include "utils/logger.h"
 
 using namespace tk;
 
-bool cliCore::isInit_ = false;
-std::string cliCore::screen_ = "";
-size_t cliCore::width_ = 0;
-size_t cliCore::height_ = 0;
-size_t cliCore::userHeight_ = 0;
-HANDLE cliCore::hConsole_ = nullptr;
+static bool isInit = false;
+static std::vector<CHAR_INFO> screen;
+static short consoleWidth = 0;
+static short consoleHeight = 0;
+static HANDLE hConsole = nullptr;
 
-static double loggerHeightCoeff = 0.1;
-static size_t loggerHeight = 0;
-static size_t logStartIndex = 0;
-static size_t logMaxLength = 0;
+static double loggerHeightCoeff = 0.05;
+static short loggerHeight = 0;
+static short logStartIndex = 0;
+static short logMaxLength = 0;
 
-static size_t userWidth;
-static size_t userHeight;
+static short userWidth;
+static short userHeight;
+
+static const WORD HIGHLIGHT_COLOR = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+static const WORD DEFAULT_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 
 void cliCore::init()
 {
-	if (isInit_)
+	if (isInit)
 	{
 		return;
 	}
 
-	hConsole_ = GetStdHandle(STD_OUTPUT_HANDLE);
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	hideCursor();
 	initConsoleSize();
 	initScreen();
 
-	isInit_ = true;
+	isInit = true;
 }
 
 void cliCore::update()
 {
-	if (!isInit_ || screen_.empty())
+	if (!isInit || screen.empty())
 	{
 		return;
 	}
 
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	COORD bufferSize = { consoleWidth, consoleHeight };
+	COORD bufferCoord = { 0, 0 };
+	SHORT right = consoleWidth - 1;
+	SHORT bottom = consoleHeight - 1;
+	SMALL_RECT writeRegion = { 0, 0, right, bottom };
 
-	if (!GetConsoleScreenBufferInfo(hConsole_, &csbi))
+	if (!WriteConsoleOutput(hConsole, screen.data(), bufferSize, bufferCoord, &writeRegion))
 	{
-		throw std::runtime_error("Error GetConsoleScreenBufferInfo: " + std::to_string(GetLastError()));
-	}
-
-	if (!SetConsoleCursorPosition(hConsole_, { 0, 0 }))
-	{
-		throw std::runtime_error("Error SetConsoleCursorPosition: " + std::to_string(GetLastError()));
-	}
-
-	DWORD charsWritten;
-	if (!WriteConsoleA(hConsole_, screen_.c_str(), screen_.length(), &charsWritten, NULL))
-	{
-		throw std::runtime_error("Error WriteConsoleA: " + std::to_string(GetLastError()));
+		throw std::runtime_error("Error WriteConsoleOutput: " + std::to_string(GetLastError()));
 	}
 }
 
@@ -72,19 +68,29 @@ void cliCore::log(const char* str)
 
 void cliCore::log(const std::string& str)
 {
-	if (!isInit_ || screen_.empty())
+	if (!isInit || screen.empty())
 	{
 		return;
 	}
-	if (str.length() > logMaxLength)
-	{
-		std::copy(str.begin(), str.begin() + logMaxLength, screen_.begin() + logStartIndex);
-	}
-	else
-	{
-		std::string line = str + std::string(logMaxLength - str.length(), ' ');
-		std::copy(line.begin(), line.end(), screen_.begin() + logStartIndex);
-	}
+
+	size_t length = std::min(str.length(), static_cast<size_t>(logMaxLength));
+	std::transform(str.begin(), str.begin() + length, screen.begin() + logStartIndex,
+		[](const char& ch)
+		{
+			CHAR_INFO charInfo;
+			charInfo.Char.AsciiChar = ch;
+			charInfo.Attributes = DEFAULT_COLOR;
+			return charInfo;
+		});
+
+	std::generate(screen.begin() + logStartIndex + length, screen.begin() + logStartIndex + logMaxLength,
+		[]()
+		{
+			CHAR_INFO charInfo;
+			charInfo.Char.AsciiChar = ' ';
+			charInfo.Attributes = DEFAULT_COLOR;
+			return charInfo;
+		});
 }
 
 void cliCore::insertSymb(size_t x, size_t y, char symb)
@@ -92,10 +98,15 @@ void cliCore::insertSymb(size_t x, size_t y, char symb)
 	if (x >= userWidth || y >= userHeight)
 	{
 		LOG_ERR("Inserting symbol failed. x or y out of range");
+		return;
 	}
+
 	size_t realY = y + 1;
 	size_t realX = x + 1;
-	screen_[realY * width_ + realX] = symb;
+
+	size_t pos = realY * consoleWidth + realX;
+	screen[pos].Char.AsciiChar = symb;
+	screen[pos].Attributes = DEFAULT_COLOR;
 }
 
 void cliCore::insertStr(size_t x, size_t y, const std::string& str)
@@ -103,17 +114,20 @@ void cliCore::insertStr(size_t x, size_t y, const std::string& str)
 	if (x >= userWidth || y >= userHeight)
 	{
 		LOG_ERR("Inserting string failed. x or y out of range");
+		return;
 	}
+
 	size_t realY = y + 1;
 	size_t realX = x + 1;
 
-	size_t pos = realY * (userWidth + 2) + realX;
+	size_t pos = realY * consoleWidth + realX;
 
 	for (const auto& symb : str)
 	{
 		if (!isBorder(pos))
 		{
-			screen_[pos] = symb;
+			screen[pos].Char.AsciiChar = symb;
+			screen[pos].Attributes = DEFAULT_COLOR;
 		}
 		else
 		{
@@ -123,7 +137,8 @@ void cliCore::insertStr(size_t x, size_t y, const std::string& str)
 				LOG_ERR("Inserting string failed. Out of range.");
 				break;
 			}
-			screen_[pos] = symb;
+			screen[pos].Char.AsciiChar = symb;
+			screen[pos].Attributes = DEFAULT_COLOR;
 		}
 		pos++;
 	}
@@ -137,11 +152,12 @@ void cliCore::clearLine(size_t y)
 		return;
 	}
 
-	size_t startPos = (y + 1) * width_ + 1;
+	size_t startPos = (y + 1) * consoleWidth + 1;
 
 	for (size_t x = 0; x < userWidth; ++x)
 	{
-		screen_[startPos + x] = ' ';
+		screen[startPos + x].Char.AsciiChar = ' ';
+		screen[startPos + x].Attributes = DEFAULT_COLOR;
 	}
 }
 
@@ -151,6 +167,96 @@ void cliCore::clearScreen()
 	{
 		clearLine(y);
 	}
+}
+
+void cliCore::highlightChar(size_t x, size_t y)
+{
+	if (x >= userWidth || y >= userHeight)
+	{
+		LOG_ERR("Highlighting character failed. x or y out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t realX = x + 1;
+
+	size_t pos = realY * consoleWidth + realX;
+	screen[pos].Attributes = HIGHLIGHT_COLOR;
+}
+
+void cliCore::highlightLine(size_t y)
+{
+	if (y >= userHeight)
+	{
+		LOG_ERR("Highlighting line failed. y out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t startPos = realY * consoleWidth + 1;
+
+	std::for_each(screen.begin() + startPos, screen.begin() + startPos + userWidth, [](CHAR_INFO& charInfo) { charInfo.Attributes = HIGHLIGHT_COLOR; });
+}
+
+void cliCore::highlightText(size_t x, size_t y, size_t length)
+{
+	if (x >= userWidth || y >= userHeight || (x + length) > userWidth)
+	{
+		LOG_ERR("Highlighting text failed. x, y, or length out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t realX = x + 1;
+
+	size_t pos = realY * consoleWidth + realX;
+
+	std::for_each(screen.begin(), screen.begin() + length, [](CHAR_INFO& charInfo) { charInfo.Attributes = HIGHLIGHT_COLOR; });
+}
+
+void cliCore::resetHighlightChar(size_t x, size_t y)
+{
+	if (x >= userWidth || y >= userHeight)
+	{
+		LOG_ERR("Resetting highlight failed. x or y out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t realX = x + 1;
+
+	size_t pos = realY * consoleWidth + realX;
+	screen[pos].Attributes = DEFAULT_COLOR;
+}
+
+void cliCore::resetHighlightLine(size_t y)
+{
+	if (y >= userHeight)
+	{
+		LOG_ERR("Resetting highlight failed. y out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t startPos = realY * consoleWidth + 1;
+
+	std::for_each(screen.begin() + startPos, screen.begin() + startPos + userWidth, [](CHAR_INFO& charInfo) { charInfo.Attributes = DEFAULT_COLOR; });
+}
+
+void cliCore::resetHighlightText(size_t x, size_t y, size_t length)
+{
+	if (x >= userWidth || y >= userHeight || (x + length) > userWidth)
+	{
+		LOG_ERR("Resetting highlight failed. x, y, or length out of range");
+		return;
+	}
+
+	size_t realY = y + 1;
+	size_t realX = x + 1;
+
+	size_t pos = realY * consoleWidth + realX;
+
+	std::for_each(screen.begin(), screen.begin() + length, [](CHAR_INFO& charInfo) { charInfo.Attributes = DEFAULT_COLOR; });
 }
 
 size_t cliCore::width()
@@ -171,13 +277,12 @@ bool cliCore::isEmptySymb(size_t x, size_t y)
 		return false;
 	}
 
-
 	size_t realX = x + 1;
 	size_t realY = y + 1;
 
-	size_t pos = realY * width_ + realX;
+	size_t pos = realY * consoleWidth + realX;
 
-	return (screen_[pos] == ' ');
+	return (screen[pos].Char.AsciiChar == ' ');
 }
 
 bool cliCore::isEmptyLine(size_t y)
@@ -188,11 +293,11 @@ bool cliCore::isEmptyLine(size_t y)
 		return false;
 	}
 
-	size_t startPos = (y + 1) * width_ + 1;
+	size_t startPos = (y + 1) * consoleWidth + 1;
 
 	for (size_t x = 0; x < userWidth; ++x)
 	{
-		if (screen_[startPos + x] != ' ')
+		if (screen[startPos + x].Char.AsciiChar != ' ')
 		{
 			return false;
 		}
@@ -203,18 +308,18 @@ bool cliCore::isEmptyLine(size_t y)
 
 void cliCore::hideCursor()
 {
-	if (hConsole_ == nullptr)
+	if (hConsole == nullptr)
 	{
 		std::cerr << "Error hConsole is nullptr" << std::endl;
 		return;
 	}
 	CONSOLE_CURSOR_INFO cursorInfo;
-	if (!GetConsoleCursorInfo(hConsole_, &cursorInfo))
+	if (!GetConsoleCursorInfo(hConsole, &cursorInfo))
 	{
 		throw std::runtime_error("Error GetConsoleCursorInfo: " + std::to_string(GetLastError()));
 	}
 	cursorInfo.bVisible = false;
-	if (!SetConsoleCursorInfo(hConsole_, &cursorInfo))
+	if (!SetConsoleCursorInfo(hConsole, &cursorInfo))
 	{
 		throw std::runtime_error("Error SetConsoleCursorInfo: " + std::to_string(GetLastError()));
 		return;
@@ -225,62 +330,75 @@ void cliCore::initConsoleSize()
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-	if (!GetConsoleScreenBufferInfo(hConsole_, &csbi))
+	if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
 	{
 		throw std::runtime_error("Error GetConsoleScreenBufferInfo: " + std::to_string(GetLastError()));
 	}
 
-	width_ = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-	height_ = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+	consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 	while (loggerHeight < 1)
 	{
-		loggerHeight = static_cast<size_t>(height_ * loggerHeightCoeff);
+		loggerHeight = static_cast<size_t>(consoleHeight * loggerHeightCoeff);
 		loggerHeightCoeff += 0.1;
 	}
-	userHeight_ = height_ - loggerHeight;
-	logStartIndex = width_ * (height_ - loggerHeight + 1);
-	logMaxLength = width_ * height_ - logStartIndex;
 
-	userWidth = width_ - 2;
-	userHeight = height_ - loggerHeight - 2;
+	logStartIndex = consoleWidth * (consoleHeight - loggerHeight);
+	logMaxLength = consoleWidth * consoleHeight - logStartIndex;
+
+	userWidth = consoleWidth - 2;
+	userHeight = consoleHeight - loggerHeight - 2;
 }
 
 void cliCore::initScreen()
 {
-	screen_ = std::string(width_ * height_, ' ');
+	screen.resize(consoleWidth * consoleHeight);
 
-	std::string loggerLine = "--LOG--" + std::string(width_ - 7, ' ');
-	fillLine(height_ - loggerHeight, loggerLine);
-
-	std::string borderColumn = "+" + std::string(userHeight_ - 2, '|') + "+";
-	fillColummn(width_ - 1, borderColumn);
+	for (auto& cell : screen)
+	{
+		cell.Char.AsciiChar = ' ';
+		cell.Attributes = DEFAULT_COLOR;
+	}
+	
+	std::string borderColumn = "+" + std::string(userHeight, '|') + "+";
+	fillColummn(consoleWidth - 1, borderColumn);
 	fillColummn(0, borderColumn);
 
-	std::string borderLine = "+" + std::string(width_ - 2, '-') + "+";
+	std::string borderLine = "+" + std::string(userWidth, '-') + "+";
 	fillLine(0, borderLine);
-	fillLine(userHeight_ - 1, borderLine);
+	fillLine(userHeight + 1, borderLine);
 }
 
 void cliCore::fillLine(size_t index, const std::string& str)
 {
-	if (index >= height_ || str.length() > width_)
+	if (index >= consoleHeight || str.length() > consoleWidth)
 	{
 		return;
 	}
 
-	std::copy(str.begin(), str.end(), screen_.begin() + index * width_);
+
+	std::transform(str.begin(), str.end(), screen.begin() + index * consoleWidth,
+		[](char c)
+		{
+			CHAR_INFO charInfo;
+			charInfo.Char.AsciiChar = c;
+			charInfo.Attributes = DEFAULT_COLOR;
+			return charInfo;
+		});
 }
 
 void cliCore::fillColummn(size_t index, const std::string& str)
 {
-	if (index >= width_ || str.length() > height_)
+	if (index >= consoleWidth || str.length() > consoleHeight)
 	{
 		return;
 	}
 
-	for (size_t i = 0; i < str.length(); i++)
+
+	for (size_t i = 0; i < str.length(); ++i)
 	{
-		screen_[i * width_ + index] = str[i];
+		screen[i * consoleWidth + index].Char.AsciiChar = str[i];
+		screen[i * consoleWidth + index].Attributes = DEFAULT_COLOR;
 	}
 }
 
@@ -291,8 +409,8 @@ bool cliCore::isBorder(size_t x, size_t y)
 
 bool cliCore::isBorder(size_t pos)
 {
-	size_t x = pos % width_;
-	size_t y = pos / width_;
+	size_t x = pos % consoleWidth;
+	size_t y = pos / consoleWidth;
 
 	return isBorder(x, y);
 }
