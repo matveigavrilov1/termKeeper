@@ -17,10 +17,12 @@ target_include_directories(${MVP_TARGET_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES 
-	main.
-	logger.cpp
+	main.cpp
+	cli/cli.cpp
+	cli/cliCore.cpp
+	clipboardController/windowsClipboardController.cpp
 	model/model.cpp
-	os/clipboardController/windowsClipboardController.cpp)
+)
 	
 add_executable(${TARGET_NAME} ${SOURCES})
 

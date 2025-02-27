@@ -1,4 +1,4 @@
-#include "os/clipboardController/windowsClipboardController.h"
+#include "clipboardController/windowsClipboardController.h"
 
 #include <windows.h>
 

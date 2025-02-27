@@ -1,142 +1,61 @@
+#include <iostream>
+#include <string>
 #include <windows.h>
 #include <vector>
-#include <string>
-#include <iostream> // Добавлено для отладочного вывода
 
-// Глобальные переменные
-std::vector<std::wstring> commands = {
-    L"git clone",
-    L"docker build -t myimage .",
-    L"npm install",
-    L"python3 -m venv venv",
-    L"kubectl apply -f deployment.yaml"
-};
-HWND hListBox;
-HWND hwndMain; // Добавлено для хранения дескриптора главного окна
-
-// Функция для копирования текста в буфер обмена
-void CopyToClipboard(const std::wstring& text) {
-    if (!OpenClipboard(nullptr)) {
-        std::wcerr << L"OpenClipboard failed: " << GetLastError() << std::endl;
-        return;
-    }
-    EmptyClipboard();
-    HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(wchar_t));
-    if (hGlobal == nullptr) {
-        std::wcerr << L"GlobalAlloc failed: " << GetLastError() << std::endl;
-        CloseClipboard();
-        return;
-    }
-    wchar_t* pGlobal = static_cast<wchar_t*>(GlobalLock(hGlobal));
-    if (pGlobal == nullptr) {
-        std::wcerr << L"GlobalLock failed: " << GetLastError() << std::endl;
-        CloseClipboard();
-        GlobalFree(hGlobal);
-        return;
-    }
-    wcscpy_s(pGlobal, text.size() + 1, text.c_str());
-    GlobalUnlock(hGlobal);
-    if (SetClipboardData(CF_UNICODETEXT, hGlobal) == nullptr) {
-        std::wcerr << L"SetClipboardData failed: " << GetLastError() << std::endl;
-    }
-    CloseClipboard();
+void hideCursor() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(hConsole, &cursorInfo);
+    cursorInfo.bVisible = false; // Скрываем курсор
+    SetConsoleCursorInfo(hConsole, &cursorInfo);
 }
 
-// Обработчик сообщений окна
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    switch (uMsg) {
-        case WM_CREATE: {
-            // Создаем список команд
-            hListBox = CreateWindowW(
-                L"LISTBOX", L"Commands",
-                WS_CHILD | WS_VISIBLE | LBS_NOTIFY | WS_VSCROLL | WS_BORDER,
-                10, 10, 300, 200, hwnd, (HMENU)1, nullptr, nullptr  // Установили ID контрола в 1
-            );
-            for (const auto& cmd : commands) {
-                SendMessageW(hListBox, LB_ADDSTRING, 0, (LPARAM)cmd.c_str());
-            }
-            break;
-        }
-        case WM_COMMAND: {
-            if (LOWORD(wParam) == 1 && HIWORD(wParam) == LBN_DBLCLK) {
-                // Получаем выбранную команду
-                int index = static_cast<int>(SendMessageW(hListBox, LB_GETCURSEL, 0, 0));
-                if (index != LB_ERR) {
-                    wchar_t buffer[256];
-                    SendMessageW(hListBox, LB_GETTEXT, index, (LPARAM)buffer);
-                    CopyToClipboard(buffer);
-// Скрываем окно, а не закрываем его
-                    ShowWindow(hwnd, SW_HIDE);
-                }
-            }
-            break;
-        }
-        case WM_DESTROY: {
-            PostQuitMessage(0);
-            break;
-        }
-        case WM_ACTIVATE:
-            // При активации окна (например, после нажатия горячей клавиши),
-            // устанавливаем фокус на список, чтобы можно было использовать стрелки для выбора.
-            if (wParam != WA_INACTIVE) {
-                SetFocus(hListBox);
-            }
-            break;
-        default:
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
-    }
-    return 0;
-}
+void overwriteLine(const std::string& text) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-// Регистрация горячей клавиши
-void RegisterHotKey(HWND hwnd) {
-    if (!RegisterHotKey(hwnd, 1, MOD_CONTROL | MOD_SHIFT, 'C')) {
-        std::wcerr << L"RegisterHotKey failed: " << GetLastError() << std::endl;
+    // Получаем текущую информацию о консоли
+    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+        std::cerr << "Ошибка GetConsoleScreenBufferInfo: " << GetLastError() << std::endl;
+        return;
+    }
+
+    // Перемещаем курсор в начало текущей строки
+    COORD newCursorPosition = { 0, csbi.dwCursorPosition.Y };
+    if (!SetConsoleCursorPosition(hConsole, newCursorPosition)) {
+        std::cerr << "Ошибка SetConsoleCursorPosition: " << GetLastError() << std::endl;
+        return;
+    }
+
+    // Обрезаем или дополняем строку до ширины консоли
+    std::string adjustedText = text;
+    if (adjustedText.length() > csbi.dwSize.X) {
+        adjustedText = adjustedText.substr(0, csbi.dwSize.X);
+    } else if (adjustedText.length() < csbi.dwSize.X) {
+        adjustedText.append(csbi.dwSize.X - adjustedText.length(), ' ');
+    }
+
+    // Выводим текст
+    DWORD charsWritten;
+    if (!WriteConsoleA(hConsole, adjustedText.c_str(), adjustedText.length(), &charsWritten, NULL)) {
+        std::cerr << "Ошибка WriteConsoleA: " << GetLastError() << std::endl;
+        return;
     }
 }
 
-// Точка входа
-int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    // Регистрация класса окна
-    WNDCLASSW wc = {};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = L"ClipboardToolClass";
-    RegisterClassW(&wc);
+int main() {
+    hideCursor(); // Скрываем курсор
 
-    // Создание окна
-    hwndMain = CreateWindowExW(
-        0, L"ClipboardToolClass", L"Clipboard Tool",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 350, 300,
-        nullptr, nullptr, hInstance, nullptr
-    );
-    if (!hwndMain) {
-        std::wcerr << L"CreateWindowExW failed: " << GetLastError() << std::endl;
-        return -1;
-    }
+    overwriteLine("This is some initial text!");
+    Sleep(1000);
+    overwriteLine("This text will overwrite the previous line!");
+    Sleep(1000);
+    overwriteLine("A shorter line."); // Очищает остаток строки пробелами
+    Sleep(1000);
 
-    // Регистрация горячей клавиши
-    RegisterHotKey(hwndMain);
-
-    // Изначально скрываем окно
-    ShowWindow(hwndMain, SW_HIDE);
-    UpdateWindow(hwndMain);
-
-    // Цикл сообщений
-    MSG msg = {};
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        if (msg.message == WM_HOTKEY) {
-            // Показываем окно при нажатии горячей клавиши
-            ShowWindow(hwndMain, SW_SHOW);
-            UpdateWindow(hwndMain);
-
-             // Устанавливаем окно на передний план
-            SetForegroundWindow(hwndMain);
-            SetFocus(hListBox); // Устанавливаем фокус на hListBox
-        }
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+    // После завершения работы overwriteLine, последующий вывод продолжится с новой строки
+    std::cout << "\nThis is a new line after overwriting.";
 
     return 0;
 }

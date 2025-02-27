@@ -1,36 +1,45 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <iostream>
 
-std::string getFileName(const std::string& filePath);
+#include "cli/cliCore.h"
 
+// TODO: Optimize logs
 // clang-format off
-#define LOG_INF(message)                                                                                             \
-	do                                                                                                                \
-	{                                                                                                                 \
-		std::cout << "[INF] " << getFileName(__FILE__) << ":" << __LINE__ << " | " << message << std::endl;           \
+#define LOG_INF(message)                              \
+	do                                                \
+	{                                                 \
+		std::stringstream ss;                         \
+		ss << "[INF] | "<< message;                   \
+		tk::cliCore::log(ss.str());                   \
 	} while (0)
 
-#ifdef DEBUG
-#define LOG_DBG(message)                                                                                            \
-	do                                                                                                                \
-	{                                                                                                                 \
-		std::cout << "[DBG] " << getFileName(__FILE__) << ":" << __LINE__ << " | " << message << std::endl;           \
-	} while (0)
-#else
-#define LOG_DBG(message)
-#endif
-
-#define LOG_ERR(message)                                                                                            \
-	do                                                                                                                \
-	{                                                                                                                 \
-		std::cerr << "[ERR] " << getFileName(__FILE__) << ":" << __LINE__ << " | " << message << std::endl;           \
+#define LOG_DBG(message)                              \
+	do                                                \
+	{                                                 \
+		std::stringstream ss;                         \
+		ss << "[DBG] | "<< message;                   \
+		tk::cliCore::log(ss.str());                   \
 	} while (0)
 
-#define LOG_WRN(message)                                                                                              \
-	do                                                                                                                \
-	{                                                                                                                 \
-		std::cout << "[WRN] " << getFileName(__FILE__) << ":" << __LINE__ << " | " << message << std::endl;           \
+
+#define LOG_WRN(message)                              \
+	do                                                \
+	{                                                 \
+		std::stringstream ss;                         \
+		ss << "[WRN] | "<< message;                   \
+		tk::cliCore::log(ss.str());                   \
 	} while (0)
+
+
+#define LOG_ERR(message)                              \
+	do                                                \
+	{                                                 \
+		std::stringstream ss;                         \
+		ss << "[ERR] | "<< message;                   \
+		tk::cliCore::log(ss.str());                   \
+	} while (0)
+
 // clang-format on

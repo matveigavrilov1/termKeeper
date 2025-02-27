@@ -1,6 +1,6 @@
 #pragma once
 
-#include "os/clipboardController/interface.h"
+#include "clipboardController/interface.h"
 
 namespace tk
 {
