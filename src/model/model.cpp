@@ -1,5 +1,5 @@
 #include "model.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include <memory>
 #include <stdexcept>
 

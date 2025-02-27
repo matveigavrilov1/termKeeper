@@ -2,7 +2,7 @@
 
 #include <windows.h>
 
-#include "logger.h"
+#include "utils/logger.h"
 
 void tk::windowsClipboardController::write(const std::string& content)
 {
