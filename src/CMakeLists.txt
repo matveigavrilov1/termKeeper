@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.10.0)
 set(MVP_TARGET_NAME mvp)
 set(TARGET_NAME termKeeper)
 
-add_executable(${MVP_TARGET_NAME} mvp.cpp
-					cli/cliCore.cpp)
+add_executable(${MVP_TARGET_NAME} mvp.cpp)
 
 target_link_libraries(${MVP_TARGET_NAME} 
 	PRIVATE
@@ -20,7 +19,11 @@ target_include_directories(${MVP_TARGET_NAME}
 set(SOURCES 
 	main.cpp
 	cli/cli.cpp
-	cli/cliCore.cpp
+	cli/core/consolem.cpp
+	cli/core/event.cpp
+	cli/core/eventm.cpp
+	cli/core/screen.cpp
+	cli/core/window.cpp
 	clipboardController/windowsClipboardController.cpp
 	model/model.cpp
 )
