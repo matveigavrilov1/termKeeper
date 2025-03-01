@@ -19,6 +19,7 @@ public:
 	{
 		LOG_DBG("Exit event default handler");
 		cli::core::getEventManager().stop();
+		cli::core::getInputManager().stop();
 	}
 
 	static shared_ptr_type make() { return std::make_shared<exitEvent>(); }
@@ -27,31 +28,37 @@ public:
 class inputEvent : public event
 {
 public:
-	template<typename T>
+	enum inputType
+	{
+		ENTER,
+		BACKSPACE,
+		ESC,
+		ARROW_LEFT,
+		ARROW_RIGHT,
+		ARROW_UP,
+		ARROW_DOWN,
+		CTRL_C,
+		SHIFT_ENTER,
+		KEY_PRESSED,
+		UNKNOWN
+	};
+
+	template<typename T = char>
 	class inputData : public eventData
 	{
 	public:
-		enum inputType
-		{
-			NONE,
-			KEY_PRESSED,
-			TEXT_PRINTED
-		};
-
-		inputData(T& input)
-		: input_(input)
+		inputData(inputType type, std::optional<T> input = std::nullopt)
+		: type_(type)
+		, input_(input)
 		{ }
 
-		inputData(T&& input) noexcept
-		: input_(std::move(input))
-		{ }
+		std::optional<T>& input() { return input_; }
 
-		T& input() { return input_; }
-
+		inputType type() const { return type_; }
 
 	private:
-		T input_;
-		inputType type_ { NONE };
+		inputType type_ { UNKNOWN };
+		std::optional<T> input_;
 	};
 
 	template<typename DataT>
@@ -68,10 +75,12 @@ public:
 	}
 
 	template<typename DataT>
-	static shared_ptr_type make(DataT data)
+	static shared_ptr_type make(inputType type, DataT data)
 	{
-		return std::make_shared<inputEvent>(std::make_shared<inputData<DataT>>(data));
+		return std::make_shared<inputEvent>(std::make_shared<inputData<DataT>>(type, data));
 	}
+
+	static shared_ptr_type make(inputType type) { return std::make_shared<inputEvent>(std::make_shared<inputData<char>>(type)); }
 };
 
 class showWindowEvent : public event
@@ -186,7 +195,7 @@ public:
 
 	changeActiveWindowEvent(std::shared_ptr<changeActiveWindowData> data)
 	: event(CHANGE_ACTIVE_WINDOW_EVENT, data)
-	{}
+	{ }
 
 	void defaultHandler(shared_ptr_type event) override
 	{

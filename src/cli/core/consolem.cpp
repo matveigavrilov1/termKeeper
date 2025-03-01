@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include "utils/logger.h"
+
 namespace tk
 {
 
@@ -61,6 +62,19 @@ bool consolem::setCursorVisibility(bool visible)
 	}
 	cursorInfo.bVisible = visible;
 	if (!SetConsoleCursorInfo(hConsole_, &cursorInfo))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool consolem::setCursorPosition(size_t x, size_t y)
+{
+	COORD coord;
+	coord.X = static_cast<SHORT>(x);
+	coord.Y = static_cast<SHORT>(y);
+
+	if (!SetConsoleCursorPosition(hConsole_, coord))
 	{
 		return false;
 	}

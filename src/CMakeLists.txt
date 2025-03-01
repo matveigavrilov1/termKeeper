@@ -8,11 +8,13 @@ set(SOURCES
 	cli/core/consolem.cpp
 	cli/core/event.cpp
 	cli/core/eventm.cpp
+	cli/core/form.cpp
+	cli/core/inputm.cpp
 	cli/core/interface.cpp
 	cli/core/screen.cpp
 	cli/core/utils.cpp
 	cli/core/window.cpp
-	cli/forms/form.cpp
+	cli/forms/inputForm.cpp
 	cli/forms/selectionListForm.cpp
 	cli/windows/borderedWindow.cpp
 	cli/windows/cacheWindow.cpp

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cli/forms/form.h"
+#include "cli/core/form.h"
 
 namespace tk {
 	class selectionListForm : public form

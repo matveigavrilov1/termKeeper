@@ -15,6 +15,7 @@ public:
 	bool write(const std::vector<CHAR_INFO>& buffer, size_t x, size_t y, size_t width, size_t height);
 
 	bool setCursorVisibility(bool visible);
+	bool setCursorPosition(size_t x, size_t y);
 
 	bool updateSize();
 

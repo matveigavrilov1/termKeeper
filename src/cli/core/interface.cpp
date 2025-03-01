@@ -13,6 +13,7 @@ bool core::isInitialized_ { false };
 
 std::optional<consolem> core::consolem_ { std::nullopt };
 std::optional<eventm> core::eventm_ { std::nullopt };
+std::optional<inputm> core::inputm_ { std::nullopt };
 std::optional<screen> core::screen_ { std::nullopt };
 
 void core::init()
@@ -29,6 +30,7 @@ void core::init()
 	consolem_->setCursorVisibility(false);
 	
 	eventm_.emplace();
+	inputm_.emplace();
 	screen_.emplace();
 
 	initDefaultEventHandlers();
@@ -61,6 +63,15 @@ screen& core::getScreen()
 
 
 	return *screen_;
+}
+
+inputm& core::getInputManager()
+{
+	if (!isInitialized_)
+		throw std::runtime_error("Core is not initialized");
+
+
+	return *inputm_;
 }
 
 void core::initDefaultEventHandlers()
