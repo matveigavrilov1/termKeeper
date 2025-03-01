@@ -4,15 +4,16 @@
 #include <climits>
 #include <cstdlib>
 
+#include "utils/logger.h"
 namespace tk
 {
-consolem::consolem() { }
 
 bool consolem::init()
 {
 	hConsole_ = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hConsole_ == nullptr || !updateSize())
 	{
+		LOG_ERR("Failed to initialize console");
 		return false;
 	}
 
@@ -21,14 +22,18 @@ bool consolem::init()
 
 bool consolem::write(const std::vector<CHAR_INFO>& buffer, size_t x, size_t y, size_t width, size_t height)
 {
+	LOG_DBG("Writing buffer to console: " << x << ", " << y << ", " << width << ", " << height);
+
 	if (width == 0 || height == 0 || buffer.size() < width * height)
 	{
+		LOG_ERR("Invalid buffer size: " << buffer.size() << " for width: " << width << " and height: " << height_);
 		return false;
 	}
 
 	// after this check static_cast will be correct
 	if (x >= width_ || y >= height_ || (x + width) > width_ || (y + height) > height_)
 	{
+		LOG_ERR("Invalid position: " << x << ", " << y << " for width: " << width << " and height: " << height);
 		return false;
 	}
 
@@ -40,6 +45,7 @@ bool consolem::write(const std::vector<CHAR_INFO>& buffer, size_t x, size_t y, s
 
 	if (!WriteConsoleOutput(hConsole_, buffer.data(), bufferSize, bufferCoord, &writeRegion))
 	{
+		LOG_ERR("Failed to write to console");
 		return false;
 	}
 
@@ -67,11 +73,14 @@ bool consolem::updateSize()
 
 	if (!GetConsoleScreenBufferInfo(hConsole_, &csbi))
 	{
+		LOG_ERR("Failed to get console screen buffer info");
 		return false;
 	}
 
 	width_ = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 	height_ = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+	LOG_DBG("Console size: " << width_ << "x" << height_);
 	assert(width_ < SHRT_MAX);
 	assert(height_ < SHRT_MAX);
 	return true;

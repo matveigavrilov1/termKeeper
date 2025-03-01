@@ -4,7 +4,7 @@
 
 #include "event.h"
 #include "cli/core/interface.h"
-
+#include "utils/logger.h"
 namespace tk
 {
 class exitEvent : public event
@@ -14,7 +14,7 @@ public:
 	: event(EXIT_EVENT)
 	{ }
 
-	void defaultHandler(shared_ptr_type) override { cli::core::getEventManager().stop(); }
+	void defaultHandler(shared_ptr_type) override { LOG_DBG("Exit event default handler"); cli::core::getEventManager().stop(); }
 };
 
 class inputEvent : public event
@@ -39,7 +39,7 @@ public:
 		: input_(std::move(input))
 		{ }
 
-		T& input() const { return input_; }
+		T& input() { return input_; }
 
 
 	private:
@@ -55,6 +55,7 @@ public:
 	void defaultHandler(shared_ptr_type event) override
 	{
 		auto activeWindow = cli::core::getScreen().activeWindow();
+		LOG_DBG("Input event default handler");
 		if (activeWindow)
 			activeWindow->handleInputEvent(event);
 	}
@@ -86,6 +87,7 @@ public:
 
 	void defaultHandler(shared_ptr_type event) override
 	{
+		LOG_DBG("Show window event default handler");
 		auto eventData = std::dynamic_pointer_cast<windowData>(event->data());
 		if (eventData)
 		{
@@ -101,7 +103,7 @@ public:
 	: event(SHOW_SCREEN_EVENT)
 	{ }
 
-	void defaultHandler(eventData::shared_ptr_type) { cli::core::getScreen().show(cli::core::getConsoleManager()); }
+	void defaultHandler(eventData::shared_ptr_type) { LOG_DBG("Show screen event default handler"); cli::core::getScreen().show(cli::core::getConsoleManager()); }
 };
 
 class windowActivateEvent : public event
@@ -130,9 +132,11 @@ public:
 
 	void defaultHandler(shared_ptr_type event) override
 	{
+		LOG_DBG("Window activate event default handler");
 		auto eventData = std::dynamic_pointer_cast<windowActivateData>(event->data());
 		if (eventData)
 		{
+			
 			cli::core::getScreen().activateWindow(eventData->windowName());
 		}
 	}
@@ -164,6 +168,7 @@ public:
 
 	void defaultHandler(shared_ptr_type event) override
 	{
+		LOG_DBG("Change active window event default handler");
 		auto eventData = std::dynamic_pointer_cast<changeActiveWindowData>(event->data());
 		if (eventData)
 		{

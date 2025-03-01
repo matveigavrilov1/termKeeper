@@ -1,5 +1,5 @@
 #include "cli/core/eventm.h"
-
+#include "utils/logger.h"
 namespace tk
 {
 
@@ -10,6 +10,7 @@ void eventm::run()
 		return;
 	}
 	running_ = true;
+	LOG_INF("Event manager started");
 	loop();
 }
 
@@ -23,9 +24,10 @@ void eventm::loop()
 	while (running_)
 	{
 		event::shared_ptr_type event = eventQueue_.wait_and_pop();
-
+		LOG_DBG("Got event: " << event->type());
 		if (auto it = eventHandlers_.find(event->type()); it != eventHandlers_.end())
 		{
+			LOG_DBG("Found handler" << event->type());
 			it->second(event);
 		}
 	}
@@ -33,6 +35,7 @@ void eventm::loop()
 
 void eventm::pushEvent(event::shared_ptr_type event)
 {
+	LOG_DBG("Push event: " << event->type());
 	eventQueue_.push(event);
 }
 

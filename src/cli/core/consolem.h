@@ -9,8 +9,6 @@ namespace tk
 class consolem
 {
 public:
-	consolem();
-	~consolem();
 
 	bool init();
 

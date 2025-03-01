@@ -3,6 +3,8 @@
 #include <utility>
 #include <stdexcept>
 
+#include "utils/logger.h"
+
 namespace tk
 {
 window::window(size_t x, size_t y, size_t width, size_t height)
@@ -79,25 +81,33 @@ void window::setChar(size_t x, size_t y, char ch)
 {
 	if (x >= width_ || y >= height_)
 	{
-		throw std::out_of_range("Coordinates (x, y) are out of range");
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		LOG_ERR(error);
+		throw std::out_of_range(error);
 	}
 	buffer_.at(y * width_ + x).Char.AsciiChar = ch;
+	buffer_.at(y * width_ + x).Attributes = DEFAULT_COLOR;
 }
 
 void window::setChar(size_t index, char ch)
 {
 	if (index >= buffer_.size())
 	{
-		throw std::out_of_range("Index is out of range");
+		std::string error = "Index is out of range: " + std::to_string(index) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		LOG_ERR(error);
+		throw std::out_of_range(error);
 	}
 	buffer_.at(index).Char.AsciiChar = ch;
+	buffer_.at(index).Attributes = DEFAULT_COLOR;
 }
 
 void window::setAttribute(size_t x, size_t y, WORD attr)
 {
 	if (x >= width_ || y >= height_)
 	{
-		throw std::out_of_range("Coordinates (x, y) are out of range");
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		LOG_ERR(error);
+		throw std::out_of_range(error);
 	}
 	buffer_.at(y * width_ + x).Attributes = attr;
 }
@@ -106,7 +116,9 @@ void window::setAttribute(size_t index, WORD attr)
 {
 	if (index >= buffer_.size())
 	{
-		throw std::out_of_range("Index is out of range");
+		std::string error = "Index is out of range: " + std::to_string(index) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		LOG_ERR(error);
+		throw std::out_of_range(error);
 	}
 	buffer_.at(index).Attributes = attr;
 }
@@ -148,6 +160,6 @@ window::buffer_type& window::buffer()
 
 void window::handleInputEvent(event::shared_ptr_type event)
 {
-
+	LOG_DBG("Default window input handler");
 }
 }; // namespace tk

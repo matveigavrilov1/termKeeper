@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "utils/logger.h"
 namespace tk
 {
 
@@ -14,8 +15,9 @@ static bool isColliding(const window& win1, const window& win2)
 
 void screen::show(consolem& console) const
 {
-	for (const auto& name : avtivatedWindows_)
+	for (const auto& name : activatedWindows_)
 	{
+		LOG_DBG("Show window: " << name);
 		showWindow(name, console);
 	}
 }
@@ -24,11 +26,13 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 {
 	if (auto it = windows_.find(name); it != windows_.end())
 	{
-		const auto& activeWindow = it->second;
-		console.write(activeWindow->buffer(), activeWindow->x(), activeWindow->y(), activeWindow->width(), activeWindow->height());
+		LOG_DBG("Show window: " << name);
+		const auto& activatedWindow = it->second;
+		console.write(activatedWindow->buffer(), activatedWindow->x(), activatedWindow->y(), activatedWindow->width(), activatedWindow->height());
 	}
 	else
 	{
+		LOG_ERR("Window not found in activated: " << name);
 		return false;
 	}
 
@@ -37,11 +41,13 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 
 bool screen::registerWindow(const std::string& name, window::shared_ptr_type win)
 {
-	if (windows_.find(name) != windows_.end())
+	if (windows_.find(name) == windows_.end())
 	{
+		LOG_DBG("Registering window: " << name);
 		windows_.emplace(name, std::move(win));
 		return true;
 	}
+	LOG_WRN("Window already registered: " << name);
 	return false;
 }
 
@@ -62,34 +68,37 @@ bool screen::activateWindow(const std::string& name)
 	{
 		const auto& newWindow = it->second;
 
-		for (const auto& activeWindowName : avtivatedWindows_)
+		for (const auto& activeWindowName : activatedWindows_)
 		{
 			const auto& activeWindow = windows_.find(activeWindowName)->second;
 			if (isColliding(*newWindow, *activeWindow))
 			{
+				LOG_ERR("Cannot activate window: " << name << " because it collides with window: " << activeWindowName);
 				return false;
 			}
 		}
 
-		avtivatedWindows_.push_back(name);
+		LOG_DBG("Activating window: " << name);
+		activatedWindows_.push_back(name);
 		return true;
 	}
+	LOG_ERR("Cannot activate window: " << name << " because it is not registered");
 	return false;
 }
 
 bool screen::deactivateWindow(const std::string& name)
 {
-	if (auto it = std::find(avtivatedWindows_.begin(), avtivatedWindows_.end(), name); it != avtivatedWindows_.end())
+	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), name); it != activatedWindows_.end())
 	{
-		avtivatedWindows_.erase(it);
+		activatedWindows_.erase(it);
 		return true;
 	}
-	return true;
+	return false;
 }
 
 void screen::deactivateAllWindows()
 {
-	avtivatedWindows_.clear();
+	activatedWindows_.clear();
 }
 
 window::shared_ptr_type screen::activeWindow()
@@ -99,8 +108,9 @@ window::shared_ptr_type screen::activeWindow()
 
 bool screen::changeActiveWindow(const std::string& name)
 {
-	if (auto it = std::find(avtivatedWindows_.begin(), avtivatedWindows_.end(), name); it != avtivatedWindows_.end())
+	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), name); it != activatedWindows_.end())
 	{
+		LOG_DBG("Setting active window: " << name);
 		activeWindow_ = windows_.find(name)->second;
 		return true;
 	}
@@ -109,6 +119,6 @@ bool screen::changeActiveWindow(const std::string& name)
 
 bool screen::activated(const std::string& name) const
 {
-	return std::find(avtivatedWindows_.begin(), avtivatedWindows_.end(), name) != avtivatedWindows_.end();
+	return std::find(activatedWindows_.begin(), activatedWindows_.end(), name) != activatedWindows_.end();
 }
 } // namespace tk

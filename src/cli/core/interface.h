@@ -14,13 +14,13 @@ namespace cli
 class core
 {
 public:
-	void init();
+	static void init();
 	static consolem& getConsoleManager();
 	static eventm& getEventManager();
 	static screen& getScreen();
 
 private:
-	void initDefaultEventHandlers();
+	static void initDefaultEventHandlers();
 	static bool isInitialized_;
 
 	static std::optional<consolem> consolem_;

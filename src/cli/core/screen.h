@@ -28,7 +28,7 @@ public:
 
 private:
 	windows_map_type windows_;
-	std::vector<std::string> avtivatedWindows_;
+	std::vector<std::string> activatedWindows_;
 	window::shared_ptr_type activeWindow_{nullptr};
 };
 
