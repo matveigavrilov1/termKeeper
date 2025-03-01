@@ -5,6 +5,7 @@
 #include "event.h"
 #include "cli/core/interface.h"
 #include "utils/logger.h"
+
 namespace tk
 {
 class exitEvent : public event
@@ -14,7 +15,13 @@ public:
 	: event(EXIT_EVENT)
 	{ }
 
-	void defaultHandler(shared_ptr_type) override { LOG_DBG("Exit event default handler"); cli::core::getEventManager().stop(); }
+	void defaultHandler(shared_ptr_type) override
+	{
+		LOG_DBG("Exit event default handler");
+		cli::core::getEventManager().stop();
+	}
+
+	static shared_ptr_type make() { return std::make_shared<exitEvent>(); }
 };
 
 class inputEvent : public event
@@ -59,6 +66,12 @@ public:
 		if (activeWindow)
 			activeWindow->handleInputEvent(event);
 	}
+
+	template<typename DataT>
+	static shared_ptr_type make(DataT data)
+	{
+		return std::make_shared<inputEvent>(std::make_shared<inputData<DataT>>(data));
+	}
 };
 
 class showWindowEvent : public event
@@ -94,17 +107,25 @@ public:
 			cli::core::getScreen().showWindow(eventData->windowName(), cli::core::getConsoleManager());
 		}
 	}
+
+	static shared_ptr_type make(const std::string& windowName) { return std::make_shared<showWindowEvent>(std::make_shared<windowData>(windowName)); }
 };
 
-class showScreenEvent : public event
-{
-public:
-	showScreenEvent()
-	: event(SHOW_SCREEN_EVENT)
-	{ }
+// class showScreenEvent : public event
+// {
+// public:
+// 	showScreenEvent()
+// 	: event(SHOW_SCREEN_EVENT)
+// 	{ }
 
-	void defaultHandler(eventData::shared_ptr_type) { LOG_DBG("Show screen event default handler"); cli::core::getScreen().show(cli::core::getConsoleManager()); }
-};
+// 	void defaultHandler(eventData::shared_ptr_type)
+// 	{
+// 		LOG_DBG("Show screen event default handler");
+// 		cli::core::getScreen().show(cli::core::getConsoleManager());
+// 	}
+
+// 	static shared_ptr_type make() { return std::make_shared<showScreenEvent>(); }
+// };
 
 class windowActivateEvent : public event
 {
@@ -136,10 +157,11 @@ public:
 		auto eventData = std::dynamic_pointer_cast<windowActivateData>(event->data());
 		if (eventData)
 		{
-			
 			cli::core::getScreen().activateWindow(eventData->windowName());
 		}
 	}
+
+	static shared_ptr_type make(const std::string& windowName) { return std::make_shared<windowActivateEvent>(std::make_shared<windowActivateData>(windowName)); }
 };
 
 class changeActiveWindowEvent : public event
@@ -164,7 +186,7 @@ public:
 
 	changeActiveWindowEvent(std::shared_ptr<changeActiveWindowData> data)
 	: event(CHANGE_ACTIVE_WINDOW_EVENT, data)
-	{ }
+	{}
 
 	void defaultHandler(shared_ptr_type event) override
 	{
@@ -174,6 +196,11 @@ public:
 		{
 			cli::core::getScreen().changeActiveWindow(eventData->windowName());
 		}
+	}
+
+	static shared_ptr_type make(const std::string& windowName)
+	{
+		return std::make_shared<changeActiveWindowEvent>(std::make_shared<changeActiveWindowData>(windowName));
 	}
 };
 } // namespace tk

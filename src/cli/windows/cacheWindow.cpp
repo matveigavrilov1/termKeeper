@@ -1,5 +1,9 @@
 #include "cli/windows/cacheWindow.h"
-#include "cli/core/utils.h"
+
+#include <memory>
+
+#include "cli/core/events.h"
+#include "cli/core/interface.h"
 #include "cli/windows/borderedWindow.h"
 #include "utils/logger.h"
 
@@ -8,27 +12,31 @@ namespace tk
 cacheWindow::cacheWindow(size_t x, size_t y, size_t width, size_t height)
 : borderedWindow(x, y, width, height, "Cache")
 , cache_ { "test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10" }
+, form_ { cache_, 0, 0, width - 2, height - 2, false }
 { }
 
 void cacheWindow::update()
 {
+	LOG_DBG("Updating Cache Window");
 	borderedWindow::clear();
-	size_t y = 0;
-	for (const auto& cache_item : cache_)
-	{
-		WORD attr = (y == activeIndex_) ? window::HIGHLIGHT_COLOR : DEFAULT_COLOR;
-		utils::insertString(*this, 0, y++, cache_item, attr);
-	}
-	
-	borderedWindow::setChar(10, 10, 'X');
+
+	form_.updateBuffer();
+	form_.show(*this);
+
 	LOG_DBG("Pushing event to show Cache Window");
-	utils::pushShowWindowEvent(name);
+
+	cli::core::getEventManager().pushEvent(showWindowEvent::make(name));
 }
 
 void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 {
 	LOG_DBG("Cache window got event: " << event->type());
-	auto data = utils::getInputEventData<char>(event);
+	if (!event->data())
+	{
+		LOG_WRN("Cache window got event with no data");
+		return;
+	}
+	auto data = std::dynamic_pointer_cast<inputEvent::inputData<char>>(event->data());
 	if (!data)
 	{
 		LOG_WRN("Cache window got event with wrong data type");
@@ -37,14 +45,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	char ch = data->input();
 	if (ch == 'w')
 	{
-		if (activeIndex_ == 0)
-		{
-			activeIndex_ = static_cast<int>(cache_.size()) - 1;
-		}
-		else
-		{
-			activeIndex_ -= 1;
-		}
+		form_.switchUp();
 	}
 	else if (ch == 'a')
 	{
@@ -52,14 +53,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	}
 	else if (ch == 's')
 	{
-		if (activeIndex_ == static_cast<int>(cache_.size()) - 1)
-		{
-			activeIndex_ = 0;
-		}
-		else
-		{
-			activeIndex_ += 1;
-		}
+		form_.switchDown();
 	}
 	else if (ch == 'd')
 	{

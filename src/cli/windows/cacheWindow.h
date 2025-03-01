@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "cli/forms/selectionListForm.h"
 #include "cli/windows/borderedWindow.h"
-
 namespace tk
 {
 class cacheWindow : public borderedWindow
@@ -19,5 +19,6 @@ public:
 private:
 	std::vector<std::string> cache_;
 	int activeIndex_{0};
+	selectionListForm form_;
 };
 } // namespace tk

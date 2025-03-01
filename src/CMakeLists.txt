@@ -12,6 +12,8 @@ set(SOURCES
 	cli/core/screen.cpp
 	cli/core/utils.cpp
 	cli/core/window.cpp
+	cli/forms/form.cpp
+	cli/forms/selectionListForm.cpp
 	cli/windows/borderedWindow.cpp
 	cli/windows/cacheWindow.cpp
 	clipboardController/windowsClipboardController.cpp

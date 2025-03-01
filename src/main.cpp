@@ -1,6 +1,6 @@
 
+#include "cli/core/events.h"
 #include "cli/core/interface.h"
-#include "cli/core/utils.h"
 #include "cli/windows/cacheWindow.h"
 #include "conio.h"
 #include <thread>
@@ -27,7 +27,7 @@ int main(int, char**)
 		{
 			char ch = _getch();
 			LOG_INF("Key pressed: " << ch);
-			tk::utils::pushInputEvent<char>(ch);
+			tk::cli::core::getEventManager().pushEvent(tk::inputEvent::make<char>(ch));
 		}
 	}
 	return 0;

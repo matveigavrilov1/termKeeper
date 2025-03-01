@@ -1,7 +1,5 @@
 #include <string>
 
-#include "cli/core/events.h"
-#include "cli/core/interface.h"
 #include "cli/core/utils.h"
 
 namespace tk
@@ -82,9 +80,5 @@ void clearLine(window& wnd, size_t y, WORD attr)
 	}
 }
 
-void pushShowWindowEvent(const std::string& windowName)
-{
-	cli::core::getEventManager().pushEvent(std::make_shared<showWindowEvent>(std::make_shared<showWindowEvent::windowData>(windowName)));
-}
 } // namespace utils
 } // namespace tk
