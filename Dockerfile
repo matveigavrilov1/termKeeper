@@ -27,4 +27,5 @@ CMD cmake -DCMAKE_BUILD_TYPE:STRING=Release \
     -S . \
     -B build \
     -G Ninja && \
-  cmake --build build --config Release --target all
+  cmake --build build --config Release --target all && \
+  cmake --install build

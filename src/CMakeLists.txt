@@ -1,20 +1,6 @@
 cmake_minimum_required(VERSION 3.10.0)
 
-set(MVP_TARGET_NAME mvp)
 set(TARGET_NAME termKeeper)
-
-add_executable(${MVP_TARGET_NAME} mvp.cpp)
-
-target_link_libraries(${MVP_TARGET_NAME} 
-	PRIVATE
-		-lgdi32
-		-luser32
-		-lkernel32
-)
-
-target_include_directories(${MVP_TARGET_NAME}
-	PRIVATE 
-		${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SOURCES 
 	main.cpp
@@ -22,8 +8,12 @@ set(SOURCES
 	cli/core/consolem.cpp
 	cli/core/event.cpp
 	cli/core/eventm.cpp
+	cli/core/interface.cpp
 	cli/core/screen.cpp
+	cli/core/utils.cpp
 	cli/core/window.cpp
+	cli/windows/borderedWindow.cpp
+	cli/windows/cacheWindow.cpp
 	clipboardController/windowsClipboardController.cpp
 	model/model.cpp
 )
@@ -34,9 +24,26 @@ target_include_directories(${TARGET_NAME}
 	PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${MVP_TARGET_NAME} 
-	PRIVATE
-		-lgdi32
-		-luser32
-		-lkernel32
+set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")
+
+set(MINGW_LIBS
+    libstdc++-6.dll
+    libgcc_s_seh-1.dll
 )
+
+install(CODE "
+    foreach(TARGET ${TARGET_NAME})
+        set(TARGET_PATH \"${CMAKE_BINARY_DIR}/src/\${TARGET}.exe\")
+        if(EXISTS \"\${TARGET_PATH}\")
+            file(INSTALL \${TARGET_PATH} DESTINATION ${CMAKE_INSTALL_DIR})
+        else()
+            message(WARNING \"File \${TARGET_PATH} not found!\")
+        endif()
+    endforeach()
+")
+
+install(CODE "
+    foreach(LIB ${MINGW_LIBS})
+        file(COPY ${MINGW_PATH}/\${LIB} DESTINATION ${CMAKE_INSTALL_DIR})
+    endforeach()
+")

@@ -1,3 +1,7 @@
 build
+install
 .cache
 .vscode
+.venv
+*-Debug
+*-Release
