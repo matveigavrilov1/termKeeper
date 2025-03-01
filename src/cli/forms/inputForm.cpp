@@ -4,18 +4,102 @@
 #include <conio.h>
 #include <algorithm>
 
+#include "cli/core/events.h"
+#include "cli/core/utils.h"
+
 namespace tk
 {
 
-inputForm::inputForm(size_t x, size_t y, size_t width, size_t height)
+inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLineMode)
 : form(x, y, width, height)
+, oneLineMode_ { oneLineMode }
 {
 	lines_.push_back("");
 }
 
 void inputForm::handleInput(inputEvent::shared_ptr_type event)
 {
-	updateBuffer();
+	auto data = utils::extractEventData<inputEvent>(event);
+	if (!data)
+	{
+		LOG_ERR("Failed to extract event data");
+		return;
+	}
+	LOG_INF("Input form received data: " << data->type());
+	switch (data->type())
+	{
+		case inputEvent::ARROW_UP:
+		{
+			if (!oneLineMode_)
+				moveCursorUp();
+		}
+		break;
+		case inputEvent::ARROW_DOWN:
+		{
+			if (!oneLineMode_)
+				moveCursorDown();
+		}
+		break;
+		case inputEvent::ARROW_LEFT:
+		{
+			moveCursorLeft();
+		}
+		break;
+		case inputEvent::ARROW_RIGHT:
+		{
+			moveCursorRight();
+		}
+		break;
+		case inputEvent::BACKSPACE:
+		{
+			backspace();
+		}
+		break;
+		case inputEvent::KEY_PRESSED:
+		{
+			auto ch = data->input();
+			if (ch)
+			{
+				if (cursorX_ < lines_[cursorY_].size())
+				{
+					lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, *ch);
+				}
+				else
+				{
+					lines_[cursorY_] += *ch;
+				}
+				cursorX_++;
+
+				if (cursorX_ >= offsetX_ + width_)
+				{
+					offsetX_ = cursorX_ - width_ + 1;
+				}
+			}
+		}
+		break;
+		case inputEvent::SHIFT_ENTER:
+		{
+			if (!oneLineMode_)
+			{
+				std::string leftPart = lines_[cursorY_].substr(0, cursorX_);
+				std::string rightPart = lines_[cursorY_].substr(cursorX_);
+
+				lines_[cursorY_] = leftPart;
+				lines_.insert(lines_.begin() + cursorY_ + 1, rightPart);
+
+				cursorY_++;
+				cursorX_ = 0;
+
+				if (cursorY_ >= offsetY_ + height_)
+				{
+					offsetY_ = cursorY_ - height_ + 1;
+				}
+				offsetX_ = 0;
+			}
+		}
+		break;
+		default: break;
+	}
 }
 
 void inputForm::backspace()
@@ -24,15 +108,24 @@ void inputForm::backspace()
 	{
 		lines_[cursorY_].erase(lines_[cursorY_].begin() + cursorX_ - 1);
 		cursorX_--;
+
+		if (cursorX_ < offsetX_)
+		{
+			offsetX_ = cursorX_;
+		}
 	}
-	else if (cursorY_ > 0)
+	else if (cursorY_ > 0 && !oneLineMode_)
 	{
 		cursorX_ = lines_[cursorY_ - 1].size();
 		lines_[cursorY_ - 1] += lines_[cursorY_];
 		lines_.erase(lines_.begin() + cursorY_);
 		cursorY_--;
+
+		if (cursorY_ < offsetY_)
+		{
+			offsetY_ = cursorY_;
+		}
 	}
-	updateBuffer();
 }
 
 void inputForm::moveCursorLeft()
@@ -41,12 +134,16 @@ void inputForm::moveCursorLeft()
 	{
 		cursorX_--;
 	}
-	else if (cursorY_ > 0)
+	else if (cursorY_ > 0 && !oneLineMode_)
 	{
 		cursorY_--;
 		cursorX_ = lines_[cursorY_].size();
 	}
-	updateBuffer();
+
+	if (cursorX_ < offsetX_)
+	{
+		offsetX_ = cursorX_;
+	}
 }
 
 void inputForm::moveCursorRight()
@@ -55,54 +152,73 @@ void inputForm::moveCursorRight()
 	{
 		cursorX_++;
 	}
-	else if (cursorY_ < lines_.size() - 1)
+	else if (cursorY_ < lines_.size() - 1 && !oneLineMode_)
 	{
 		cursorY_++;
 		cursorX_ = 0;
 	}
-	updateBuffer();
+
+	if (cursorX_ >= offsetX_ + width_)
+	{
+		offsetX_ = cursorX_ - width_ + 1;
+	}
 }
 
 void inputForm::moveCursorUp()
 {
-	if (cursorY_ > 0)
+	if (cursorY_ > 0 && !oneLineMode_)
 	{
 		cursorY_--;
 		cursorX_ = std::min(cursorX_, lines_[cursorY_].size());
 	}
-	updateBuffer();
+
+	if (cursorY_ < offsetY_)
+	{
+		offsetY_ = cursorY_;
+	}
 }
 
 void inputForm::moveCursorDown()
 {
-	if (cursorY_ < lines_.size() - 1)
+	if (cursorY_ < lines_.size() - 1 && !oneLineMode_)
 	{
 		cursorY_++;
 		cursorX_ = std::min(cursorX_, lines_[cursorY_].size());
 	}
-	updateBuffer();
+
+	if (cursorY_ >= offsetY_ + height_)
+	{
+		offsetY_ = cursorY_ - height_ + 1;
+	}
 }
 
 void inputForm::updateBuffer()
 {
 	clear();
 
-	for (size_t row = 0; row < lines_.size() && row < height_; ++row)
+	for (size_t row = 0; row < height_; ++row)
 	{
-		const std::string& line = lines_[row];
-		for (size_t col = 0; col < line.size() && col < width_; ++col)
+		size_t lineIndex = row + offsetY_;
+		if (lineIndex >= lines_.size())
+			break;
+
+		const std::string& line = lines_[lineIndex];
+		for (size_t col = 0; col < width_; ++col)
 		{
-			buffer_[row * width_ + col].Char.AsciiChar = line[col];
-			if (row == cursorY_ && col == cursorX_)
+			size_t lineCol = col + offsetX_;
+			if (lineCol < line.size())
+			{
+				buffer_[row * width_ + col].Char.AsciiChar = line[lineCol];
+			}
+			else
+			{
+				buffer_[row * width_ + col].Char.AsciiChar = ' ';
+			}
+
+			if (lineIndex == cursorY_ && lineCol == cursorX_)
 			{
 				buffer_[row * width_ + col].Attributes = window::HIGHLIGHT_COLOR;
 			}
-		}
-
-		if (row == cursorY_ && cursorX_ == line.size() && cursorX_ < width_)
-		{
-			buffer_[row * width_ + cursorX_].Char.AsciiChar = ' ';
-			buffer_[row * width_ + cursorX_].Attributes = window::HIGHLIGHT_COLOR;
 		}
 	}
 }
@@ -111,5 +227,6 @@ std::vector<std::string> inputForm::getInput() const
 {
 	return lines_;
 }
+
 
 } // namespace tk

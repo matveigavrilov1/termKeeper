@@ -19,7 +19,6 @@ public:
 
 	void setTitle(const std::string& title);
 
-	// Переопределение методов window
 	void clear() override;
 	void setChar(size_t x, size_t y, char ch) override;
 	void setAttribute(size_t x, size_t y, WORD attr) override;

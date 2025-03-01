@@ -10,7 +10,7 @@ namespace tk
 cacheWindow::cacheWindow(size_t x, size_t y, size_t width, size_t height)
 : borderedWindow(x, y, width, height, "Cache")
 , cache_ { "test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10" }
-, form_ { 0, 0, width - 2, height - 2 }
+, form_ {cache_, 0, 0, width - 2, height - 2, true }
 { }
 
 void cacheWindow::update()
@@ -28,7 +28,9 @@ void cacheWindow::update()
 
 void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 {
-	form_.handleInput(event);
+	if (event->type() == eventType::INPUT_EVENT)
+		form_.handleInput(event);
+
 	update();
 }
 } // namespace tk

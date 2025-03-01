@@ -31,6 +31,7 @@ public:
 	event(eventType type, eventData::shared_ptr_type data);
 	virtual ~event() = default;
 
+	using event_data_type = eventData;
 	
 	using unique_ptr_type = std::unique_ptr<event>;
 	using shared_ptr_type = std::shared_ptr<event>;

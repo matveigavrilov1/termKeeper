@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cli/core/form.h"
+#include "cli/core/events.h"
 
 namespace tk {
 	class selectionListForm : public form
@@ -9,6 +10,8 @@ namespace tk {
 		using item_type = std::string;
 		using item_list_type = std::vector<item_type>;
 		selectionListForm(const item_list_type& items, size_t x, size_t y, size_t width, size_t height, bool horizontal = false);
+		
+		void handleInput(inputEvent::shared_ptr_type event);
 
 		item_type getSelected();
 

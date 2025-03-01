@@ -43,26 +43,25 @@ public:
 		UNKNOWN
 	};
 
-	template<typename T = char>
 	class inputData : public eventData
 	{
 	public:
-		inputData(inputType type, std::optional<T> input = std::nullopt)
+		inputData(inputType type, std::optional<char> input = std::nullopt)
 		: type_(type)
 		, input_(input)
 		{ }
 
-		std::optional<T>& input() { return input_; }
+		std::optional<char>& input() { return input_; }
 
 		inputType type() const { return type_; }
 
 	private:
 		inputType type_ { UNKNOWN };
-		std::optional<T> input_;
+		std::optional<char> input_;
 	};
+	using event_data_type = inputData;
 
-	template<typename DataT>
-	inputEvent(std::shared_ptr<inputData<DataT>> data)
+	inputEvent(std::shared_ptr<inputData> data)
 	: event(INPUT_EVENT, data)
 	{ }
 
@@ -74,13 +73,9 @@ public:
 			activeWindow->handleInputEvent(event);
 	}
 
-	template<typename DataT>
-	static shared_ptr_type make(inputType type, DataT data)
-	{
-		return std::make_shared<inputEvent>(std::make_shared<inputData<DataT>>(type, data));
-	}
+	static shared_ptr_type make(inputType type, char data) { return std::make_shared<inputEvent>(std::make_shared<inputData>(type, data)); }
 
-	static shared_ptr_type make(inputType type) { return std::make_shared<inputEvent>(std::make_shared<inputData<char>>(type)); }
+	static shared_ptr_type make(inputType type) { return std::make_shared<inputEvent>(std::make_shared<inputData>(type)); }
 };
 
 class showWindowEvent : public event
@@ -102,6 +97,7 @@ public:
 	private:
 		std::string windowName_;
 	};
+	using event_data_type = windowData;
 
 	showWindowEvent(std::shared_ptr<windowData> data)
 	: event(SHOW_WINDOW_EVENT, data)
@@ -155,6 +151,7 @@ public:
 	private:
 		std::string windowName_;
 	};
+	using event_data_type = windowActivateData;
 
 	windowActivateEvent(std::shared_ptr<windowActivateData> data)
 	: event(WINDOW_ACTIVATE_EVENT, data)
@@ -192,6 +189,7 @@ public:
 	private:
 		std::string windowName_;
 	};
+	using event_data_type = changeActiveWindowData;
 
 	changeActiveWindowEvent(std::shared_ptr<changeActiveWindowData> data)
 	: event(CHANGE_ACTIVE_WINDOW_EVENT, data)

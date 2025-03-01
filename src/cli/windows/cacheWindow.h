@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "cli/forms/inputForm.h"
+#include "cli/forms/selectionListForm.h"
 #include "cli/windows/borderedWindow.h"
 namespace tk
 {
@@ -19,6 +19,6 @@ public:
 private:
 	std::vector<std::string> cache_;
 	int activeIndex_{0};
-	inputForm form_;
+	selectionListForm form_;
 };
 } // namespace tk

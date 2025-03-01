@@ -1,5 +1,7 @@
 #include "cli/forms/selectionListForm.h"
 
+#include "cli/core/utils.h"
+
 namespace tk
 {
 
@@ -8,6 +10,31 @@ selectionListForm::selectionListForm(const item_list_type& items, size_t x, size
 , items_(items)
 , horizontal_(horizontal)
 { }
+
+void selectionListForm::handleInput(inputEvent::shared_ptr_type event)
+{
+	auto data = utils::extractEventData<inputEvent>(event);
+	if (!data)
+	{
+		LOG_ERR("Failed to extract event data");
+		return;
+	}
+	LOG_INF("Input form received data: " << data->type());
+	switch (data->type())
+	{
+		case inputEvent::ARROW_UP:
+		{
+			switchUp();
+		}
+		break;
+		case inputEvent::ARROW_DOWN:
+		{
+			switchDown();
+		}
+		break;
+		default: break;
+	}
+}
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
@@ -59,10 +86,8 @@ static bool insertStringsWithSpace(const std::vector<std::string>& items, std::v
 		if (col < width)
 		{
 			buffer[row * width + col].Char.AsciiChar = ' ';
-			if (activeIndex == index)
-			{
-				buffer[row * width + col].Attributes = window::HIGHLIGHT_COLOR;
-			}
+			buffer[row * width + col].Attributes = window::DEFAULT_COLOR;
+
 			col++;
 		}
 
