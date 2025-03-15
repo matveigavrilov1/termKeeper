@@ -20,8 +20,8 @@ public:
 	bool deactivateWindow(const std::string& name);
 	void deactivateAllWindows();
 	
-	window::shared_ptr_type activeWindow();
-	bool changeActiveWindow(const std::string& name);
+	window::shared_ptr_type controllerWindow();
+	bool changeControllerWindow(const std::string& name);
 
 	bool activated(const std::string& name) const;
 	using windows_map_type = std::unordered_map<std::string, window::shared_ptr_type>;
@@ -29,7 +29,7 @@ public:
 private:
 	windows_map_type windows_;
 	std::vector<std::string> activatedWindows_;
-	window::shared_ptr_type activeWindow_{nullptr};
+	window::shared_ptr_type controllerWindow_{nullptr};
 };
 
 } // namespace tk

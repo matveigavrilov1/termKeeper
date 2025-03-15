@@ -10,7 +10,7 @@ int main(int, char**)
 	tk::cli::core::getScreen().registerWindow("cache", cacheWindow);
 
 	tk::cli::core::getScreen().activateWindow("cache");
-	tk::cli::core::getScreen().changeActiveWindow("cache");
+	tk::cli::core::getScreen().changeControllerWindow("cache");
 
 	auto eventManagerThread = std::thread([]() { tk::cli::core::getEventManager().run(); });
 

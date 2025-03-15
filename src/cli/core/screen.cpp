@@ -101,17 +101,17 @@ void screen::deactivateAllWindows()
 	activatedWindows_.clear();
 }
 
-window::shared_ptr_type screen::activeWindow()
+window::shared_ptr_type screen::controllerWindow()
 {
-	return activeWindow_;
+	return controllerWindow_;
 }
 
-bool screen::changeActiveWindow(const std::string& name)
+bool screen::changeControllerWindow(const std::string& name)
 {
 	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), name); it != activatedWindows_.end())
 	{
 		LOG_DBG("Setting active window: " << name);
-		activeWindow_ = windows_.find(name)->second;
+		controllerWindow_ = windows_.find(name)->second;
 		return true;
 	}
 	return false;

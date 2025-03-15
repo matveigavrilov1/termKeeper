@@ -67,7 +67,7 @@ public:
 
 	void defaultHandler(shared_ptr_type event) override
 	{
-		auto activeWindow = cli::core::getScreen().activeWindow();
+		auto activeWindow = cli::core::getScreen().controllerWindow();
 		LOG_DBG("Input event default handler");
 		if (activeWindow)
 			activeWindow->handleInputEvent(event);
@@ -170,17 +170,17 @@ public:
 	static shared_ptr_type make(const std::string& windowName) { return std::make_shared<windowActivateEvent>(std::make_shared<windowActivateData>(windowName)); }
 };
 
-class changeActiveWindowEvent : public event
+class changeControllerWindowEvent : public event
 {
 public:
-	class changeActiveWindowData : public eventData
+	class changeControllerWindowData : public eventData
 	{
 	public:
-		changeActiveWindowData(const std::string& windowName)
+		changeControllerWindowData(const std::string& windowName)
 		: windowName_(windowName)
 		{ }
 
-		changeActiveWindowData(std::string&& windowName)
+		changeControllerWindowData(std::string&& windowName)
 		: windowName_(std::move(windowName))
 		{ }
 
@@ -189,25 +189,25 @@ public:
 	private:
 		std::string windowName_;
 	};
-	using event_data_type = changeActiveWindowData;
+	using event_data_type = changeControllerWindowData;
 
-	changeActiveWindowEvent(std::shared_ptr<changeActiveWindowData> data)
+	changeControllerWindowEvent(std::shared_ptr<changeControllerWindowData> data)
 	: event(CHANGE_ACTIVE_WINDOW_EVENT, data)
 	{ }
 
 	void defaultHandler(shared_ptr_type event) override
 	{
 		LOG_DBG("Change active window event default handler");
-		auto eventData = std::dynamic_pointer_cast<changeActiveWindowData>(event->data());
+		auto eventData = std::dynamic_pointer_cast<changeControllerWindowData>(event->data());
 		if (eventData)
 		{
-			cli::core::getScreen().changeActiveWindow(eventData->windowName());
+			cli::core::getScreen().changeControllerWindow(eventData->windowName());
 		}
 	}
 
 	static shared_ptr_type make(const std::string& windowName)
 	{
-		return std::make_shared<changeActiveWindowEvent>(std::make_shared<changeActiveWindowData>(windowName));
+		return std::make_shared<changeControllerWindowEvent>(std::make_shared<changeControllerWindowData>(windowName));
 	}
 };
 } // namespace tk
