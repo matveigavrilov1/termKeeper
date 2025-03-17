@@ -56,7 +56,6 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 		break;
 		case inputEvent::ARROW_DOWN:
 		{
-			form_.unshowSelected();
 			cli::core::getScreen().changeControllerWindow(form_.getSelected());
 			pushInputEvent(inputEvent::UNKNOWN);
 		}

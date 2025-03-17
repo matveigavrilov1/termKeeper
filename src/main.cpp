@@ -11,7 +11,6 @@ int main(int, char**)
 	auto cacheWindow = std::make_shared<tk::cacheWindow>(0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
 	auto cacheWindow1 = std::make_shared<tk::cacheWindow>(0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3, "Cache1");
 
-
 	tk::cli::core::getScreen().registerWindow(menuWindow);
 	tk::cli::core::getScreen().registerWindow(cacheWindow);
 	tk::cli::core::getScreen().registerWindow(cacheWindow1);
