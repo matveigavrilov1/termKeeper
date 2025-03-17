@@ -10,14 +10,12 @@ namespace tk
 class borderedWindow : public window
 {
 public:
-	borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& title);
+	borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name);
 	borderedWindow(const borderedWindow& other);
 	borderedWindow(borderedWindow&& other) noexcept;
 
 	borderedWindow& operator= (const borderedWindow& other);
 	borderedWindow& operator= (borderedWindow&& other) noexcept;
-
-	void setTitle(const std::string& title);
 
 	void clear() override;
 	void setChar(size_t x, size_t y, char ch) override;
@@ -29,9 +27,6 @@ public:
 private:
 	bool isBorder(size_t x, size_t y) const;
 	void drawBorder();
-
-private:
-	std::string title_;
 };
 
 } // namespace tk

@@ -22,7 +22,6 @@ public:
 	static screen& getScreen();
 
 private:
-	static void initDefaultEventHandlers();
 	static bool isInitialized_;
 
 	static std::optional<consolem> consolem_;

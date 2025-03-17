@@ -2,23 +2,12 @@
 
 namespace tk
 {
-event::event(eventType type)
+event::event(unsigned type)
 : type_(type)
 { }
 
-event::event(eventType type, eventData::shared_ptr_type data)
-: type_(type)
-, data_(data)
-{ }
-
-eventType event::type()
+unsigned event::type()
 {
 	return type_;
 }
-
-eventData::shared_ptr_type event::data()
-{
-	return data_;
-}
-
 } // namespace tk

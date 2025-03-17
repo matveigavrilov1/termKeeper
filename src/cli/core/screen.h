@@ -14,7 +14,7 @@ public:
 	void show(consolem& console) const;
 	bool showWindow(const std::string& name, consolem& console) const;
 
-	bool registerWindow(const std::string& name, window::shared_ptr_type win);
+	bool registerWindow(window::shared_ptr_type win);
 	bool unregisterWindow(const std::string& name);
 	bool activateWindow(const std::string& name);
 	bool deactivateWindow(const std::string& name);

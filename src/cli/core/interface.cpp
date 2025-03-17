@@ -33,7 +33,6 @@ void core::init()
 	inputm_.emplace();
 	screen_.emplace();
 
-	initDefaultEventHandlers();
 	isInitialized_ = true;
 	LOG_INF("Core initialized");
 }
@@ -72,21 +71,6 @@ inputm& core::getInputManager()
 
 
 	return *inputm_;
-}
-
-void core::initDefaultEventHandlers()
-{
-	eventm_->registerHandler(EXIT_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
-
-	eventm_->registerHandler(INPUT_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
-
-	eventm_->registerHandler(WINDOW_ACTIVATE_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
-
-	eventm_->registerHandler(CHANGE_ACTIVE_WINDOW_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
-
-	eventm_->registerHandler(SHOW_WINDOW_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
-
-	eventm_->registerHandler(SHOW_SCREEN_EVENT, [](event::shared_ptr_type event) { event->defaultHandler(event); });
 }
 
 } // namespace cli

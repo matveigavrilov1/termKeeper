@@ -39,15 +39,20 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 	return true;
 }
 
-bool screen::registerWindow(const std::string& name, window::shared_ptr_type win)
+bool screen::registerWindow(window::shared_ptr_type win)
 {
-	if (windows_.find(name) == windows_.end())
+	if (!win)
 	{
-		LOG_DBG("Registering window: " << name);
-		windows_.emplace(name, std::move(win));
+		LOG_WRN("Tried to register nullptr");
+		return false;
+	}
+	if (windows_.find(win->name()) == windows_.end())
+	{
+		LOG_DBG("Registering window: " << win->name());
+		windows_.emplace(win->name(), std::move(win));
 		return true;
 	}
-	LOG_WRN("Window already registered: " << name);
+	LOG_WRN("Window already registered: " << win->name());
 	return false;
 }
 

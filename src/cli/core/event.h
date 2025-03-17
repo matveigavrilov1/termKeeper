@@ -7,42 +7,27 @@ namespace tk
 {
 enum eventType
 {
-	NONE_EVENT,
-	EXIT_EVENT,
-	INPUT_EVENT,
-	WINDOW_ACTIVATE_EVENT,
-	CHANGE_ACTIVE_WINDOW_EVENT,
-	SHOW_WINDOW_EVENT,
-	SHOW_SCREEN_EVENT
-};
-
-class eventData
-{
-public:
-	virtual ~eventData() = default;
-	using unique_ptr_type = std::unique_ptr<eventData>;
-	using shared_ptr_type = std::shared_ptr<eventData>;
+	NONE_EVENT = 0,
+	EXIT_EVENT = 1,
+	INPUT_EVENT = 2,
+	WINDOW_EVENT = 3,
+	SCREEN_EVENT = 4
 };
 
 class event
 {
 public:
-	event(eventType type);
-	event(eventType type, eventData::shared_ptr_type data);
-	virtual ~event() = default;
+	event(unsigned type);
 
-	using event_data_type = eventData;
+	virtual ~event() = default;
 	
 	using unique_ptr_type = std::unique_ptr<event>;
 	using shared_ptr_type = std::shared_ptr<event>;
-	
-	virtual void defaultHandler(shared_ptr_type event) = 0;
 
-	eventType type();
-	eventData::shared_ptr_type data();
+	unsigned type();
 
 private:
-	eventType type_ { NONE_EVENT };
-	eventData::shared_ptr_type data_ { nullptr };
+	unsigned type_ { NONE_EVENT };
+
 };
 } // namespace tk

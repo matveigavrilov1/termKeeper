@@ -7,12 +7,13 @@
 
 namespace tk
 {
-window::window(size_t x, size_t y, size_t width, size_t height)
+window::window(size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : x_(x)
 , y_(y)
 , width_(width)
 , height_(height)
 , buffer_(width * height)
+, name_(name)
 {
 	clear();
 }
@@ -23,6 +24,7 @@ window::window(const window& other)
 , width_(other.width_)
 , height_(other.height_)
 , buffer_(other.buffer_)
+, name_(other.name_)
 { }
 
 window::window(window&& other) noexcept
@@ -31,6 +33,7 @@ window::window(window&& other) noexcept
 , width_(std::exchange(other.width_, 0))
 , height_(std::exchange(other.height_, 0))
 , buffer_(std::move(other.buffer_))
+, name_(std::move(other.name_))
 { }
 
 window& window::operator= (const window& other)
@@ -42,6 +45,7 @@ window& window::operator= (const window& other)
 		width_ = other.width_;
 		height_ = other.height_;
 		buffer_ = other.buffer_;
+		name_ = other.name_;
 	}
 	return *this;
 }
@@ -55,6 +59,7 @@ window& window::operator= (window&& other) noexcept
 		width_ = std::exchange(other.width_, 0);
 		height_ = std::exchange(other.height_, 0);
 		buffer_ = std::move(other.buffer_);
+		name_ = std::move(other.name_);
 	}
 	return *this;
 }
@@ -75,6 +80,11 @@ CHAR_INFO& window::operator[] (size_t index)
 		throw std::out_of_range("Index is out of range");
 	}
 	return buffer_.at(index);
+}
+
+std::string window::name()
+{
+	return name_;
 }
 
 void window::setChar(size_t x, size_t y, char ch)

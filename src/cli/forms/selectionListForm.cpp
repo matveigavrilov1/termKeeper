@@ -1,47 +1,33 @@
 #include "cli/forms/selectionListForm.h"
 
-#include "cli/core/utils.h"
-
 namespace tk
 {
 
-selectionListForm::selectionListForm(const item_list_type& items, size_t x, size_t y, size_t width, size_t height, bool horizontal)
+selectionListForm::selectionListForm(size_t x, size_t y, size_t width, size_t height, bool horizontal, const item_list_type& items)
 : form(x, y, width, height)
 , items_(items)
 , horizontal_(horizontal)
 { }
 
-void selectionListForm::handleInput(inputEvent::shared_ptr_type event)
-{
-	auto data = utils::extractEventData<inputEvent>(event);
-	if (!data)
-	{
-		LOG_ERR("Failed to extract event data");
-		return;
-	}
-	LOG_INF("Input form received data: " << data->type());
-	switch (data->type())
-	{
-		case inputEvent::ARROW_UP:
-		{
-			switchUp();
-		}
-		break;
-		case inputEvent::ARROW_DOWN:
-		{
-			switchDown();
-		}
-		break;
-		default: break;
-	}
+void selectionListForm::addItem(const item_type& item) {
+	items_.push_back(item);
+}
+
+void selectionListForm::removeItem(const item_type& item) {
+	
 }
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
-	return items_[activeIndex_];
+	return items_[selectedIndex_];
 }
 
-static bool insertStringsWithSpace(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex)
+size_t selectionListForm::selectedIndex()
+{
+	return selectedIndex_;
+}
+
+static bool insertStringsWithSpace(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
 {
 	size_t row = 0;
 	size_t col = 0;
@@ -66,7 +52,7 @@ static bool insertStringsWithSpace(const std::vector<std::string>& items, std::v
 			}
 
 			buffer[row * width + col].Char.AsciiChar = ch;
-			if (activeIndex == index)
+			if (activeIndex == index && showSelected)
 			{
 				buffer[row * width + col].Attributes = window::HIGHLIGHT_COLOR;
 			}
@@ -97,7 +83,7 @@ static bool insertStringsWithSpace(const std::vector<std::string>& items, std::v
 	return true;
 }
 
-static bool insertStringsLineByLine(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex)
+static bool insertStringsLineByLine(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
 {
 	size_t row = 0;
 	size_t col = 0;
@@ -122,7 +108,7 @@ static bool insertStringsLineByLine(const std::vector<std::string>& items, std::
 			}
 
 			buffer[row * width + col].Char.AsciiChar = ch;
-			if (activeIndex == index)
+			if (activeIndex == index && showSelected)
 			{
 				buffer[row * width + col].Attributes = window::HIGHLIGHT_COLOR;
 			}
@@ -142,35 +128,45 @@ void selectionListForm::updateBuffer()
 	clear();
 	if (horizontal_)
 	{
-		insertStringsWithSpace(items_, buffer_, width_, height_, activeIndex_);
+		insertStringsWithSpace(items_, buffer_, width_, height_, selectedIndex_, showSelected_);
 	}
 	else
 	{
-		insertStringsLineByLine(items_, buffer_, width_, height_, activeIndex_);
+		insertStringsLineByLine(items_, buffer_, width_, height_, selectedIndex_, showSelected_);
 	}
 }
 
 void selectionListForm::switchUp()
 {
-	if (activeIndex_ == 0)
+	if (selectedIndex_ == 0)
 	{
-		activeIndex_ = items_.size() - 1;
+		selectedIndex_ = items_.size() - 1;
 	}
 	else
 	{
-		activeIndex_ -= 1;
+		selectedIndex_ -= 1;
 	}
 }
 
 void selectionListForm::switchDown()
 {
-	if (activeIndex_ == items_.size() - 1)
+	if (selectedIndex_ == items_.size() - 1)
 	{
-		activeIndex_ = 0;
+		selectedIndex_ = 0;
 	}
 	else
 	{
-		activeIndex_ += 1;
+		selectedIndex_ += 1;
 	}
+}
+
+void selectionListForm::showSelected()
+{
+	showSelected_ = true;
+}
+
+void selectionListForm::unshowSelected()
+{
+	showSelected_ = false;
 }
 } // namespace tk

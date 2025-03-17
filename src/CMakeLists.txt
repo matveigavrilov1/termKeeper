@@ -18,6 +18,7 @@ set(SOURCES
 	cli/forms/selectionListForm.cpp
 	cli/windows/borderedWindow.cpp
 	cli/windows/cacheWindow.cpp
+	cli/windows/menuWindow.cpp
 	clipboardController/windowsClipboardController.cpp
 	model/model.cpp
 )

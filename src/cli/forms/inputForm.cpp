@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include "cli/core/events.h"
-#include "cli/core/utils.h"
 
 namespace tk
 {
@@ -19,14 +18,11 @@ inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLi
 
 void inputForm::handleInput(inputEvent::shared_ptr_type event)
 {
-	auto data = utils::extractEventData<inputEvent>(event);
-	if (!data)
+	if (!event)
 	{
-		LOG_ERR("Failed to extract event data");
 		return;
 	}
-	LOG_INF("Input form received data: " << data->type());
-	switch (data->type())
+	switch (event->inputType())
 	{
 		case inputEvent::ARROW_UP:
 		{
@@ -57,16 +53,16 @@ void inputForm::handleInput(inputEvent::shared_ptr_type event)
 		break;
 		case inputEvent::KEY_PRESSED:
 		{
-			auto ch = data->input();
+			auto ch = *(event->key());
 			if (ch)
 			{
 				if (cursorX_ < lines_[cursorY_].size())
 				{
-					lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, *ch);
+					lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, ch);
 				}
 				else
 				{
-					lines_[cursorY_] += *ch;
+					lines_[cursorY_] += ch;
 				}
 				cursorX_++;
 

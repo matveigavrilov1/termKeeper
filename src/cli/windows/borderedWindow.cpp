@@ -7,9 +7,8 @@
 namespace tk
 {
 
-borderedWindow::borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& title)
-: window(x, y, width, height)
-, title_(title)
+borderedWindow::borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name)
+: window(x, y, width, height, name)
 {
 	if (width < 3 || height < 3)
 	{
@@ -20,14 +19,12 @@ borderedWindow::borderedWindow(size_t x, size_t y, size_t width, size_t height, 
 
 borderedWindow::borderedWindow(const borderedWindow& other)
 : window(other)
-, title_(other.title_)
 {
 	drawBorder();
 }
 
 borderedWindow::borderedWindow(borderedWindow&& other) noexcept
 : window(std::move(other))
-, title_(std::move(other.title_))
 {
 	drawBorder();
 }
@@ -37,7 +34,6 @@ borderedWindow& borderedWindow::operator= (const borderedWindow& other)
 	if (this != &other)
 	{
 		window::operator= (other);
-		title_ = other.title_;
 		drawBorder();
 	}
 	return *this;
@@ -48,16 +44,9 @@ borderedWindow& borderedWindow::operator= (borderedWindow&& other) noexcept
 	if (this != &other)
 	{
 		window::operator= (std::move(other));
-		title_ = std::move(other.title_);
 		drawBorder();
 	}
 	return *this;
-}
-
-void borderedWindow::setTitle(const std::string& title)
-{
-	title_ = title;
-	drawBorder();
 }
 
 void borderedWindow::clear()
@@ -138,8 +127,9 @@ void borderedWindow::drawBorder()
 	window::setChar(0, height() - 1, '+');
 	window::setChar(width() - 1, height() - 1, '+');
 
-	size_t titleLength = title_.length();
-	size_t titleX = (width() - titleLength) / 2;
+	auto title = name();
+	size_t titleLength = title.length();
+	size_t titleX = 2;
 	if (titleX + titleLength > width())
 	{
 		titleX = 1;
@@ -147,7 +137,7 @@ void borderedWindow::drawBorder()
 
 	for (size_t i = 0; i < titleLength && titleX + i < width() - 1; ++i)
 	{
-		window::setChar(titleX + i, 0, title_[i]);
+		window::setChar(titleX + i, 0, title[i]);
 	}
 }
 

@@ -1,27 +1,34 @@
 #pragma once
 
 #include "cli/core/form.h"
-#include "cli/core/events.h"
 
-namespace tk {
-	class selectionListForm : public form
-	{
-	public:
-		using item_type = std::string;
-		using item_list_type = std::vector<item_type>;
-		selectionListForm(const item_list_type& items, size_t x, size_t y, size_t width, size_t height, bool horizontal = false);
-		
-		void handleInput(inputEvent::shared_ptr_type event);
+namespace tk
+{
+class selectionListForm : public form
+{
+public:
+	using item_type = std::string;
+	using item_list_type = std::vector<item_type>;
+	selectionListForm(size_t x, size_t y, size_t width, size_t height, bool horizontal = false, const item_list_type& items = {});
 
-		item_type getSelected();
+	void addItem(const item_type& item);
+	void removeItem(const item_type& item);
 
-		void updateBuffer();
+	item_type getSelected();
+	size_t selectedIndex();
 
-		void switchUp();
-		void switchDown();
-	private:
-		bool horizontal_{false};
-		size_t activeIndex_{0};
-		item_list_type items_;
-	};
-}
+	void updateBuffer();
+
+	void switchUp();
+	void switchDown();
+
+	void showSelected();
+	void unshowSelected();
+
+private:
+	bool showSelected_ {false};
+	bool horizontal_ { false };
+	size_t selectedIndex_ { 0 };
+	item_list_type items_;
+};
+} // namespace tk

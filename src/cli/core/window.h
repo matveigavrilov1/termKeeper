@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <vector>
 #include <windows.h>
 
@@ -12,7 +13,7 @@ namespace tk
 class window
 {
 public:
-	window(size_t x, size_t y, size_t width, size_t height);
+	window(size_t x, size_t y, size_t width, size_t height, const std::string& name);
 	virtual ~window() = default;
 
 	window(const window& other);
@@ -25,6 +26,8 @@ public:
 
 	CHAR_INFO& operator[] (size_t x, size_t y);
 	CHAR_INFO& operator[] (size_t index);
+
+	std::string name();
 
 	virtual void setChar(size_t x, size_t y, char ch);
 	virtual void setChar(size_t index, char ch);
@@ -54,6 +57,7 @@ public:
 private:
 	size_t x_, y_, width_, height_;
 	buffer_type buffer_;
+	std::string name_;
 };
 
 } // namespace tk
