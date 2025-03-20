@@ -14,6 +14,7 @@ set(SOURCES
 	cli/core/screen.cpp
 	cli/core/utils.cpp
 	cli/core/window.cpp
+	cli/forms/hintsForm.cpp
 	cli/forms/inputForm.cpp
 	cli/forms/selectionListForm.cpp
 	cli/windows/borderedWindow.cpp

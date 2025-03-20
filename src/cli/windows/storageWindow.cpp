@@ -5,17 +5,28 @@
 #include "cli/core/interface.h"
 #include "cli/core/utils.h"
 #include "cli/core/window.h"
+#include "cli/forms/hintsForm.h"
 #include "utils/logger.h"
+
+static const tk::hintsForm::preset_type selectionPreset = { { "F1", "Add Command" }, { "F2", "Add Folder" }, { "F3", "Edit" } };
+static const tk::hintsForm::preset_name_type selectionPresetName = "selectionPreset";
+
+static const tk::hintsForm::preset_type inputPreset = { { "Enter", "Finish input" } };
+static const tk::hintsForm::preset_name_type inputPresetName = "inputPreset";
 
 namespace tk
 {
 storageWindow::storageWindow(storage* storage, clipboardController* cl, size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : borderedWindow(x, y, width, height, name)
-, selectionForm_(0, 0, width - 2, height - 2)
-, inputForm_(0, 0, width - 2, height - 2, true)
+, selectionForm_(0, 0, width - 2, height - 3)
+, inputForm_(0, 0, width - 2, height - 3, true)
+, hintsForm_(0, height - 3, width - 2, 1)
 , storage_(storage)
 , cl_(cl)
 {
+	hintsForm_.addPreset(selectionPresetName, selectionPreset);
+	hintsForm_.addPreset(inputPresetName, inputPreset);
+	hintsForm_.applyPreset(selectionPresetName);
 	storage_->setRoot();
 	fillSelectionForm();
 }
@@ -34,6 +45,8 @@ void storageWindow::update()
 		selectionForm_.updateBuffer();
 		selectionForm_.show(*this);
 	}
+
+	hintsForm_.show(*this);
 
 	showWindow(shared_from_this());
 }
@@ -132,6 +145,7 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 
 			inputForm_.clear();
 			inputMode_ = false;
+			hintsForm_.applyPreset(selectionPresetName);
 			pushInputEvent(inputEvent::UNSPECIFIED);
 		}
 		break;
@@ -188,6 +202,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 		case inputEvent::F1: // adding command
 		{
 			inputMode_ = true;
+			hintsForm_.applyPreset(inputPresetName);
 			inputModeType_ = COMMAND_CREATING;
 			pushInputEvent(inputEvent::UNSPECIFIED);
 		}
@@ -195,6 +210,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 		case inputEvent::F2: // adding folder
 		{
 			inputMode_ = true;
+			hintsForm_.applyPreset(inputPresetName);
 			inputModeType_ = FOLDER_CREATING;
 			pushInputEvent(inputEvent::UNSPECIFIED);
 		}
@@ -207,6 +223,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 				break;
 			}
 			inputMode_ = true;
+			hintsForm_.applyPreset(inputPresetName);
 			if (selected.starts_with("/"))
 			{
 				inputModeType_ = FOLDER_EDITING;

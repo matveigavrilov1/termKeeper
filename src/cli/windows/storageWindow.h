@@ -7,8 +7,9 @@
 #include "clipboardController/interface.h"
 
 #include "cli/windows/borderedWindow.h"
-#include "cli/forms/selectionListForm.h"
+#include "cli/forms/hintsForm.h"
 #include "cli/forms/inputForm.h"
+#include "cli/forms/selectionListForm.h"
 
 #include "storage/storage.h"
 
@@ -33,6 +34,7 @@ private:
 private:
 	selectionListForm selectionForm_;
 	inputForm inputForm_;
+	hintsForm hintsForm_;
 
 	bool inputMode_ { false };
 
@@ -44,6 +46,7 @@ private:
 		COMMAND_EDITING,
 		NONE
 	};
+
 	inputModeType inputModeType_ { NONE };
 	std::string tempOldInput_;
 
