@@ -49,7 +49,7 @@ int main(int, char**)
 	tk::cli::core::getScreen().activateWindow(storageWindow->name());
 
 	tk::cli::core::getScreen().changeControllerWindow(menuWindow->name());
-	tk::pushInputEvent(tk::inputEvent::UNKNOWN);
+	tk::pushInputEvent(tk::inputEvent::UNSPECIFIED);
 	auto eventManagerThread = std::thread([]() { tk::cli::core::getEventManager().run(); });
 
 	menuWindow->update();

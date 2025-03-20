@@ -3,10 +3,12 @@
 #include <memory>
 #include <string>
 
+#include "cli/core/events.h"
 #include "clipboardController/interface.h"
 
 #include "cli/windows/borderedWindow.h"
 #include "cli/forms/selectionListForm.h"
+#include "cli/forms/inputForm.h"
 
 #include "storage/storage.h"
 
@@ -22,11 +24,29 @@ public:
 	void update();
 	void handleInputEvent(event::shared_ptr_type event) override;
 
-private:
-	void fillForm();
+	void handleInputEventInInputMode(inputEvent::shared_ptr_type event);
+	void handleInputEventInSelectionMode(inputEvent::shared_ptr_type event);
 
 private:
-	selectionListForm form_;
+	void fillSelectionForm();
+
+private:
+	selectionListForm selectionForm_;
+	inputForm inputForm_;
+
+	bool inputMode_ { false };
+
+	enum inputModeType
+	{
+		FOLDER_CREATING,
+		COMMAND_CREATING,
+		FOLDER_EDITING,
+		COMMAND_EDITING,
+		NONE
+	};
+	inputModeType inputModeType_ { NONE };
+	std::string tempOldInput_;
+
 	storage* storage_;
 	clipboardController* cl_;
 };

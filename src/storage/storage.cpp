@@ -1,5 +1,6 @@
 #include "storage/storage.h"
 
+#include <algorithm>
 namespace tk
 {
 
@@ -58,5 +59,41 @@ void storage::addCommand(const std::string& command)
 	currentFolder_->commands_.push_back(command);
 }
 
+void storage::deleteFolder(const std::string& name)
+{
+	auto it = currentFolder_->subFolders_.find(name);
+	if (it != currentFolder_->subFolders_.end())
+	{
+		currentFolder_->subFolders_.erase(it);
+	}
+}
+
+void storage::deleteCommand(const std::string& command)
+{
+	auto& commands = currentFolder_->commands_;
+	commands.erase(std::remove(commands.begin(), commands.end(), command), commands.end());
+}
+
+void storage::renameFolder(const std::string& oldName, const std::string& newName)
+{
+    auto it = currentFolder_->subFolders_.find(oldName);
+    if (it != currentFolder_->subFolders_.end())
+    {
+        auto folder = it->second;
+        currentFolder_->subFolders_.erase(it);
+        folder->name_ = newName;
+        currentFolder_->subFolders_[newName] = folder;
+    }
+}
+
+void storage::editCommand(const std::string& oldCommand, const std::string& newCommand)
+{
+    auto& commands = currentFolder_->commands_;
+    auto it = std::find(commands.begin(), commands.end(), oldCommand);
+    if (it != commands.end())
+    {
+        *it = newCommand;
+    }
+}
 
 } // namespace tk

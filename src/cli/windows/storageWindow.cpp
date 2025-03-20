@@ -1,6 +1,7 @@
 #include "cli/windows/storageWindow.h"
 
 
+#include "cli/core/events.h"
 #include "cli/core/interface.h"
 #include "cli/core/utils.h"
 #include "cli/core/window.h"
@@ -10,20 +11,29 @@ namespace tk
 {
 storageWindow::storageWindow(storage* storage, clipboardController* cl, size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : borderedWindow(x, y, width, height, name)
-, form_(0, 0, width - 2, height - 2)
+, selectionForm_(0, 0, width - 2, height - 2)
+, inputForm_(0, 0, width - 2, height - 2, true)
 , storage_(storage)
 , cl_(cl)
 {
 	storage_->setRoot();
-	fillForm();
+	fillSelectionForm();
 }
 
 void storageWindow::update()
 {
 	borderedWindow::clear();
 
-	form_.updateBuffer();
-	form_.show(*this);
+	if (inputMode_)
+	{
+		inputForm_.updateBuffer();
+		inputForm_.show(*this);
+	}
+	else
+	{
+		selectionForm_.updateBuffer();
+		selectionForm_.show(*this);
+	}
 
 	showWindow(shared_from_this());
 }
@@ -35,34 +45,126 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 		LOG_ERR("Incorrect event type");
 		return;
 	}
-	form_.showSelected();
 
-	auto input = std::static_pointer_cast<inputEvent>(event);
+	if (inputMode_)
+	{
+		handleInputEventInInputMode(static_pointer_cast<inputEvent>(event));
+	}
+	else
+	{
+		handleInputEventInSelectionMode(static_pointer_cast<inputEvent>(event));
+	}
 
-	switch (input->inputType())
+	update();
+}
+
+void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type event)
+{
+	switch (event->inputType())
 	{
 		case inputEvent::ARROW_UP:
 		{
-			if (form_.selectedIndex() == 0)
-			{
-				cli::core::getScreen().changeControllerWindow("Menu");
-				form_.unshowSelected();
-				update();
-				cli::core::getScreen().show(cli::core::getConsoleManager());
-				pushInputEvent(inputEvent::UNKNOWN);
-				break;
-			}
-			form_.switchUp();
+			inputForm_.moveCursorUp();
 		}
 		break;
 		case inputEvent::ARROW_DOWN:
 		{
-			form_.switchDown();
+			inputForm_.moveCursorDown();
+		}
+		break;
+		case inputEvent::ARROW_LEFT:
+		{
+			inputForm_.moveCursorLeft();
+		}
+		break;
+		case inputEvent::ARROW_RIGHT:
+		{
+			inputForm_.moveCursorRight();
+		}
+		break;
+		case inputEvent::BACKSPACE:
+		{
+			inputForm_.backspace();
+		}
+		break;
+		case inputEvent::KEY_PRESSED:
+		{
+			auto ch = *(event->key());
+			inputForm_.keyPressed(ch);
+		}
+		break;
+		case inputEvent::SHIFT_ENTER:
+		{
+			inputForm_.shiftEnter();
 		}
 		break;
 		case inputEvent::ENTER:
 		{
-			auto selected = form_.getSelected();
+			auto userInput = inputForm_.getInput();
+			if (userInput.empty() || userInput[0].empty())
+			{
+				break;
+			}
+			switch (inputModeType_)
+			{
+				case FOLDER_CREATING:
+				{
+					storage_->addFolder(userInput[0]);
+				}
+				break;
+				case COMMAND_CREATING:
+				{
+					storage_->addCommand(userInput[0]);
+				}
+				break;
+				case FOLDER_EDITING:
+				{
+					storage_->renameFolder(tempOldInput_, userInput[0]);
+				}
+				break;
+				case COMMAND_EDITING:
+				{
+					storage_->editCommand(tempOldInput_, userInput[0]);
+				}
+				break;
+				default: break;
+			}
+
+			inputForm_.clear();
+			inputMode_ = false;
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
+		default: break;
+	}
+}
+
+void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type event)
+{
+	selectionForm_.showSelected();
+
+	switch (event->inputType())
+	{
+		case inputEvent::ARROW_UP:
+		{
+			if (selectionForm_.selectedIndex() == 0)
+			{
+				cli::core::getScreen().changeControllerWindow("Menu");
+				selectionForm_.unshowSelected();
+				pushInputEvent(inputEvent::UNSPECIFIED);
+				break;
+			}
+			selectionForm_.switchUp();
+		}
+		break;
+		case inputEvent::ARROW_DOWN:
+		{
+			selectionForm_.switchDown();
+		}
+		break;
+		case inputEvent::ENTER:
+		{
+			auto selected = selectionForm_.getSelected();
 			if (selected.starts_with("/"))
 			{
 				if (selected == "/..")
@@ -73,7 +175,8 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 				{
 					storage_->folderDown(selected.substr(1));
 				}
-				fillForm();
+				fillSelectionForm();
+				pushInputEvent(inputEvent::UNSPECIFIED);
 			}
 			else
 			{
@@ -82,27 +185,84 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 			}
 		}
 		break;
+		case inputEvent::F1: // adding command
+		{
+			inputMode_ = true;
+			inputModeType_ = COMMAND_CREATING;
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
+		case inputEvent::F2: // adding folder
+		{
+			inputMode_ = true;
+			inputModeType_ = FOLDER_CREATING;
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
+		case inputEvent::F3: // edit folder/command
+		{
+			auto selected = selectionForm_.getSelected();
+			if (selected == "/..")
+			{
+				break;
+			}
+			inputMode_ = true;
+			if (selected.starts_with("/"))
+			{
+				inputModeType_ = FOLDER_EDITING;
+			}
+			else
+			{
+				inputModeType_ = COMMAND_EDITING;
+			}
+			tempOldInput_ = selected.substr(1);
+			inputForm_.setInput({ tempOldInput_ });
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
+		case inputEvent::DELETE_KEY:
+		{
+			auto selected = selectionForm_.getSelected();
+			if (selected.starts_with("/"))
+			{
+				if (selected != "/..")
+				{
+					storage_->deleteFolder(selected.substr(1));
+				}
+			}
+			else
+			{
+				storage_->deleteCommand(selected.substr(1));
+			}
+			fillSelectionForm();
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
+		case inputEvent::UNSPECIFIED:
+		{
+			fillSelectionForm();
+			selectionForm_.showSelected();
+		}
+		break;
 		default: break;
 	}
-
-	update();
 }
 
-void storageWindow::fillForm()
+void storageWindow::fillSelectionForm()
 {
-	form_.clear();
+	selectionForm_.clear();
 	auto folder = storage_->currentFolder();
 	if (!storage_->curIsRoot())
 	{
-		form_.addItem("/..");
+		selectionForm_.addItem("/..");
 	}
 	for (auto [folderName, _] : folder->subFolders_)
 	{
-		form_.addItem("/" + folderName);
+		selectionForm_.addItem("/" + folderName);
 	}
 	for (auto command : folder->commands_)
 	{
-		form_.addItem(" " + command);
+		selectionForm_.addItem(" " + command);
 	}
 }
 } // namespace tk

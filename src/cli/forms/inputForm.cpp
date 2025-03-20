@@ -4,8 +4,6 @@
 #include <conio.h>
 #include <algorithm>
 
-#include "cli/core/events.h"
-
 namespace tk
 {
 
@@ -14,88 +12,6 @@ inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLi
 , oneLineMode_ { oneLineMode }
 {
 	lines_.push_back("");
-}
-
-void inputForm::handleInput(inputEvent::shared_ptr_type event)
-{
-	if (!event)
-	{
-		return;
-	}
-	switch (event->inputType())
-	{
-		case inputEvent::ARROW_UP:
-		{
-			if (!oneLineMode_)
-				moveCursorUp();
-		}
-		break;
-		case inputEvent::ARROW_DOWN:
-		{
-			if (!oneLineMode_)
-				moveCursorDown();
-		}
-		break;
-		case inputEvent::ARROW_LEFT:
-		{
-			moveCursorLeft();
-		}
-		break;
-		case inputEvent::ARROW_RIGHT:
-		{
-			moveCursorRight();
-		}
-		break;
-		case inputEvent::BACKSPACE:
-		{
-			backspace();
-		}
-		break;
-		case inputEvent::KEY_PRESSED:
-		{
-			auto ch = *(event->key());
-			if (ch)
-			{
-				if (cursorX_ < lines_[cursorY_].size())
-				{
-					lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, ch);
-				}
-				else
-				{
-					lines_[cursorY_] += ch;
-				}
-				cursorX_++;
-
-				if (cursorX_ >= offsetX_ + width_)
-				{
-					offsetX_ = cursorX_ - width_ + 1;
-				}
-			}
-		}
-		break;
-		case inputEvent::SHIFT_ENTER:
-		{
-			if (!oneLineMode_)
-			{
-				std::string leftPart = lines_[cursorY_].substr(0, cursorX_);
-				std::string rightPart = lines_[cursorY_].substr(cursorX_);
-
-				lines_[cursorY_] = leftPart;
-				lines_.insert(lines_.begin() + cursorY_ + 1, rightPart);
-
-				cursorY_++;
-				cursorX_ = 0;
-
-				if (cursorY_ >= offsetY_ + height_)
-				{
-					offsetY_ = cursorY_ - height_ + 1;
-				}
-				offsetX_ = 0;
-			}
-		}
-		break;
-		default: break;
-	}
 }
 
 void inputForm::backspace()
@@ -188,6 +104,48 @@ void inputForm::moveCursorDown()
 	}
 }
 
+void inputForm::shiftEnter()
+{
+	if (!oneLineMode_)
+	{
+		std::string leftPart = lines_[cursorY_].substr(0, cursorX_);
+		std::string rightPart = lines_[cursorY_].substr(cursorX_);
+
+		lines_[cursorY_] = leftPart;
+		lines_.insert(lines_.begin() + cursorY_ + 1, rightPart);
+
+		cursorY_++;
+		cursorX_ = 0;
+
+		if (cursorY_ >= offsetY_ + height_)
+		{
+			offsetY_ = cursorY_ - height_ + 1;
+		}
+		offsetX_ = 0;
+	}
+}
+
+void inputForm::keyPressed(char key)
+{
+	if (key)
+	{
+		if (cursorX_ < lines_[cursorY_].size())
+		{
+			lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, key);
+		}
+		else
+		{
+			lines_[cursorY_] += key;
+		}
+		cursorX_++;
+
+		if (cursorX_ >= offsetX_ + width_)
+		{
+			offsetX_ = cursorX_ - width_ + 1;
+		}
+	}
+}
+
 void inputForm::updateBuffer()
 {
 	clearBuffer();
@@ -219,10 +177,26 @@ void inputForm::updateBuffer()
 	}
 }
 
+void inputForm::setInput(std::vector<std::string> input)
+{
+	clear();
+	lines_ = std::move(input);
+	updateBuffer();
+}
+
 std::vector<std::string> inputForm::getInput() const
 {
 	return lines_;
 }
 
+void inputForm::clear()
+{
+	cursorX_ = 0;
+	cursorY_ = 0;
+	offsetX_ = 0;
+	offsetY_ = 0;
+	lines_ = { "" };
+	updateBuffer();
+}
 
 } // namespace tk

@@ -58,7 +58,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 				form_.unshowSelected();
 				update();
 				cli::core::getScreen().show(cli::core::getConsoleManager());
-				pushInputEvent(inputEvent::UNKNOWN);
+				pushInputEvent(inputEvent::UNSPECIFIED);
 				break;
 			}
 			form_.switchUp();
