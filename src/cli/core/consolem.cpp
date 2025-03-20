@@ -17,7 +17,7 @@ bool consolem::init()
 		LOG_ERR("Failed to initialize console");
 		return false;
 	}
-
+	SetConsoleOutputCP(437);
 	return true;
 }
 

@@ -7,6 +7,13 @@
 namespace tk
 {
 
+static constexpr unsigned char HORIZONTAL_LINE = 196; // ─
+static constexpr unsigned char VERTICAL_LINE   = 179; // │
+static constexpr unsigned char TOP_LEFT_CORNER = 218; // ┌
+static constexpr unsigned char TOP_RIGHT_CORNER= 191; // ┐
+static constexpr unsigned char BOTTOM_LEFT_CORNER= 192; // └
+static constexpr unsigned char BOTTOM_RIGHT_CORNER = 217; // ┘
+
 borderedWindow::borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : window(x, y, width, height, name)
 {
@@ -104,28 +111,28 @@ void borderedWindow::drawBorder()
 {
 	for (size_t x = 0; x < width(); ++x)
 	{
-		window::setChar(x, 0, '-');
+		window::setChar(x, 0, HORIZONTAL_LINE);
 	}
 
 	for (size_t x = 0; x < width(); ++x)
 	{
-		window::setChar(x, height() - 1, '-');
+		window::setChar(x, height() - 1, HORIZONTAL_LINE);
 	}
 
 	for (size_t y = 0; y < height(); ++y)
 	{
-		window::setChar(0, y, '|');
+		window::setChar(0, y, VERTICAL_LINE);
 	}
 
 	for (size_t y = 0; y < height(); ++y)
 	{
-		window::setChar(width() - 1, y, '|');
+		window::setChar(width() - 1, y, VERTICAL_LINE);
 	}
 
-	window::setChar(0, 0, '+');
-	window::setChar(width() - 1, 0, '+');
-	window::setChar(0, height() - 1, '+');
-	window::setChar(width() - 1, height() - 1, '+');
+	window::setChar(0, 0, TOP_LEFT_CORNER);
+	window::setChar(width() - 1, 0, TOP_RIGHT_CORNER);
+	window::setChar(0, height() - 1, BOTTOM_LEFT_CORNER);
+	window::setChar(width() - 1, height() - 1, BOTTOM_RIGHT_CORNER);
 
 	auto title = name();
 	size_t titleLength = title.length();
