@@ -9,13 +9,12 @@ selectionListForm::selectionListForm(size_t x, size_t y, size_t width, size_t he
 , horizontal_(horizontal)
 { }
 
-void selectionListForm::addItem(const item_type& item) {
+void selectionListForm::addItem(const item_type& item)
+{
 	items_.push_back(item);
 }
 
-void selectionListForm::removeItem(const item_type& item) {
-	
-}
+void selectionListForm::removeItem(const item_type& item) { }
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
@@ -27,7 +26,8 @@ size_t selectionListForm::selectedIndex()
 	return selectedIndex_;
 }
 
-static bool insertStringsWithSpace(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
+static bool insertStringsWithSpace(
+	const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
 {
 	size_t row = 0;
 	size_t col = 0;
@@ -83,7 +83,8 @@ static bool insertStringsWithSpace(const std::vector<std::string>& items, std::v
 	return true;
 }
 
-static bool insertStringsLineByLine(const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
+static bool insertStringsLineByLine(
+	const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
 {
 	size_t row = 0;
 	size_t col = 0;
@@ -125,7 +126,7 @@ static bool insertStringsLineByLine(const std::vector<std::string>& items, std::
 
 void selectionListForm::updateBuffer()
 {
-	clear();
+	clearBuffer();
 	if (horizontal_)
 	{
 		insertStringsWithSpace(items_, buffer_, width_, height_, selectedIndex_, showSelected_);
@@ -168,5 +169,13 @@ void selectionListForm::showSelected()
 void selectionListForm::unshowSelected()
 {
 	showSelected_ = false;
+}
+
+void selectionListForm::clear()
+{
+	items_.clear();
+	selectedIndex_ = 0;
+	showSelected_ = false;
+	updateBuffer();
 }
 } // namespace tk

@@ -19,8 +19,9 @@ set(SOURCES
 	cli/windows/borderedWindow.cpp
 	cli/windows/cacheWindow.cpp
 	cli/windows/menuWindow.cpp
+	cli/windows/storageWindow.cpp
 	clipboardController/windowsClipboardController.cpp
-	model/model.cpp
+	storage/storage.cpp
 )
 	
 add_executable(${TARGET_NAME} ${SOURCES})

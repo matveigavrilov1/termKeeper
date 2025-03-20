@@ -25,8 +25,10 @@ public:
 	void showSelected();
 	void unshowSelected();
 
+	void clear();
+
 private:
-	bool showSelected_ {false};
+	bool showSelected_ { false };
 	bool horizontal_ { false };
 	size_t selectedIndex_ { 0 };
 	item_list_type items_;

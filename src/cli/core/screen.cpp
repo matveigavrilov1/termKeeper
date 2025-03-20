@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "utils/logger.h"
+
 namespace tk
 {
 
@@ -26,9 +27,12 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 {
 	if (auto it = windows_.find(name); it != windows_.end())
 	{
-		LOG_DBG("Show window: " << name);
-		const auto& activatedWindow = it->second;
-		console.write(activatedWindow->buffer(), activatedWindow->x(), activatedWindow->y(), activatedWindow->width(), activatedWindow->height());
+		if (activated(name))
+		{
+			LOG_DBG("Show window: " << name);
+			const auto& activatedWindow = it->second;
+			console.write(activatedWindow->buffer(), activatedWindow->x(), activatedWindow->y(), activatedWindow->width(), activatedWindow->height());
+		}
 	}
 	else
 	{

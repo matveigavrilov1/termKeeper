@@ -10,7 +10,7 @@ namespace tk {
 		virtual ~form() = default;
 
 		void show(window& wnd);
-		void clear();
+		void clearBuffer();
 	protected:
 		size_t x_{0}, y_{0}, width_{0}, height_{0};
 		window::buffer_type buffer_;

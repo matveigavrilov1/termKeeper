@@ -12,7 +12,7 @@ form::form(size_t x, size_t y, size_t width, size_t height)
 , height_(height)
 {
 	buffer_.resize(width_ * height_);
-	clear();
+	clearBuffer();
 }
 
 void form::show(window& wnd)
@@ -27,7 +27,7 @@ void form::show(window& wnd)
 	}
 }
 
-void form::clear()
+void form::clearBuffer()
 {
 	std::generate(buffer_.begin(), buffer_.end(),
 		[]()

@@ -5,7 +5,6 @@
 #include "cli/core/interface.h"
 #include "cli/core/utils.h"
 #include "cli/core/window.h"
-#include "cli/windows/cacheWindow.h"
 #include "utils/logger.h"
 
 namespace tk

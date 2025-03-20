@@ -190,7 +190,7 @@ void inputForm::moveCursorDown()
 
 void inputForm::updateBuffer()
 {
-	clear();
+	clearBuffer();
 
 	for (size_t row = 0; row < height_; ++row)
 	{
