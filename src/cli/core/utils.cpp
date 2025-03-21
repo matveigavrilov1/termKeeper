@@ -13,6 +13,16 @@ void pushInputEvent(inputEvent::type type, std::optional<char> ch)
 		std::make_shared<inputEvent>(type, ch), [](event::shared_ptr_type event) { tk::cli::core::getScreen().controllerWindow()->handleInputEvent(event); });
 }
 
+void pushExitEvent()
+{
+	tk::cli::core::getEventManager().pushEvent(std::make_shared<exitEvent>(),
+		[](event::shared_ptr_type event)
+		{
+			tk::cli::core::getInputManager().stop();
+			tk::cli::core::getEventManager().stop();
+		});
+}
+
 void showWindow(window::shared_ptr_type win)
 {
 	cli::core::getEventManager().pushEvent(std::make_shared<windowEvent>(win),

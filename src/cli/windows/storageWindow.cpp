@@ -16,13 +16,13 @@ static const tk::hintsForm::preset_name_type inputPresetName = "inputPreset";
 
 namespace tk
 {
-storageWindow::storageWindow(storage* storage, clipboardController* cl, size_t x, size_t y, size_t width, size_t height, const std::string& name)
+storageWindow::storageWindow(storage::shared_ptr_type storage, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : borderedWindow(x, y, width, height, name)
 , selectionForm_(0, 0, width - 2, height - 3)
 , inputForm_(0, 0, width - 2, height - 3, true)
 , hintsForm_(0, height - 3, width - 2, 1)
 , storage_(storage)
-, cl_(cl)
+, clc_(clc)
 {
 	hintsForm_.addPreset(selectionPresetName, selectionPreset);
 	hintsForm_.addPreset(inputPresetName, inputPreset);
@@ -194,8 +194,8 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			}
 			else
 			{
-				if (cl_)
-					cl_->write(selected.substr(1));
+				if (clc_)
+					clc_->write(selected.substr(1));
 			}
 		}
 		break;

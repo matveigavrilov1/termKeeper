@@ -23,6 +23,7 @@ set(SOURCES
 	cli/windows/storageWindow.cpp
 	clipboardController/windowsClipboardController.cpp
 	storage/storage.cpp
+	storage/xmlStorageManager.cpp
 )
 	
 add_executable(${TARGET_NAME} ${SOURCES})
@@ -32,13 +33,6 @@ target_include_directories(${TARGET_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${TARGET_NAME} pugixml::pugixml)
-
-set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")
-
-set(MINGW_LIBS
-    libstdc++-6.dll
-    libgcc_s_seh-1.dll
-)
 
 install(CODE "
     foreach(TARGET ${TARGET_NAME})
@@ -50,6 +44,19 @@ install(CODE "
         endif()
     endforeach()
 ")
+
+set(STORAGE_FILE ${CMAKE_SOURCE_DIR}/storage/storage.xml)
+
+install(CODE "
+        file(COPY ${STORAGE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
+")
+
+set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")
+
+set(MINGW_LIBS
+    libstdc++-6.dll
+    libgcc_s_seh-1.dll
+)
 
 install(CODE "
     foreach(LIB ${MINGW_LIBS})

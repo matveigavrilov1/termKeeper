@@ -78,7 +78,8 @@ void inputm::worker()
 					}
 					else if (virtualKeyCode == VK_ESCAPE)
 					{
-						eventType = inputEvent::ESC;
+						pushExitEvent();
+						continue;
 					}
 					else if (virtualKeyCode == VK_LEFT)
 					{
