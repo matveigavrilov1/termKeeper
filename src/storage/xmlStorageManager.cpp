@@ -6,7 +6,7 @@ xmlStorageManager::xmlStorageManager()
 : storage_(std::make_shared<storage>())
 { }
 
-std::shared_ptr<storage> xmlStorageManager::getStorage() const
+storage::shared_ptr_type xmlStorageManager::getStorage() const
 {
 	return storage_;
 }

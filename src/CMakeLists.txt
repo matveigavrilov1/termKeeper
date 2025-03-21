@@ -22,7 +22,9 @@ set(SOURCES
 	cli/windows/menuWindow.cpp
 	cli/windows/storageWindow.cpp
 	clipboardController/windowsClipboardController.cpp
+	storage/cache.cpp
 	storage/storage.cpp
+	storage/xmlCacheManager.cpp
 	storage/xmlStorageManager.cpp
 )
 	
@@ -46,9 +48,11 @@ install(CODE "
 ")
 
 set(STORAGE_FILE ${CMAKE_SOURCE_DIR}/storage/storage.xml)
+set(CACHE_FILE ${CMAKE_SOURCE_DIR}/storage/cache.xml)
 
 install(CODE "
         file(COPY ${STORAGE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
+		file(COPY ${CACHE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
 ")
 
 set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")

@@ -9,7 +9,7 @@
 
 namespace tk
 {
-cacheWindow::cacheWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name)
+cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name)
 : borderedWindow(x, y, width, height, name)
 , form_ {
 	0,
@@ -17,11 +17,10 @@ cacheWindow::cacheWindow(size_t x, size_t y, size_t width, size_t height, const 
 	width - 2,
 	height - 2,
 }
+, cache_(cache)
+, clc_(clc)
 {
-	form_.addItem("test1");
-	form_.addItem("test2");
-	form_.addItem("test3");
-	form_.addItem(name);
+	fillForm();
 }
 
 void cacheWindow::update()
@@ -69,9 +68,34 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 			form_.switchDown();
 		}
 		break;
+		case inputEvent::ENTER:
+		{
+			auto selected = form_.getSelected();
+			if (clc_)
+				clc_->write(selected.substr(1));
+			cache_->addItem(selected);
+			pushInputEvent(inputEvent::UNSPECIFIED);
+		}
+		break;
 		default: break;
 	}
 
 	update();
+}
+
+void cacheWindow::update(const std::string&) 
+{
+	fillForm();
+	form_.updateBuffer();
+	form_.show(*this);
+}
+
+void cacheWindow::fillForm()
+{
+	form_.clear();
+	for (auto command : cache_->getCache())
+	{
+		form_.addItem(command);
+	}
 }
 } // namespace tk

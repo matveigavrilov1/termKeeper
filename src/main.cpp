@@ -10,6 +10,7 @@
 #include "clipboardController/windowsClipboardController.h"
 
 #include "storage/xmlStorageManager.h"
+#include "storage/xmlCacheManager.h"
 
 #include "utils/finally.h"
 
@@ -20,13 +21,20 @@ int main(int, char**)
 	xmlStorage.parse("storage.xml");
 	tk::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump("storage.xml"); });
 
+	tk::xmlCacheManager xmlCache;
+	xmlCache.parse("cache.xml");
+	tk::finally xmlCacheDump([&xmlCache]() { xmlCache.dump("cache.xml"); });
+
 	auto storage = xmlStorage.getStorage();
+	auto cache = xmlCache.getCache();
 
 	tk::cli::core::init();
 	auto menuWindow = std::make_shared<tk::menuWindow>(0, 0, tk::cli::core::getConsoleManager().width(), 3);
 	auto storageWindow =
-		std::make_shared<tk::storageWindow>(storage, clc, 0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
-	auto cacheWindow = std::make_shared<tk::cacheWindow>(0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
+		std::make_shared<tk::storageWindow>(storage, clc, cache, 0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
+	auto cacheWindow =
+		std::make_shared<tk::cacheWindow>(cache, clc, 0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
+	cache->attach(cacheWindow);
 
 	tk::cli::core::getScreen().registerWindow(menuWindow);
 	tk::cli::core::getScreen().registerWindow(storageWindow);
