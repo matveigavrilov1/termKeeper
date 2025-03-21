@@ -31,6 +31,8 @@ target_include_directories(${TARGET_NAME}
 	PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR})
 
+target_link_libraries(${TARGET_NAME} pugixml::pugixml)
+
 set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")
 
 set(MINGW_LIBS

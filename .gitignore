@@ -1,6 +1,7 @@
 build
 install
 .cache
+.conan2
 .vscode
 .venv
 *-Debug

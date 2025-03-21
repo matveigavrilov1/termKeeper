@@ -18,14 +18,4 @@ ENV CXX x86_64-w64-mingw32-g++
 RUN mkdir /termKeeper
 WORKDIR /termKeeper
 
-RUN mkdir build
-
-CMD cmake -DCMAKE_BUILD_TYPE:STRING=Release \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE \
-    -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/x86_64-w64-mingw32-gcc \
-    -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/x86_64-w64-mingw32-g++ \
-    -S . \
-    -B build \
-    -G Ninja && \
-  cmake --build build --config Release --target all && \
-  cmake --install build
+CMD ./build.sh

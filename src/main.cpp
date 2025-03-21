@@ -12,6 +12,8 @@
 
 #include "utils/logger.h"
 
+#include <pugixml.hpp>
+
 int main(int, char**)
 {
 	tk::windowsClipboardController wcl;

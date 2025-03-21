@@ -1,0 +1,6 @@
+[requires]
+pugixml/1.14
+
+[generators]
+CMakeDeps
+CMakeToolchain
