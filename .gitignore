@@ -4,5 +4,5 @@ install
 .conan2
 .vscode
 .venv
-*-Debug
-*-Release
+*-Debug*
+*-Release*

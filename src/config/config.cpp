@@ -26,6 +26,11 @@ const std::string& config::executable() const
 	return data_->executable;
 }
 
+const std::string& config::hotKey() const
+{
+	return data_->hotKey;
+}
+
 const std::vector<std::string>& config::registrated() const
 {
 	return data_->registrated;

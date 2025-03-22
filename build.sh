@@ -28,7 +28,6 @@ source "$SCRIPT_DIR/tools/build-tools/build_project.sh"
 
 # Get available profiles and targets
 get_available_profiles
-get_available_targets
 
 # Parse command-line arguments
 parse_args "$@"

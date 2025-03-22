@@ -17,9 +17,17 @@ bool configData::load(const std::string& path)
 
 		// tkHotKeyBinder
 		auto tkHotKeyBinder = config["tkHotKeyBinder"];
-		if (tkHotKeyBinder)
+		if (!tkHotKeyBinder)
+		{
+			return true;
+		}
+		if (tkHotKeyBinder["executable"])
 		{
 			executable = tkHotKeyBinder["executable"].as<std::string>();
+		}
+		if (tkHotKeyBinder["hotKey"])
+		{
+			hotKey = tkHotKeyBinder["hotKey"].as<std::string>();
 		}
 
 		// tkExecutable

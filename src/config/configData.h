@@ -19,6 +19,7 @@ public:
 private:
 	// tkHotkeyBinder
 	std::string executable { "termKeeper.exe" };
+	std::string hotKey { "Ctrl+Alt+R" };
 
 	// tkExecutable
 	std::vector<std::string> registrated { "Menu", "Storage", "Cache" };

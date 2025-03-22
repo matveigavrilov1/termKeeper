@@ -14,6 +14,7 @@ public:
 	void init();
 
 	const std::string& executable() const;
+	const std::string& hotKey() const;
 	const std::vector<std::string>& registrated() const;
 	const std::vector<std::string>& activated() const;
 	const std::vector<std::string>& menu() const;

@@ -16,7 +16,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()
 
-set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/termKeeper-${CMAKE_BUILD_TYPE}")
+set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TermKeeper-${CMAKE_BUILD_TYPE}-1.0")
 
 find_package(pugixml REQUIRED)
 find_package(yaml-cpp REQUIRED)

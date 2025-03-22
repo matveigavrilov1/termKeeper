@@ -1,5 +1,6 @@
 tkHotKeyBinder:
-  executable: termKeeper.exe
+  executable: Executable.exe
+  hotKey: Ctrl+Alt+R
 
 tkExecutable:
   windows:

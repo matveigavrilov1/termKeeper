@@ -70,7 +70,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 			if (clc_)
 				clc_->write(selected.substr(1));
 			cache_->addItem(selected);
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushExitEvent();
 		}
 		break;
 		default: break;

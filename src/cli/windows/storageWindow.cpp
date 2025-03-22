@@ -199,6 +199,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 				if (clc_)
 					clc_->write(content);
 				cache_->addItem(content);
+				pushExitEvent();
 			}
 		}
 		break;
