@@ -28,7 +28,7 @@ set(SOURCES
 	storage/xmlStorageManager.cpp
 )
 	
-add_executable(${TARGET_NAME} ${SOURCES})
+add_executable(${TARGET_NAME} ${SOURCES} tk.rc)
 
 target_include_directories(${TARGET_NAME}
 	PRIVATE 
