@@ -91,7 +91,8 @@ void window::setChar(size_t x, size_t y, char ch)
 {
 	if (x >= width_ || y >= height_)
 	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_)
+			+ " and height: " + std::to_string(height_);
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
@@ -115,7 +116,8 @@ void window::setAttribute(size_t x, size_t y, WORD attr)
 {
 	if (x >= width_ || y >= height_)
 	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_)
+			+ " and height: " + std::to_string(height_);
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}

@@ -25,4 +25,4 @@ public:
 private:
 	std::vector<observer::shared_ptr_type> observers_;
 };
-} 
+} // namespace tk

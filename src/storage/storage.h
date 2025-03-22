@@ -12,6 +12,7 @@ class storage
 {
 public:
 	using shared_ptr_type = std::shared_ptr<storage>;
+
 	struct folder
 	{
 		std::string name_;

@@ -43,7 +43,7 @@ void cache::setMaxSize(size_t maxSize)
 		items_.resize(maxSize_);
 	}
 
-    subject::notify("Cache max size update");
+	subject::notify("Cache max size update");
 }
 
 } // namespace tk

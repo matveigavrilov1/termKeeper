@@ -36,7 +36,7 @@ void hintsForm::applyPreset(const std::string& presetName)
 
 void hintsForm::updateBuffer()
 {
-	clearBuffer(); 
+	clearBuffer();
 
 	size_t row = 0;
 	size_t col = 0;
@@ -53,7 +53,7 @@ void hintsForm::updateBuffer()
 			col = 0;
 			if (row >= height_)
 			{
-				break; 
+				break;
 			}
 		}
 	}

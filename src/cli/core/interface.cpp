@@ -28,7 +28,7 @@ void core::init()
 		throw std::runtime_error("Failed to initialize console");
 	}
 	consolem_->setCursorVisibility(false);
-	
+
 	eventm_.emplace();
 	inputm_.emplace();
 	screen_.emplace();

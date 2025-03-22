@@ -2,12 +2,6 @@
 
 using namespace tk;
 
-void cli::init()
-{
-	
-}
+void cli::init() { }
 
-void cli::run()
-{
-    
-}
+void cli::run() { }

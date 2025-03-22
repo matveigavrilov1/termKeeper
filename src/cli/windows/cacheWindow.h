@@ -26,6 +26,7 @@ public:
 	void handleInputEvent(event::shared_ptr_type event) override;
 
 	void update(const std::string&) override;
+
 private:
 	void fillForm();
 

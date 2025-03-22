@@ -7,11 +7,11 @@
 namespace tk
 {
 
-static constexpr unsigned char HORIZONTAL_LINE = 196; // ─
-static constexpr unsigned char VERTICAL_LINE   = 179; // │
-static constexpr unsigned char TOP_LEFT_CORNER = 218; // ┌
-static constexpr unsigned char TOP_RIGHT_CORNER= 191; // ┐
-static constexpr unsigned char BOTTOM_LEFT_CORNER= 192; // └
+static constexpr unsigned char HORIZONTAL_LINE = 196;			// ─
+static constexpr unsigned char VERTICAL_LINE = 179;				// │
+static constexpr unsigned char TOP_LEFT_CORNER = 218;			// ┌
+static constexpr unsigned char TOP_RIGHT_CORNER = 191;		// ┐
+static constexpr unsigned char BOTTOM_LEFT_CORNER = 192;	// └
 static constexpr unsigned char BOTTOM_RIGHT_CORNER = 217; // ┘
 
 borderedWindow::borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name)

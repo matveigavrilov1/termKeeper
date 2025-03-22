@@ -7,6 +7,6 @@ namespace tk
 class windowsClipboardController : public clipboardController
 {
 public:
-	void write(const std::string & content) override;
+	void write(const std::string& content) override;
 };
 }; // namespace tk

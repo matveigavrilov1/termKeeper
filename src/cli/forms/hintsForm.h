@@ -11,9 +11,9 @@ namespace tk
 class hintsForm : public form
 {
 public:
-    using hint_type = std::pair<std::string, std::string>;
+	using hint_type = std::pair<std::string, std::string>;
 	using preset_type = std::vector<hint_type>;
-    using preset_name_type = std::string;
+	using preset_name_type = std::string;
 
 	hintsForm(size_t x, size_t y, size_t width, size_t height);
 

@@ -83,7 +83,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	update();
 }
 
-void cacheWindow::update(const std::string&) 
+void cacheWindow::update(const std::string&)
 {
 	fillForm();
 	form_.updateBuffer();

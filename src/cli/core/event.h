@@ -20,7 +20,7 @@ public:
 	event(unsigned type);
 
 	virtual ~event() = default;
-	
+
 	using unique_ptr_type = std::unique_ptr<event>;
 	using shared_ptr_type = std::shared_ptr<event>;
 
@@ -28,6 +28,5 @@ public:
 
 private:
 	unsigned type_ { NONE_EVENT };
-
 };
 } // namespace tk

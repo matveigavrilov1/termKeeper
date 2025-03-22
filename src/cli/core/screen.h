@@ -19,7 +19,7 @@ public:
 	bool activateWindow(const std::string& name);
 	bool deactivateWindow(const std::string& name);
 	void deactivateAllWindows();
-	
+
 	window::shared_ptr_type controllerWindow();
 	bool changeControllerWindow(const std::string& name);
 
@@ -29,7 +29,7 @@ public:
 private:
 	windows_map_type windows_;
 	std::vector<std::string> activatedWindows_;
-	window::shared_ptr_type controllerWindow_{nullptr};
+	window::shared_ptr_type controllerWindow_ { nullptr };
 };
 
 } // namespace tk

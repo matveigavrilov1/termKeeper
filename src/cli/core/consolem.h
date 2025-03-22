@@ -9,7 +9,6 @@ namespace tk
 class consolem
 {
 public:
-
 	bool init();
 
 	bool write(const std::vector<CHAR_INFO>& buffer, size_t x, size_t y, size_t width, size_t height);
