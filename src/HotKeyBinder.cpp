@@ -13,6 +13,7 @@
 NOTIFYICONDATA nid;
 HMENU hMenu;
 HINSTANCE hInst;
+HANDLE hMutex;
 
 void ShowContextMenu(HWND hwnd)
 {
@@ -103,6 +104,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
+	hMutex = CreateMutex(NULL, TRUE, "TermKeeperMutex");
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+	{
+		MessageBox(NULL, "Already running!", "Error", MB_ICONEXCLAMATION | MB_OK);
+		return 0;
+	}
+
 	tk::config::instance().init();
 
 	hInst = hInstance;
@@ -132,6 +140,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	// Освобождаем мьютекс при завершении приложения
+	ReleaseMutex(hMutex);
+	CloseHandle(hMutex);
 
 	return msg.wParam;
 }

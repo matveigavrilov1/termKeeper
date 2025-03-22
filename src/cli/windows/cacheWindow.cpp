@@ -68,7 +68,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 		{
 			auto selected = form_.getSelected();
 			if (clc_)
-				clc_->write(selected.substr(1));
+				clc_->write(selected);
 			cache_->addItem(selected);
 			pushExitEvent();
 		}
@@ -82,7 +82,13 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 
 void cacheWindow::update(const std::string&)
 {
-	update();
+	fillForm();
+	form_.updateBuffer();
+	form_.show(*this);
+	if (cli::core::getScreen().controllerWindow()->name() == name())
+	{
+		pushInputEvent(inputEvent::UNSPECIFIED);
+	}
 }
 
 void cacheWindow::fillForm()
