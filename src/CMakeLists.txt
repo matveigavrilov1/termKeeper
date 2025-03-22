@@ -53,7 +53,7 @@ install(CODE "
 
 set(STORAGE_FILE ${CMAKE_SOURCE_DIR}/storage/storage.xml)
 set(CACHE_FILE ${CMAKE_SOURCE_DIR}/storage/cache.xml)
-set(CONFIG_FILE ${CMAKE_SOURCE_DIR}/conf/settings.yaml)
+set(CONFIG_FILE ${CMAKE_SOURCE_DIR}/config/settings.yaml)
 
 install(CODE "
         file(COPY ${STORAGE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})

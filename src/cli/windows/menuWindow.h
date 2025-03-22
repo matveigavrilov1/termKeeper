@@ -16,7 +16,7 @@ class menuWindow
 public:
 	menuWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name = "Menu");
 
-	void update();
+	void update() override;
 	void handleInputEvent(event::shared_ptr_type event) override;
 
 	void addWindow(window::shared_ptr_type win);

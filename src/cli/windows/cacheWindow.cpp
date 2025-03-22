@@ -30,10 +30,6 @@ void cacheWindow::update()
 
 	form_.updateBuffer();
 	form_.show(*this);
-
-	LOG_DBG("Pushing event to show Cache Window");
-
-	showWindow(shared_from_this());
 }
 
 void cacheWindow::handleInputEvent(event::shared_ptr_type event)
@@ -81,13 +77,12 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	}
 
 	update();
+	showWindow(shared_from_this());
 }
 
 void cacheWindow::update(const std::string&)
 {
-	fillForm();
-	form_.updateBuffer();
-	form_.show(*this);
+	update();
 }
 
 void cacheWindow::fillForm()

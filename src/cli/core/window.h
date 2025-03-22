@@ -42,7 +42,7 @@ public:
 	virtual size_t size() const;
 
 	virtual void clear();
-
+	virtual void update();
 	virtual void handleInputEvent(event::shared_ptr_type event);
 
 public:

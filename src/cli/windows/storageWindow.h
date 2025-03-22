@@ -24,7 +24,7 @@ public:
 	storageWindow(storage::shared_ptr_type storage, clipboardController::shared_ptr_type clc, cache::shared_ptr_type cache, size_t x, size_t y, size_t width,
 		size_t height, const std::string& name = "Storage");
 
-	void update();
+	void update() override;
 	void handleInputEvent(event::shared_ptr_type event) override;
 
 	void handleInputEventInInputMode(inputEvent::shared_ptr_type event);

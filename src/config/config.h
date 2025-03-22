@@ -14,7 +14,9 @@ public:
 	void init();
 
 	const std::string& executable() const;
-    const std::vector<std::string>& activated() const;
+	const std::vector<std::string>& registrated() const;
+	const std::vector<std::string>& activated() const;
+	const std::vector<std::string>& menu() const;
 	const std::string& initialController() const;
 	const std::string& storageFile() const;
 	const std::string& cacheFile() const;

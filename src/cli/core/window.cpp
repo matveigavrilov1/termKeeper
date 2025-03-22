@@ -170,6 +170,11 @@ window::buffer_type& window::buffer()
 	return buffer_;
 }
 
+void window::update()
+{
+	LOG_DBG("Default window update handler");
+}
+
 void window::handleInputEvent(event::shared_ptr_type event)
 {
 	LOG_DBG("Default window input handler");

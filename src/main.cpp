@@ -1,13 +1,10 @@
-#include <thread>
-
 #include "cli/core/interface.h"
-#include "cli/core/utils.h"
-#include "cli/windows/cacheWindow.h"
-#include "cli/windows/menuWindow.h"
-#include "cli/windows/storageWindow.h"
+#include "cli/cli.h"
 
 #include "clipboardController/interface.h"
 #include "clipboardController/windowsClipboardController.h"
+
+#include "config/config.h"
 
 #include "storage/xmlStorageManager.h"
 #include "storage/xmlCacheManager.h"
@@ -16,49 +13,25 @@
 
 int main(int, char**)
 {
+	tk::config::instance().init();
+
 	tk::clipboardController::shared_ptr_type clc = std::make_shared<tk::windowsClipboardController>();
+
 	tk::xmlStorageManager xmlStorage;
-	xmlStorage.parse("storage.xml");
-	tk::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump("storage.xml"); });
+	xmlStorage.parse(tk::config::instance().storageFile());
+	tk::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump(tk::config::instance().storageFile()); });
 
 	tk::xmlCacheManager xmlCache;
-	xmlCache.parse("cache.xml");
-	tk::finally xmlCacheDump([&xmlCache]() { xmlCache.dump("cache.xml"); });
+	xmlCache.parse(tk::config::instance().cacheFile());
+	tk::finally xmlCacheDump([&xmlCache]() { xmlCache.dump(tk::config::instance().cacheFile()); });
 
 	auto storage = xmlStorage.getStorage();
 	auto cache = xmlCache.getCache();
 
 	tk::cli::core::init();
-	auto menuWindow = std::make_shared<tk::menuWindow>(0, 0, tk::cli::core::getConsoleManager().width(), 3);
-	auto storageWindow =
-		std::make_shared<tk::storageWindow>(storage, clc, cache, 0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
-	auto cacheWindow =
-		std::make_shared<tk::cacheWindow>(cache, clc, 0, 3, tk::cli::core::getConsoleManager().width(), tk::cli::core::getConsoleManager().height() - 3);
-	cache->attach(cacheWindow);
 
-	tk::cli::core::getScreen().registerWindow(menuWindow);
-	tk::cli::core::getScreen().registerWindow(storageWindow);
-	tk::cli::core::getScreen().registerWindow(cacheWindow);
+	tk::cliImpl cli(clc, cache, storage);
+	cli.init();
 
-	menuWindow->addWindow(storageWindow);
-	menuWindow->addWindow(cacheWindow);
-
-	tk::cli::core::getScreen().activateWindow(menuWindow->name());
-	tk::cli::core::getScreen().activateWindow(storageWindow->name());
-
-	tk::cli::core::getScreen().changeControllerWindow(menuWindow->name());
-	tk::pushInputEvent(tk::inputEvent::UNSPECIFIED);
-	auto eventManagerThread = std::thread([]() { tk::cli::core::getEventManager().run(); });
-
-	menuWindow->update();
-	storageWindow->update();
-	cacheWindow->update();
-
-	tk::cli::core::getScreen().show(tk::cli::core::getConsoleManager());
-
-	tk::cli::core::getInputManager().run();
-
-	eventManagerThread.join();
-
-	return 0;
+	return cli.run();
 }

@@ -5,8 +5,6 @@
 
 #include "config/configData.h"
 
-#include "utils/logger.h"
-
 namespace tk
 {
 void config::init()
@@ -20,11 +18,6 @@ void config::init()
 	if (data->load(configFile))
 	{
 		data_ = std::move(data);
-		LOG_INF("Setting custom config: " << *data);
-	}
-	else
-	{
-		LOG_INF("Setting default config: " << *data_);
 	}
 }
 
@@ -33,9 +26,19 @@ const std::string& config::executable() const
 	return data_->executable;
 }
 
+const std::vector<std::string>& config::registrated() const
+{
+	return data_->registrated;
+}
+
 const std::vector<std::string>& config::activated() const
 {
 	return data_->activated;
+};
+
+const std::vector<std::string>& config::menu() const
+{
+	return data_->menu;
 };
 
 const std::string& config::initialController() const

@@ -20,8 +20,6 @@ void menuWindow::update()
 
 	form_.updateBuffer();
 	form_.show(*this);
-
-	showWindow(shared_from_this());
 }
 
 void menuWindow::handleInputEvent(event::shared_ptr_type event)
@@ -63,6 +61,7 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 	}
 
 	update();
+	showWindow(shared_from_this());
 }
 
 void menuWindow::addWindow(window::shared_ptr_type win)

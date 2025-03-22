@@ -21,7 +21,7 @@ class cacheWindow
 public:
 	cacheWindow(
 		cache::shared_ptr_type, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name = "Cache");
-	void update();
+	void update() override;
 
 	void handleInputEvent(event::shared_ptr_type event) override;
 

@@ -1,0 +1,21 @@
+tkHotKeyBinder:
+  executable: termKeeper.exe
+
+tkExecutable:
+  windows:
+    registrated: # Available windows (sizes now are hardcoded)
+      - Menu
+      - Storage
+      - Cache
+    activated: # Initially showed windows (order sensetive, colliding windows cannot be showed) 
+      - Menu
+      - Storage
+    menu: # Windows showed at Menu (order sensetive)
+      - Storage
+      - Cache
+    initialController: Menu # Initial handling input window
+  storage:
+    storageFile: storage.xml
+  cache:
+    cacheFile: cache.xml
+    cacheMaxSize: 10

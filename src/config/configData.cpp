@@ -1,7 +1,6 @@
 #include "config/configData.h"
 
 #include <cstddef>
-#include <ostream>
 
 #include <yaml-cpp/yaml.h>
 
@@ -34,11 +33,30 @@ bool configData::load(const std::string& path)
 		{
 			auto windowsNode = tkExecutable["windows"];
 
+			if (windowsNode["registrated"])
+			{
+				registrated.clear();
+				for (const auto& item : windowsNode["registrated"])
+				{
+					registrated.push_back(item.as<std::string>());
+				}
+			}
+
 			if (windowsNode["activated"])
 			{
+				activated.clear();
 				for (const auto& item : windowsNode["activated"])
 				{
 					activated.push_back(item.as<std::string>());
+				}
+			}
+
+			if (windowsNode["menu"])
+			{
+				menu.clear();
+				for (const auto& item : windowsNode["menu"])
+				{
+					menu.push_back(item.as<std::string>());
 				}
 			}
 
@@ -69,11 +87,4 @@ bool configData::load(const std::string& path)
 	return true;
 }
 
-std::ostream& operator<< (std::ostream& os, configData& data)
-{
-	os << "configData:" << std::endl;
-	os << "tkHotKeyBinder:" << std::endl;
-	os << "  executable:" << data.executable;
-	return os;
-}
 } // namespace tk

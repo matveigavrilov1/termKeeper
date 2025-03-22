@@ -15,19 +15,18 @@ public:
 	bool load(const std::string& path);
 
 	friend class config;
-	friend std::ostream& operator<< (std::ostream& os, configData& data);
 
 private:
 	// tkHotkeyBinder
 	std::string executable { "termKeeper.exe" };
 
 	// tkExecutable
-	std::vector<std::string> activated { "Menu", "Storage", "Cache" };
+	std::vector<std::string> registrated { "Menu", "Storage", "Cache" };
+	std::vector<std::string> activated { "Menu", "Storage" };
+	std::vector<std::string> menu { "Storage", "Cache" };
 	std::string initialController { "Menu" };
 	std::string storageFile { "storage.xml" };
 	std::string cacheFile { "cache.xml" };
 	size_t cacheMaxSize { 10 };
 };
-
-std::ostream& operator<< (std::ostream& os, configData& data);
 } // namespace tk

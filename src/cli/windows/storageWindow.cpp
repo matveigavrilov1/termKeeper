@@ -49,8 +49,6 @@ void storageWindow::update()
 	}
 
 	hintsForm_.show(*this);
-
-	showWindow(shared_from_this());
 }
 
 void storageWindow::handleInputEvent(event::shared_ptr_type event)
@@ -71,6 +69,7 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 	}
 
 	update();
+	showWindow(shared_from_this());
 }
 
 void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type event)
