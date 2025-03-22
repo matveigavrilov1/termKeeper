@@ -22,6 +22,8 @@ set(SOURCES
 	cli/windows/menuWindow.cpp
 	cli/windows/storageWindow.cpp
 	clipboardController/windowsClipboardController.cpp
+	config/config.cpp
+	config/configData.cpp
 	storage/cache.cpp
 	storage/storage.cpp
 	storage/xmlCacheManager.cpp
@@ -34,7 +36,9 @@ target_include_directories(${TARGET_NAME}
 	PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${TARGET_NAME} pugixml::pugixml)
+target_link_libraries(${TARGET_NAME} 
+	pugixml::pugixml
+	yaml-cpp)
 
 install(CODE "
     foreach(TARGET ${TARGET_NAME})
@@ -49,10 +53,12 @@ install(CODE "
 
 set(STORAGE_FILE ${CMAKE_SOURCE_DIR}/storage/storage.xml)
 set(CACHE_FILE ${CMAKE_SOURCE_DIR}/storage/cache.xml)
+set(CONFIG_FILE ${CMAKE_SOURCE_DIR}/conf/settings.yaml)
 
 install(CODE "
         file(COPY ${STORAGE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
 		file(COPY ${CACHE_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
+		file(COPY ${CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_DIR})
 ")
 
 set(MINGW_PATH "/usr/lib/gcc/x86_64-w64-mingw32/13-win32")

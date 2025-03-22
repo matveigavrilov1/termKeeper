@@ -19,6 +19,7 @@ endif()
 set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/termKeeper-${CMAKE_BUILD_TYPE}")
 
 find_package(pugixml REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(src)
 
