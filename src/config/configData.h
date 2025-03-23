@@ -21,7 +21,7 @@ public:
 
 private:
 	// tkHotkeyBinder
-	std::string executable { "termKeeper.exe" };
+	std::string executable { "Executable.exe" };
 	std::string hotKey { "Ctrl+Alt+R" };
 
 	// tkExecutable
@@ -37,6 +37,6 @@ private:
 	size_t screenWidth { 0 };
 	size_t screenHeight { 0 };
 
-	std::map<std::string, hints_type> hintsPresets;
+	std::map<std::string, hints_type> hintsPresets {};
 };
 } // namespace tk
