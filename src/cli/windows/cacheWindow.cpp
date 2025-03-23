@@ -1,5 +1,7 @@
 #include "cli/windows/cacheWindow.h"
 
+#include "config/config.h"
+
 #include "cli/core/events.h"
 #include "cli/core/interface.h"
 #include "cli/core/utils.h"
@@ -7,6 +9,7 @@
 #include "utils/logger.h"
 #include <memory>
 
+static const tk::hintsForm::preset_name_type cachePresetName = "cache";
 namespace tk
 {
 cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name)
@@ -15,11 +18,15 @@ cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shar
 	0,
 	0,
 	width - 2,
-	height - 2,
+	height - 3,
 }
+, hintsForm_(0, height - 3, width - 2, 1)
 , cache_(cache)
 , clc_(clc)
 {
+	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
+	hintsForm_.applyPreset(cachePresetName);
+	hintsForm_.updateBuffer();
 	fillForm();
 }
 
@@ -30,6 +37,8 @@ void cacheWindow::update()
 
 	form_.updateBuffer();
 	form_.show(*this);
+
+	hintsForm_.show(*this);
 }
 
 void cacheWindow::handleInputEvent(event::shared_ptr_type event)

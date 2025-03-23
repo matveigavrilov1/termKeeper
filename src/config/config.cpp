@@ -75,4 +75,13 @@ size_t config::screenHeight() const
 {
 	return data_->screenWidth;
 }
+
+configData::hints_type config::hintsPreset(const std::string& name) const
+{
+	if (data_->hintsPresets.contains(name))
+	{
+		return data_->hintsPresets[name];
+	}
+	return {};
+}
 } // namespace tk

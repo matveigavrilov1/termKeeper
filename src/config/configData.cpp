@@ -96,6 +96,23 @@ bool configData::load(const std::string& path)
 			screenWidth = tkExecutable["screenSize"]["width"].as<size_t>();
 			screenHeight = tkExecutable["screenSize"]["height"].as<size_t>();
 		}
+
+		if (tkExecutable["hintsPresets"])
+		{
+			auto hintsPresetsNode = tkExecutable["hintsPresets"];
+			for (const auto& preset : hintsPresetsNode)
+			{
+				const std::string& presetName = preset.first.as<std::string>();
+				hints_type hints;
+
+				for (const auto& hint : preset.second)
+				{
+					hints.push_back({ hint.first.as<std::string>(), hint.second.as<std::string>() });
+				}
+
+				hintsPresets[presetName] = hints;
+			}
+		}
 	}
 
 	catch (const YAML::Exception& e)

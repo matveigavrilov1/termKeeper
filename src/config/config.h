@@ -25,6 +25,7 @@ public:
 	size_t screenWidth() const;
 	size_t screenHeight() const;
 
+	configData::hints_type hintsPreset(const std::string& name) const;
 private:
 	configData::unique_ptr_type data_ { std::make_unique<configData>() };
 	std::string configFile { "settings.yaml" };

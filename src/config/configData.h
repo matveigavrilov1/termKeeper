@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,7 +16,8 @@ public:
 	bool load(const std::string& path);
 
 	friend class config;
-
+	
+	using hints_type = std::vector<std::pair<std::string, std::string>>;
 private:
 	// tkHotkeyBinder
 	std::string executable { "termKeeper.exe" };
@@ -32,5 +34,8 @@ private:
 
 	size_t screenWidth { 0 };
 	size_t screenHeight { 0 };
+
+	std::map<std::string, hints_type> hintsPresets;
+
 };
 } // namespace tk

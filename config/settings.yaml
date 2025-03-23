@@ -23,3 +23,17 @@ tkExecutable:
   screenSize: # must set both width and height
     width: 0 # 0 means automatic
     height: 0
+  hintsPresets:
+    storageSelectionMode:
+      F1: Add Command
+      F2: Add Folder
+      F3: Edit
+      Enter: Choose
+      Delete: Delete
+      Escape: Exit
+      Arrows: Navigate
+    storageInputMode:
+      Enter: Finish input
+    cache:
+      Enter: Choose
+      Arrows: Navigate

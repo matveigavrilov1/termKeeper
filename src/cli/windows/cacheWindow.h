@@ -4,6 +4,7 @@
 #include <string>
 
 #include "cli/forms/selectionListForm.h"
+#include "cli/forms/hintsForm.h"
 #include "cli/windows/borderedWindow.h"
 #include "clipboardController/interface.h"
 
@@ -34,5 +35,7 @@ private:
 	clipboardController::shared_ptr_type clc_;
 	int activeIndex_ { 0 };
 	selectionListForm form_;
+
+	hintsForm hintsForm_;
 };
 } // namespace tk

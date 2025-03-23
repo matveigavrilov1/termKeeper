@@ -1,5 +1,6 @@
 #include "cli/windows/storageWindow.h"
 
+#include "config/config.h"
 
 #include "cli/core/events.h"
 #include "cli/core/interface.h"
@@ -8,11 +9,9 @@
 #include "cli/forms/hintsForm.h"
 #include "utils/logger.h"
 
-static const tk::hintsForm::preset_type selectionPreset = { { "F1", "Add Command" }, { "F2", "Add Folder" }, { "F3", "Edit" } };
-static const tk::hintsForm::preset_name_type selectionPresetName = "selectionPreset";
 
-static const tk::hintsForm::preset_type inputPreset = { { "Enter", "Finish input" } };
-static const tk::hintsForm::preset_name_type inputPresetName = "inputPreset";
+static const tk::hintsForm::preset_name_type selectionPresetName = "storageSelectionMode";
+static const tk::hintsForm::preset_name_type inputPresetName = "storageInputMode";
 
 namespace tk
 {
@@ -26,8 +25,8 @@ storageWindow::storageWindow(storage::shared_ptr_type storage, clipboardControll
 , clc_(clc)
 , cache_(cache)
 {
-	hintsForm_.addPreset(selectionPresetName, selectionPreset);
-	hintsForm_.addPreset(inputPresetName, inputPreset);
+	hintsForm_.addPreset(selectionPresetName, config::instance().hintsPreset(selectionPresetName));
+	hintsForm_.addPreset(inputPresetName, config::instance().hintsPreset(inputPresetName));
 	hintsForm_.applyPreset(selectionPresetName);
 	storage_->setRoot();
 	fillSelectionForm();
