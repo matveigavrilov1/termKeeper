@@ -10,10 +10,36 @@
 #include "storage/xmlCacheManager.h"
 
 #include "utils/finally.h"
+#include "utils/logger.h"
+
+#include <cstdlib>
+
+bool setConsoleWindowSize(int width, int height)
+{
+	HWND hwnd = GetConsoleWindow();
+	if (hwnd == NULL)
+	{
+		MessageBox(NULL, "Cannot get console window", "Error", MB_ICONERROR);
+		return false;
+	}
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+	MoveWindow(hwnd, rect.left, rect.top, width, height, TRUE);
+	return true;
+}
 
 int main(int, char**)
 {
 	tk::config::instance().init();
+
+	auto screenWidth = tk::config::instance().screenWidth();
+	auto screenHeight = tk::config::instance().screenHeight();
+	if (screenWidth && screenHeight && !setConsoleWindowSize(screenWidth, screenHeight))
+	{
+		LOG_ERR("Failed to set screen size");
+		return EXIT_FAILURE;
+	}
 
 	tk::clipboardController::shared_ptr_type clc = std::make_shared<tk::windowsClipboardController>();
 

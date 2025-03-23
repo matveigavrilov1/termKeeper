@@ -29,5 +29,8 @@ private:
 	std::string storageFile { "storage.xml" };
 	std::string cacheFile { "cache.xml" };
 	size_t cacheMaxSize { 10 };
+
+	size_t screenWidth { 0 };
+	size_t screenHeight { 0 };
 };
 } // namespace tk

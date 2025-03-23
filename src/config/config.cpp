@@ -65,4 +65,14 @@ size_t config::cacheMaxSize() const
 {
 	return data_->cacheMaxSize;
 }
+
+size_t config::screenWidth() const
+{
+	return data_->screenWidth;
+}
+
+size_t config::screenHeight() const
+{
+	return data_->screenWidth;
+}
 } // namespace tk

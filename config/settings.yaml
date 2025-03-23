@@ -20,3 +20,6 @@ tkExecutable:
   cache:
     cacheFile: cache.xml
     cacheMaxSize: 10
+  screenSize: # must set both width and height
+    width: 0 # 0 means automatic
+    height: 0

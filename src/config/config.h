@@ -22,6 +22,8 @@ public:
 	const std::string& storageFile() const;
 	const std::string& cacheFile() const;
 	size_t cacheMaxSize() const;
+	size_t screenWidth() const;
+	size_t screenHeight() const;
 
 private:
 	configData::unique_ptr_type data_ { std::make_unique<configData>() };

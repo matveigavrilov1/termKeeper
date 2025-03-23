@@ -84,6 +84,18 @@ bool configData::load(const std::string& path)
 			cacheFile = config["tkExecutable"]["cache"]["cacheFile"].as<std::string>();
 			cacheMaxSize = config["tkExecutable"]["cache"]["cacheMaxSize"].as<size_t>();
 		}
+
+		if (tkExecutable["screenSize"])
+		{
+			if (!tkExecutable["screenSize"]["height"] || !tkExecutable["screenSize"]["width"])
+			{
+				LOG_ERR("Screen size is incorrect");
+				return false;
+			}
+
+			screenWidth = tkExecutable["screenSize"]["width"].as<size_t>();
+			screenHeight = tkExecutable["screenSize"]["height"].as<size_t>();
+		}
 	}
 
 	catch (const YAML::Exception& e)
