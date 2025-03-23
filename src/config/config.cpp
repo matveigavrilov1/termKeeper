@@ -31,6 +31,11 @@ const std::string& config::hotKey() const
 	return data_->hotKey;
 }
 
+bool config::closeOnChoice() const
+{
+	return data_->closeOnChoice;
+}
+
 const std::vector<std::string>& config::registrated() const
 {
 	return data_->registrated;

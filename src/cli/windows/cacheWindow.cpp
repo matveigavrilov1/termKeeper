@@ -10,6 +10,7 @@
 #include <memory>
 
 static const tk::hintsForm::preset_name_type cachePresetName = "cache";
+
 namespace tk
 {
 cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name)
@@ -79,7 +80,10 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 			if (clc_)
 				clc_->write(selected);
 			cache_->addItem(selected);
-			pushExitEvent();
+			if (config::instance().closeOnChoice())
+			{
+				pushExitEvent();
+			}
 		}
 		break;
 		default: break;

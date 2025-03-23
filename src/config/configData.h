@@ -16,14 +16,16 @@ public:
 	bool load(const std::string& path);
 
 	friend class config;
-	
+
 	using hints_type = std::vector<std::pair<std::string, std::string>>;
+
 private:
 	// tkHotkeyBinder
 	std::string executable { "termKeeper.exe" };
 	std::string hotKey { "Ctrl+Alt+R" };
 
 	// tkExecutable
+	bool closeOnChoice { true };
 	std::vector<std::string> registrated { "Menu", "Storage", "Cache" };
 	std::vector<std::string> activated { "Menu", "Storage" };
 	std::vector<std::string> menu { "Storage", "Cache" };
@@ -36,6 +38,5 @@ private:
 	size_t screenHeight { 0 };
 
 	std::map<std::string, hints_type> hintsPresets;
-
 };
 } // namespace tk

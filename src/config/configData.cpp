@@ -37,6 +37,11 @@ bool configData::load(const std::string& path)
 			return true;
 		}
 
+		if (tkExecutable["closeOnChoice"])
+		{
+			closeOnChoice = tkExecutable["closeOnChoice"].as<bool>();
+		}
+
 		if (tkExecutable["windows"])
 		{
 			auto windowsNode = tkExecutable["windows"];

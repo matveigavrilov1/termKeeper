@@ -3,6 +3,7 @@ tkHotKeyBinder:
   hotKey: Ctrl+Alt+R
 
 tkExecutable:
+  closeOnChoice: true
   windows:
     registrated: # Available windows (sizes now are hardcoded)
       - Menu
