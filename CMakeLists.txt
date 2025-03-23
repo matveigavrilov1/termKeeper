@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28.3)
-project(termKeeper VERSION 0.1.0 LANGUAGES C CXX)
+project(termKeeper VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -16,7 +16,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()
 
-set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TermKeeper-${CMAKE_BUILD_TYPE}-1.0")
+set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TermKeeper-${CMAKE_BUILD_TYPE}-${PROJECT_VERSION}")
 
 find_package(pugixml REQUIRED)
 find_package(yaml-cpp REQUIRED)
