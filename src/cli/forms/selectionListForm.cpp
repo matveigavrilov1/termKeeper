@@ -18,6 +18,10 @@ void selectionListForm::removeItem(const item_type& item) { }
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
+	if (items_.empty())
+	{
+		return {};
+	}
 	return items_[selectedIndex_];
 }
 
@@ -139,6 +143,10 @@ void selectionListForm::updateBuffer()
 
 void selectionListForm::switchUp()
 {
+	if (items_.empty())
+	{
+		return;
+	}
 	if (selectedIndex_ == 0)
 	{
 		selectedIndex_ = items_.size() - 1;
@@ -151,6 +159,10 @@ void selectionListForm::switchUp()
 
 void selectionListForm::switchDown()
 {
+	if (items_.empty())
+	{
+		return;
+	}
 	if (selectedIndex_ == items_.size() - 1)
 	{
 		selectedIndex_ = 0;
@@ -178,4 +190,10 @@ void selectionListForm::clear()
 	showSelected_ = false;
 	updateBuffer();
 }
+
+bool selectionListForm::empty()
+{
+	return items_.empty();
+}
+
 } // namespace tk
