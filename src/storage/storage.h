@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 
@@ -16,7 +16,7 @@ public:
 	struct folder
 	{
 		std::string name_;
-		std::unordered_map<std::string, std::shared_ptr<folder>> subFolders_;
+		std::map<std::string, std::shared_ptr<folder>> subFolders_;
 		std::vector<std::string> commands_;
 		std::weak_ptr<folder> parent_;
 
