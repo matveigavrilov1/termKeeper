@@ -1,5 +1,6 @@
 #include "cli/windows/cacheWindow.h"
 
+#include "cli/forms/selectionListForm.h"
 #include "config/config.h"
 
 #include "cli/core/events.h"
@@ -91,6 +92,11 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 
 	update();
 	showWindow(shared_from_this());
+	if (form_.empty())
+	{
+		cli::core::getScreen().changeControllerWindow("Menu");
+		pushInputEvent(inputEvent::UNSPECIFIED);
+	}
 }
 
 void cacheWindow::update(const std::string&)

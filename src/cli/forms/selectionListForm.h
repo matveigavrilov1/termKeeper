@@ -26,7 +26,8 @@ public:
 	void unshowSelected();
 
 	void clear();
-
+	
+	bool empty();
 private:
 	bool showSelected_ { false };
 	bool horizontal_ { false };
