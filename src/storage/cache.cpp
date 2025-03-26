@@ -15,7 +15,7 @@ cache::vector_type& cache::getCache()
 	return items_;
 }
 
-void cache::addItem(const item_type& item)
+void cache::pushFront(const item_type& item)
 {
 	auto it = std::find(items_.begin(), items_.end(), item);
 
@@ -25,6 +25,25 @@ void cache::addItem(const item_type& item)
 	}
 
 	items_.insert(items_.begin(), item);
+
+	if (items_.size() > maxSize_)
+	{
+		items_.resize(maxSize_);
+	}
+
+	subject::notify("Cache content update");
+}
+
+void cache::pushBack(const item_type& item)
+{
+	auto it = std::find(items_.begin(), items_.end(), item);
+
+	if (it != items_.end())
+	{
+		items_.erase(it);
+	}
+
+	items_.push_back(item);
 
 	if (items_.size() > maxSize_)
 	{

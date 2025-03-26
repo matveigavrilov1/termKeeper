@@ -31,7 +31,7 @@ bool xmlCacheManager::parse(const std::string& filename)
 
 	for (auto commandNode : cacheNode.children("command"))
 	{
-		cache_->addItem(commandNode.text().as_string());
+		cache_->pushBack(commandNode.text().as_string());
 	}
 
 	return true;
@@ -40,11 +40,11 @@ bool xmlCacheManager::parse(const std::string& filename)
 bool xmlCacheManager::dump(const std::string& filename)
 {
 	pugi::xml_document doc;
-	auto storageNode = doc.append_child("cache");
+	auto cacheNode = doc.append_child("cache");
 
 	for (const auto& command : cache_->getCache())
 	{
-		auto commandNode = storageNode.append_child("command");
+		auto commandNode = cacheNode.append_child("command");
 		commandNode.text().set(command.c_str());
 	}
 

@@ -197,7 +197,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			{
 				if (clc_)
 					clc_->write(content);
-				cache_->addItem(content);
+				cache_->pushFront(content);
 				if (config::instance().closeOnChoice())
 				{
 					pushExitEvent();

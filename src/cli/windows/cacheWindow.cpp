@@ -79,7 +79,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 			auto selected = form_.getSelected();
 			if (clc_)
 				clc_->write(selected);
-			cache_->addItem(selected);
+			cache_->pushFront(selected);
 			if (config::instance().closeOnChoice())
 			{
 				pushExitEvent();

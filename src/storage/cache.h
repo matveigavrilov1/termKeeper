@@ -19,7 +19,8 @@ public:
 
 	vector_type& getCache();
 
-	void addItem(const item_type& item);
+	void pushFront(const item_type& item);
+	void pushBack(const item_type& item);
 
 	void setMaxSize(size_t maxSize);
 
