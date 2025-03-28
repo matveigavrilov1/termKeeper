@@ -14,6 +14,8 @@ inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLi
 	lines_.push_back("");
 }
 
+void inputForm::show(window& wnd) { }
+
 void inputForm::backspace()
 {
 	if (cursorX_ > 0)
@@ -146,42 +148,10 @@ void inputForm::keyPressed(char key)
 	}
 }
 
-void inputForm::updateBuffer()
-{
-	clearBuffer();
-
-	for (size_t row = 0; row < height_; ++row)
-	{
-		size_t lineIndex = row + offsetY_;
-		if (lineIndex >= lines_.size())
-			break;
-
-		const std::string& line = lines_[lineIndex];
-		for (size_t col = 0; col < width_; ++col)
-		{
-			size_t lineCol = col + offsetX_;
-			if (lineCol < line.size())
-			{
-				buffer_[row * width_ + col].Char.AsciiChar = line[lineCol];
-			}
-			else
-			{
-				buffer_[row * width_ + col].Char.AsciiChar = ' ';
-			}
-
-			if (lineIndex == cursorY_ && lineCol == cursorX_)
-			{
-				buffer_[row * width_ + col].Attributes = window::HIGHLIGHT_COLOR;
-			}
-		}
-	}
-}
-
 void inputForm::setInput(std::vector<std::string> input)
 {
 	clear();
 	lines_ = std::move(input);
-	updateBuffer();
 }
 
 std::vector<std::string> inputForm::getInput() const
@@ -196,7 +166,6 @@ void inputForm::clear()
 	offsetX_ = 0;
 	offsetY_ = 0;
 	lines_ = { "" };
-	updateBuffer();
 }
 
 } // namespace tk

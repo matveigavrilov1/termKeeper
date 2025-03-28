@@ -15,18 +15,17 @@ public:
 	using preset_type = std::vector<hint_type>;
 	using preset_name_type = std::string;
 
+	void show(window& wnd) override;
+
 	hintsForm(size_t x, size_t y, size_t width, size_t height);
 
 	void addHint(const std::string& key, const std::string& description);
-
 
 	void clearHints();
 
 	void addPreset(const std::string& presetName, const std::vector<std::pair<std::string, std::string>>& hints);
 
 	void applyPreset(const std::string& presetName);
-
-	void updateBuffer();
 
 private:
 	std::vector<hint_type> hints_;

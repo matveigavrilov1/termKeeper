@@ -28,18 +28,12 @@ cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shar
 {
 	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
 	hintsForm_.applyPreset(cachePresetName);
-	hintsForm_.updateBuffer();
 	fillForm();
 }
 
 void cacheWindow::update()
 {
-	LOG_DBG("Updating Cache Window");
-	borderedWindow::clear();
-
-	form_.updateBuffer();
 	form_.show(*this);
-
 	hintsForm_.show(*this);
 }
 
@@ -102,7 +96,6 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 void cacheWindow::update(const std::string&)
 {
 	fillForm();
-	form_.updateBuffer();
 	form_.show(*this);
 	if (cli::core::getScreen().controllerWindow()->name() == name())
 	{

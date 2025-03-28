@@ -1,4 +1,5 @@
 #include "cli/forms/selectionListForm.h"
+#include "utils/logger.h"
 
 namespace tk
 {
@@ -9,6 +10,35 @@ selectionListForm::selectionListForm(size_t x, size_t y, size_t width, size_t he
 , horizontal_(horizontal)
 { }
 
+void selectionListForm::show(window& wnd)
+{
+	size_t x = x_, y = y_;
+	size_t edgeX_ = x_ + width_, edgeY_ = y_ + height_;
+	auto index = 0;
+	while (y != edgeY_ && x != edgeX_ && index < items_.size())
+	{
+		const auto& item = items_[index];
+		auto nextY = y + linesNeeded(item);
+
+		if (nextY > edgeY_)
+		{
+			break;
+		}
+
+		showItem(x, y, items_[index], wnd, index == selectedIndex_);
+
+		if (horizontal_)
+		{
+			x += item.size() + 1;
+		}
+		else
+		{
+			y = nextY;
+		}
+		++index;
+	}
+}
+
 void selectionListForm::addItem(const item_type& item)
 {
 	items_.push_back(item);
@@ -18,7 +48,7 @@ void selectionListForm::removeItem(const item_type& item) { }
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
-	if (items_.empty())
+	if (items_.empty() || selectedIndex_ >= items_.size())
 	{
 		return {};
 	}
@@ -28,117 +58,6 @@ selectionListForm::item_type selectionListForm::getSelected()
 size_t selectionListForm::selectedIndex()
 {
 	return selectedIndex_;
-}
-
-static bool insertStringsWithSpace(
-	const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
-{
-	size_t row = 0;
-	size_t col = 0;
-	size_t index = 0;
-	for (const auto& item : items)
-	{
-		if (row >= height)
-		{
-			return false;
-		}
-
-		for (char ch : item)
-		{
-			if (col >= width)
-			{
-				row++;
-				col = 0;
-				if (row >= height)
-				{
-					return false;
-				}
-			}
-
-			buffer[row * width + col].Char.AsciiChar = ch;
-			if (activeIndex == index && showSelected)
-			{
-				buffer[row * width + col].Attributes = window::HIGHLIGHT_COLOR;
-			}
-			col++;
-		}
-
-		if (col >= width)
-		{
-			row++;
-			col = 0;
-			if (row >= height)
-			{
-				return false;
-			}
-		}
-
-		if (col < width)
-		{
-			buffer[row * width + col].Char.AsciiChar = ' ';
-			buffer[row * width + col].Attributes = window::DEFAULT_COLOR;
-
-			col++;
-		}
-
-		index++;
-	}
-
-	return true;
-}
-
-static bool insertStringsLineByLine(
-	const std::vector<std::string>& items, std::vector<CHAR_INFO>& buffer, size_t width, size_t height, size_t activeIndex, bool showSelected)
-{
-	size_t row = 0;
-	size_t col = 0;
-	size_t index = 0;
-	for (const auto& item : items)
-	{
-		if (row >= height)
-		{
-			return false;
-		}
-
-		for (char ch : item)
-		{
-			if (col >= width)
-			{
-				row++;
-				col = 0;
-				if (row >= height)
-				{
-					return false;
-				}
-			}
-
-			buffer[row * width + col].Char.AsciiChar = ch;
-			if (activeIndex == index && showSelected)
-			{
-				buffer[row * width + col].Attributes = window::HIGHLIGHT_COLOR;
-			}
-			col++;
-		}
-
-		row++;
-		index++;
-		col = 0;
-	}
-
-	return true;
-}
-
-void selectionListForm::updateBuffer()
-{
-	clearBuffer();
-	if (horizontal_)
-	{
-		insertStringsWithSpace(items_, buffer_, width_, height_, selectedIndex_, showSelected_);
-	}
-	else
-	{
-		insertStringsLineByLine(items_, buffer_, width_, height_, selectedIndex_, showSelected_);
-	}
 }
 
 void selectionListForm::switchUp()
@@ -188,7 +107,6 @@ void selectionListForm::clear()
 	items_.clear();
 	selectedIndex_ = 0;
 	showSelected_ = false;
-	updateBuffer();
 }
 
 bool selectionListForm::empty()
@@ -196,4 +114,33 @@ bool selectionListForm::empty()
 	return items_.empty();
 }
 
+size_t selectionListForm::linesNeeded(const std::string& str)
+{
+	return (str.size() + width_ - 1) / width_;
+}
+
+void selectionListForm::showItem(size_t x, size_t y, const std::string& str, window& wnd, bool selected)
+{
+	size_t edgeX_ = x_ + width_, edgeY_ = y_ + height_;
+	auto tmp = x;
+	for (auto ch : str)
+	{
+		wnd.setChar(x, y, ch);
+		wnd.setAttribute(x++, y, selected && showSelected_ ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+		if (x >= edgeX_)
+		{
+			if (horizontal_)
+			{
+				return;
+			}
+			y++;
+			x = tmp;
+		}
+	}
+	while (x < edgeX_)
+	{
+		wnd.setChar(x, y, ' ');
+		wnd.setAttribute(x++, y, window::DEFAULT_COLOR);
+	}
+}
 } // namespace tk
