@@ -15,10 +15,11 @@ public:
 	using preset_type = std::vector<hint_type>;
 	using preset_name_type = std::string;
 
+	void show(window& wnd) override;
+
 	hintsForm(size_t x, size_t y, size_t width, size_t height);
 
 	void addHint(const std::string& key, const std::string& description);
-
 
 	void clearHints();
 
@@ -26,10 +27,8 @@ public:
 
 	void applyPreset(const std::string& presetName);
 
-	void updateBuffer();
-
 private:
-	std::vector<hint_type> hints_;
+	preset_type* hints_ { nullptr };
 
 	std::unordered_map<preset_name_type, preset_type> presets_;
 

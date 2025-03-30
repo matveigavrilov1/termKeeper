@@ -8,6 +8,8 @@ public:
 	inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLineMode = false);
 	virtual ~inputForm() = default;
 
+	void show(window& wnd) override;
+
 	void backspace();
 	void moveCursorLeft();
 	void moveCursorRight();
@@ -15,7 +17,6 @@ public:
 	void moveCursorDown();
 	void shiftEnter();
 	void keyPressed(char key);
-	void updateBuffer();
 
 	void clear();
 

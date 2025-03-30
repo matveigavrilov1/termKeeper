@@ -7,16 +7,86 @@ hintsForm::hintsForm(size_t x, size_t y, size_t width, size_t height)
 : form(x, y, width, height)
 { }
 
+void hintsForm::show(window& wnd)
+{
+	if (!hints_)
+	{
+		return;
+	}
+
+	size_t x = x_;
+	size_t y = y_;
+	const size_t edgeX = x_ + width_;
+	const size_t edgeY = y_ + height_;
+
+	auto setCharWithWrap = [&](char ch, int color) -> bool
+	{
+		wnd.setChar(x, y, ch);
+		wnd.setAttribute(x, y, color);
+
+		if (++x >= edgeX)
+		{
+			x = x_;
+			if (++y >= edgeY)
+			{
+				return false;
+			}
+		}
+		return true;
+	};
+
+	auto writeString = [&](const std::string& str, int color) -> bool
+	{
+		for (char ch : str)
+		{
+			if (!setCharWithWrap(ch, color))
+			{
+				return false;
+			}
+		}
+		return true;
+	};
+
+
+	for (const auto& hint : *hints_)
+	{
+		if (!writeString(hint.first, window::HIGHLIGHT_COLOR))
+			return;
+
+
+		if (!setCharWithWrap(':', window::DEFAULT_COLOR))
+			return;
+
+
+		if (!writeString(hint.second, window::DEFAULT_COLOR))
+			return;
+
+
+		if (!setCharWithWrap(' ', window::DEFAULT_COLOR))
+			return;
+	}
+
+	while (y < edgeY)
+	{
+		if (!setCharWithWrap(' ', window::DEFAULT_COLOR))
+			return;
+	}
+}
+
 void hintsForm::addHint(const std::string& key, const std::string& description)
 {
-	hints_.emplace_back(key, description);
-	updateBuffer();
+	if (hints_)
+	{
+		hints_->emplace_back(key, description);
+	}
 }
 
 void hintsForm::clearHints()
 {
-	hints_.clear();
-	updateBuffer();
+	if (hints_)
+	{
+		hints_->clear();
+	}
 }
 
 void hintsForm::addPreset(const std::string& presetName, const std::vector<std::pair<std::string, std::string>>& hints)
@@ -29,53 +99,8 @@ void hintsForm::applyPreset(const std::string& presetName)
 	auto it = presets_.find(presetName);
 	if (it != presets_.end())
 	{
-		hints_ = it->second;
-		updateBuffer();
+		hints_ = &it->second;
 	}
 }
 
-void hintsForm::updateBuffer()
-{
-	clearBuffer();
-
-	size_t row = 0;
-	size_t col = 0;
-
-	for (const auto& hint : hints_)
-	{
-		addTextToBuffer(hint.first, row, col, window::HIGHLIGHT_COLOR);
-
-		addTextToBuffer(":" + hint.second + " ", row, col, window::DEFAULT_COLOR);
-
-		if (col >= width_)
-		{
-			row++;
-			col = 0;
-			if (row >= height_)
-			{
-				break;
-			}
-		}
-	}
-}
-
-void hintsForm::addTextToBuffer(const std::string& text, size_t& row, size_t& col, WORD attributes)
-{
-	for (char ch : text)
-	{
-		if (col >= width_)
-		{
-			row++;
-			col = 0;
-			if (row >= height_)
-			{
-				break; // Если достигли предела ширины формы, переходим на следующую строку
-			}
-		}
-
-		buffer_[row * width_ + col].Char.AsciiChar = ch;
-		buffer_[row * width_ + col].Attributes = attributes;
-		col++;
-	}
-}
 } // namespace tk

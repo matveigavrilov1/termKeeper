@@ -34,16 +34,12 @@ storageWindow::storageWindow(storage::shared_ptr_type storage, clipboardControll
 
 void storageWindow::update()
 {
-	borderedWindow::clear();
-
 	if (inputMode_)
 	{
-		inputForm_.updateBuffer();
 		inputForm_.show(*this);
 	}
 	else
 	{
-		selectionForm_.updateBuffer();
 		selectionForm_.show(*this);
 	}
 

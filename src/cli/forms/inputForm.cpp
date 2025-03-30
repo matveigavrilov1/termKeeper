@@ -14,6 +14,29 @@ inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLi
 	lines_.push_back("");
 }
 
+void inputForm::show(window& wnd)
+{
+	if (x_ >= wnd.width() || y_ >= wnd.height())
+		return;
+
+	size_t edgeX = std::min(x_ + width_, wnd.width());
+	size_t edgeY = std::min(y_ + height_, wnd.height());
+
+	for (size_t y = y_; y < edgeY; ++y)
+	{
+		size_t lineIndex = y + offsetY_;
+
+		const std::string& line = lineIndex < lines_.size() ? lines_[lineIndex] : "";
+		for (size_t x = x_; x < edgeX; ++x)
+		{
+			size_t lineCol = x + offsetX_;
+			char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
+			wnd.setChar(x, y, ch);
+			wnd.setAttribute(x, y, (lineIndex == cursorY_ && lineCol == cursorX_) ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+		}
+	}
+}
+
 void inputForm::backspace()
 {
 	if (cursorX_ > 0)
@@ -146,42 +169,10 @@ void inputForm::keyPressed(char key)
 	}
 }
 
-void inputForm::updateBuffer()
-{
-	clearBuffer();
-
-	for (size_t row = 0; row < height_; ++row)
-	{
-		size_t lineIndex = row + offsetY_;
-		if (lineIndex >= lines_.size())
-			break;
-
-		const std::string& line = lines_[lineIndex];
-		for (size_t col = 0; col < width_; ++col)
-		{
-			size_t lineCol = col + offsetX_;
-			if (lineCol < line.size())
-			{
-				buffer_[row * width_ + col].Char.AsciiChar = line[lineCol];
-			}
-			else
-			{
-				buffer_[row * width_ + col].Char.AsciiChar = ' ';
-			}
-
-			if (lineIndex == cursorY_ && lineCol == cursorX_)
-			{
-				buffer_[row * width_ + col].Attributes = window::HIGHLIGHT_COLOR;
-			}
-		}
-	}
-}
-
 void inputForm::setInput(std::vector<std::string> input)
 {
 	clear();
 	lines_ = std::move(input);
-	updateBuffer();
 }
 
 std::vector<std::string> inputForm::getInput() const
@@ -196,7 +187,6 @@ void inputForm::clear()
 	offsetX_ = 0;
 	offsetY_ = 0;
 	lines_ = { "" };
-	updateBuffer();
 }
 
 } // namespace tk
