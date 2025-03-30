@@ -14,7 +14,28 @@ inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLi
 	lines_.push_back("");
 }
 
-void inputForm::show(window& wnd) { }
+void inputForm::show(window& wnd)
+{
+	if (x_ >= wnd.width() || y_ >= wnd.height())
+		return;
+
+	size_t edgeX = std::min(x_ + width_, wnd.width());
+	size_t edgeY = std::min(y_ + height_, wnd.height());
+
+	for (size_t y = y_; y < edgeY; ++y)
+	{
+		size_t lineIndex = y + offsetY_;
+
+		const std::string& line = lineIndex < lines_.size() ? lines_[lineIndex] : "";
+		for (size_t x = x_; x < edgeX; ++x)
+		{
+			size_t lineCol = x + offsetX_;
+			char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
+			wnd.setChar(x, y, ch);
+			wnd.setAttribute(x, y, (lineIndex == cursorY_ && lineCol == cursorX_) ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+		}
+	}
+}
 
 void inputForm::backspace()
 {
