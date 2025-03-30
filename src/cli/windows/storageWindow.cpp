@@ -96,6 +96,26 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 			inputForm_.backspace();
 		}
 		break;
+		case inputEvent::HOME:
+		{
+			inputForm_.home();
+		}
+		break;
+		case inputEvent::END:
+		{
+			inputForm_.end();
+		}
+		break;
+		case inputEvent::DELETE_KEY:
+		{
+			inputForm_.deleteChar();
+		}
+		break;
+		case inputEvent::INSERT:
+		{
+			inputForm_.toggleInsertMode();
+		}
+		break;
 		case inputEvent::KEY_PRESSED:
 		{
 			auto ch = *(event->key());
