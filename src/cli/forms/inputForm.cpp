@@ -148,17 +148,53 @@ void inputForm::shiftEnter()
 	}
 }
 
-void inputForm::keyPressed(char key)
+void inputForm::home()
+{
+	cursorX_ = 0;
+	offsetX_ = 0;
+}
+
+void inputForm::end()
+{
+	cursorX_ = lines_[cursorY_].size();
+	if (cursorX_ >= offsetX_ + width_)
+	{
+		offsetX_ = cursorX_ - width_ + 1;
+	}
+}
+
+void inputForm::deleteChar()
+{
+	if (cursorX_ < lines_[cursorY_].size())
+	{
+		lines_[cursorY_].erase(lines_[cursorY_].begin() + cursorX_);
+	}
+	else if (cursorY_ < lines_.size() - 1 && !oneLineMode_)
+	{
+		// Merge with next line if at end of current line
+		lines_[cursorY_] += lines_[cursorY_ + 1];
+		lines_.erase(lines_.begin() + cursorY_ + 1);
+	}
+}
+
+void inputForm::insertChar(char key)
 {
 	if (key)
 	{
-		if (cursorX_ < lines_[cursorY_].size())
+		if (insertMode_ && cursorX_ < lines_[cursorY_].size())
 		{
-			lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, key);
+			lines_[cursorY_][cursorX_] = key;
 		}
 		else
 		{
-			lines_[cursorY_] += key;
+			if (cursorX_ < lines_[cursorY_].size())
+			{
+				lines_[cursorY_].insert(lines_[cursorY_].begin() + cursorX_, key);
+			}
+			else
+			{
+				lines_[cursorY_] += key;
+			}
 		}
 		cursorX_++;
 
@@ -167,6 +203,16 @@ void inputForm::keyPressed(char key)
 			offsetX_ = cursorX_ - width_ + 1;
 		}
 	}
+}
+
+void inputForm::keyPressed(char key)
+{
+	insertChar(key);
+}
+
+void inputForm::toggleInsertMode()
+{
+	insertMode_ = !insertMode_;
 }
 
 void inputForm::setInput(std::vector<std::string> input)

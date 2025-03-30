@@ -16,6 +16,12 @@ public:
 	void moveCursorUp();
 	void moveCursorDown();
 	void shiftEnter();
+	void home();
+	void end();
+	void deleteChar();
+	void insertChar(char key);
+	void toggleInsertMode();
+
 	void keyPressed(char key);
 
 	void clear();
@@ -30,5 +36,6 @@ private:
 	size_t offsetX_ { 0 };
 	size_t offsetY_ { 0 };
 	bool oneLineMode_ { false };
+	bool insertMode_ { false };
 };
 } // namespace tk
