@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <windows.h>
+#include <tlhelp32.h>
 #include <shellapi.h>
 
 #include "config/config.h"
@@ -41,9 +42,56 @@ void RemoveTrayIcon(HWND hwnd)
 	Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
+std::string WideToString(const std::wstring& wstr)
+{
+	if (wstr.empty())
+		return "";
+	int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+	std::string str(size_needed, 0);
+	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &str[0], size_needed, NULL, NULL);
+	return str;
+}
+
+void TerminateProcessByName(const std::string& processName)
+{
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnapshot == INVALID_HANDLE_VALUE)
+		return;
+
+	PROCESSENTRY32 pe;
+	pe.dwSize = sizeof(PROCESSENTRY32);
+
+	if (Process32First(hSnapshot, &pe))
+	{
+		do
+		{
+			if (_stricmp(pe.szExeFile, processName.c_str()) == 0)
+			{
+				HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
+				if (hProcess)
+				{
+					TerminateProcess(hProcess, 0);
+					CloseHandle(hProcess);
+				}
+				break;
+			}
+		} while (Process32Next(hSnapshot, &pe));
+	}
+
+	CloseHandle(hSnapshot);
+}
+
 void RunExe()
 {
-	ShellExecute(NULL, "open", tk::config::instance().executable().c_str(), NULL, NULL, SW_SHOWNORMAL);
+	std::string exePathStr = tk::config::instance().executable();
+
+	size_t pos = exePathStr.find_last_of("\\/");
+	std::string exeName = (pos != std::string::npos) ? exePathStr.substr(pos + 1) : exePathStr;
+
+	TerminateProcessByName(exeName);
+
+	std::wstring exePathW(exePathStr.begin(), exePathStr.end());
+	ShellExecuteW(NULL, L"open", exePathW.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
