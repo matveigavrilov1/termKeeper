@@ -1,5 +1,4 @@
 #include "cli/forms/selectionListForm.h"
-#include "utils/logger.h"
 
 namespace tk
 {

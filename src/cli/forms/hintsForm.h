@@ -28,7 +28,7 @@ public:
 	void applyPreset(const std::string& presetName);
 
 private:
-	std::vector<hint_type> hints_;
+	preset_type* hints_ { nullptr };
 
 	std::unordered_map<preset_name_type, preset_type> presets_;
 
