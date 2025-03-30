@@ -32,6 +32,7 @@ public:
 private:
 	size_t linesNeeded(const std::string& str);
 	void showItem(size_t x, size_t y, const std::string& str, window& wnd, bool selected = false);
+	void adjustOffset();
 
 private:
 	bool showSelected_ { false };
