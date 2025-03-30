@@ -16,9 +16,6 @@ menuWindow::menuWindow(size_t x, size_t y, size_t width, size_t height, const st
 
 void menuWindow::update()
 {
-	borderedWindow::clear();
-
-	form_.updateBuffer();
 	form_.show(*this);
 }
 
