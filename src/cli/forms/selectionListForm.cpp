@@ -19,12 +19,6 @@ void selectionListForm::show(window& wnd)
 	while (y < edgeY_ && x < edgeX_ && index < items_.size())
 	{
 		const auto& item = items_[index];
-		auto nextY = y + linesNeeded(item);
-
-		if (nextY > edgeY_)
-		{
-			break;
-		}
 
 		showItem(x, y, items_[index], wnd, index == selectedIndex_);
 
@@ -36,9 +30,28 @@ void selectionListForm::show(window& wnd)
 		}
 		else
 		{
+			auto nextY = y + linesNeeded(item);
+			if (nextY > edgeY_)
+			{
+				break;
+			}
 			y = nextY;
 		}
 		++index;
+	}
+
+	if (horizontal_)
+		y++;
+
+	while (y < edgeY_)
+	{
+		x = x_;
+		while (x < edgeX_)
+		{
+			wnd.setChar(x, y, ' ');
+			wnd.setAttribute(x++, y, window::DEFAULT_COLOR);
+		}
+		++y;
 	}
 }
 
