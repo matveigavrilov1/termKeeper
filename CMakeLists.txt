@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28.3)
-project(termKeeper VERSION 1.0.1 LANGUAGES C CXX)
+project(termKeeper VERSION 1.0.2 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
