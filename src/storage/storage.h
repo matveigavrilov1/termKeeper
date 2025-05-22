@@ -44,10 +44,11 @@ public:
 	void renameFolder(const std::string& oldName, const std::string& newName);
 	void editCommand(const std::string& oldCommand, const std::string& newCommand);
 
-	std::vector<std::string> search(const std::string& keyword) const;
+	std::vector<std::pair<std::string, std::string>>  search(const std::string& keyword) const;
 
 private:
-	void searchInFolder(const std::shared_ptr<folder>& fldr, const std::string& keyword, std::vector<std::string>& results) const;
+	void searchInFolder(const std::shared_ptr<folder>& fldr, const std::string& keyword, std::vector<std::pair<std::string, std::string>>& results) const;
+	std::string getFolderPath(const std::shared_ptr<folder>& fldr) const;
 
 private:
 	std::shared_ptr<folder> root_;

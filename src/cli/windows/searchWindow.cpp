@@ -9,10 +9,6 @@
 #include "cli/forms/hintsForm.h"
 #include "utils/logger.h"
 
-
-static const tk::hintsForm::preset_name_type selectionPresetName = "storageSelectionMode";
-static const tk::hintsForm::preset_name_type inputPresetName = "storageInputMode";
-
 namespace tk
 {
 searchWindow::searchWindow(storage::shared_ptr_type storage, clipboardController::shared_ptr_type clc, cache::shared_ptr_type cache, size_t x, size_t y,
@@ -25,9 +21,6 @@ searchWindow::searchWindow(storage::shared_ptr_type storage, clipboardController
 , clc_(clc)
 , cache_(cache)
 {
-	hintsForm_.addPreset(selectionPresetName, config::instance().hintsPreset(selectionPresetName));
-	hintsForm_.addPreset(inputPresetName, config::instance().hintsPreset(inputPresetName));
-	hintsForm_.applyPreset(selectionPresetName);
 	storage_->setRoot();
 	fillSelectionForm();
 }
@@ -64,6 +57,8 @@ void searchWindow::inputFormHandler(inputEvent::shared_ptr_type event)
 {
 	selectionForm_.unshowSelected();
 	inputForm_.showCursor();
+	hintsForm_.clearHints();
+
 	switch (event->inputType())
 	{
 		case inputEvent::ARROW_UP:
@@ -144,6 +139,7 @@ void searchWindow::selectionFormHandler(inputEvent::shared_ptr_type event)
 {
 	inputForm_.unshowCursor();
 	selectionForm_.showSelected();
+	hintsForm_.applyPreset(selectionForm_.getSelected());
 
 	switch (event->inputType())
 	{
@@ -162,6 +158,7 @@ void searchWindow::selectionFormHandler(inputEvent::shared_ptr_type event)
 		case inputEvent::ARROW_DOWN:
 		{
 			selectionForm_.switchDown();
+			hintsForm_.applyPreset(selectionForm_.getSelected());
 		}
 		break;
 		case inputEvent::ENTER:
@@ -176,12 +173,6 @@ void searchWindow::selectionFormHandler(inputEvent::shared_ptr_type event)
 			}
 		}
 		break;
-		case inputEvent::UNSPECIFIED:
-		{
-			fillSelectionForm();
-			selectionForm_.showSelected();
-		}
-		break;
 		default: break;
 	}
 }
@@ -190,9 +181,10 @@ void searchWindow::fillSelectionForm()
 {
 	selectionForm_.clear();
 	auto commands = storage_->search(inputForm_.getInput()[0]);
-	for (const auto& cmd : commands)
+	for (const auto& [cmd, path] : commands)
 	{
 		selectionForm_.addItem(cmd);
+		hintsForm_.addPreset(cmd, {{"path", path}});
 	}
 }
 } // namespace tk
