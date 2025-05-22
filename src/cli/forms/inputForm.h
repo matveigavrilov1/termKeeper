@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cli/core/form.h"
 
 namespace tk
@@ -29,6 +31,9 @@ public:
 	void setInput(std::vector<std::string> input);
 	std::vector<std::string> getInput() const;
 
+	void showCursor();
+	void unshowCursor();
+
 private:
 	std::vector<std::string> lines_;
 	size_t cursorX_ { 0 };
@@ -37,5 +42,6 @@ private:
 	size_t offsetY_ { 0 };
 	bool oneLineMode_ { false };
 	bool insertMode_ { false };
+	bool showCursor_ { false };
 };
 } // namespace tk

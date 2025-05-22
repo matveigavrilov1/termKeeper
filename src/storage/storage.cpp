@@ -97,4 +97,29 @@ void storage::editCommand(const std::string& oldCommand, const std::string& newC
 	}
 }
 
+std::vector<std::string> storage::search(const std::string& keyword) const
+{
+	std::vector<std::string> results;
+	searchInFolder(root_, keyword, results);
+	return results;
+}
+
+void storage::searchInFolder(const std::shared_ptr<folder>& fldr, const std::string& keyword, std::vector<std::string>& results) const
+{
+	if (!fldr)
+		return;
+
+	for (const auto& cmd : fldr->commands_)
+	{
+		if (cmd.find(keyword) != std::string::npos)
+		{
+			results.push_back( cmd);
+		}
+	}
+
+	for (const auto& [name, subFolder] : fldr->subFolders_)
+	{
+		searchInFolder(subFolder, keyword, results);
+	}
+}
 } // namespace tk

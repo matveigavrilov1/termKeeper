@@ -32,7 +32,7 @@ void inputForm::show(window& wnd)
 			size_t lineCol = x + offsetX_;
 			char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
 			wnd.setChar(x, y, ch);
-			wnd.setAttribute(x, y, (lineIndex == cursorY_ && lineCol == cursorX_) ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+			wnd.setAttribute(x, y, (lineIndex == cursorY_ && lineCol == cursorX_ && showCursor_) ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
 		}
 	}
 }
@@ -226,6 +226,16 @@ std::vector<std::string> inputForm::getInput() const
 	return lines_;
 }
 
+void inputForm::showCursor()
+{
+	showCursor_ = true;
+}
+
+void inputForm::unshowCursor()
+{
+	showCursor_ = false;
+}
+
 void inputForm::clear()
 {
 	cursorX_ = 0;
@@ -234,5 +244,6 @@ void inputForm::clear()
 	offsetY_ = 0;
 	lines_ = { "" };
 }
+
 
 } // namespace tk
