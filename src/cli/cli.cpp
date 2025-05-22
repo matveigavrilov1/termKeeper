@@ -11,6 +11,7 @@
 #include "cli/windows/cacheWindow.h"
 #include "cli/windows/menuWindow.h"
 #include "cli/windows/storageWindow.h"
+#include "cli/windows/searchWindow.h"
 
 using core = tk::cli::core;
 
@@ -26,12 +27,14 @@ cliImpl::cliImpl(clipboardController::shared_ptr_type clc, cache::shared_ptr_typ
 	auto storageWindow =
 		std::make_shared<tk::storageWindow>(storage, clc, cache, 0, 3, core::getConsoleManager().width(), core::getConsoleManager().height() - 3);
 	auto cacheWindow = std::make_shared<tk::cacheWindow>(cache, clc, 0, 3, core::getConsoleManager().width(), core::getConsoleManager().height() - 3);
+	auto searchWindow = std::make_shared<tk::searchWindow>(storage, clc, cache, 0, 3, core::getConsoleManager().width(), core::getConsoleManager().height() - 3);
 
 	cache->attach(cacheWindow);
 
 	windows_[menuWindow->name()] = menuWindow;
 	windows_[storageWindow->name()] = storageWindow;
 	windows_[cacheWindow->name()] = cacheWindow;
+	windows_[searchWindow->name()] = searchWindow;
 }
 
 void cliImpl::init()

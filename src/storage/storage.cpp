@@ -97,4 +97,55 @@ void storage::editCommand(const std::string& oldCommand, const std::string& newC
 	}
 }
 
+std::vector<std::pair<std::string, std::string>> storage::search(const std::string& keyword) const
+{
+	std::vector<std::pair<std::string, std::string>>  results;
+	searchInFolder(root_, keyword, results);
+	return results;
+}
+
+void storage::searchInFolder(const std::shared_ptr<folder>& fldr, const std::string& keyword, std::vector<std::pair<std::string, std::string>> & results) const
+{
+	if (!fldr)
+		return;
+
+	for (const auto& cmd : fldr->commands_)
+	{
+		if (cmd.find(keyword) != std::string::npos)
+		{
+			results.push_back(std::make_pair(cmd, getFolderPath(fldr)));
+		}
+	}
+
+	for (const auto& [name, subFolder] : fldr->subFolders_)
+	{
+		searchInFolder(subFolder, keyword, results);
+	}
+}
+
+std::string storage::getFolderPath(const std::shared_ptr<folder>& fldr) const
+{
+	if (!fldr)
+		return "";
+
+	std::vector<std::string> pathParts;
+	auto current = fldr;
+
+	while (current && current != root_)
+	{
+		pathParts.push_back(current->name_);
+		current = current->parent_.lock();
+	}
+
+	std::reverse(pathParts.begin(), pathParts.end());
+	std::string path;
+
+	for (const auto& part : pathParts)
+	{
+		path += "/" + part;
+	}
+
+	return path.empty() ? "/" : path;
+}
+
 } // namespace tk

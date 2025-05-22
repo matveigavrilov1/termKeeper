@@ -21,6 +21,7 @@ set(EXEC_SOURCES
 	cli/windows/borderedWindow.cpp
 	cli/windows/cacheWindow.cpp
 	cli/windows/menuWindow.cpp
+	cli/windows/searchWindow.cpp
 	cli/windows/storageWindow.cpp
 	clipboardController/windowsClipboardController.cpp
 	config/config.cpp

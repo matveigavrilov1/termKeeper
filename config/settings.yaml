@@ -7,12 +7,14 @@ tkExecutable:
   windows:
     registrated: # Available windows (sizes now are hardcoded)
       - Menu
+      - Search
       - Storage
       - Cache
     activated: # Initially showed windows (order sensetive, colliding windows cannot be showed) 
       - Menu
-      - Storage
+      - Search
     menu: # Windows showed at Menu (order sensetive)
+      - Search
       - Storage
       - Cache
     initialController: Menu # Initial handling input window

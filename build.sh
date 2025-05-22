@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 #Conan default parameters
 CONAN_HOST_PROFILE="windows-mingw-release"
 CONAN_BUILD_PROFILE="linux-mingw-release"
