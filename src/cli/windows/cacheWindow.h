@@ -6,7 +6,6 @@
 #include "cli/forms/selectionListForm.h"
 #include "cli/forms/hintsForm.h"
 #include "cli/windows/borderedWindow.h"
-#include "clipboardController/interface.h"
 
 #include "storage/cache.h"
 
@@ -20,8 +19,7 @@ class cacheWindow
 , public observer
 {
 public:
-	cacheWindow(
-		cache::shared_ptr_type, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name = "Cache");
+	cacheWindow(cache::shared_ptr_type cache, const std::string& name = "Cache");
 	void update() override;
 
 	void handleInputEvent(event::shared_ptr_type event) override;
@@ -32,7 +30,6 @@ private:
 	void fillForm();
 
 	cache::shared_ptr_type cache_;
-	clipboardController::shared_ptr_type clc_;
 	int activeIndex_ { 0 };
 	selectionListForm form_;
 

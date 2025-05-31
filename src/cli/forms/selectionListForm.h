@@ -9,7 +9,7 @@ class selectionListForm : public form
 public:
 	using item_type = std::string;
 	using item_list_type = std::vector<item_type>;
-	selectionListForm(size_t x, size_t y, size_t width, size_t height, bool horizontal = false, const item_list_type& items = {});
+	selectionListForm(bool horizontal = false, const item_list_type& items = {});
 
 	void show(window& wnd) override;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cli/core/form.h"
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -15,9 +16,10 @@ public:
 	using preset_type = std::vector<hint_type>;
 	using preset_name_type = std::string;
 
+	using form::form;
+
 	void show(window& wnd) override;
 
-	hintsForm(size_t x, size_t y, size_t width, size_t height);
 
 	void addHint(const std::string& key, const std::string& description);
 
@@ -32,6 +34,6 @@ private:
 
 	std::unordered_map<preset_name_type, preset_type> presets_;
 
-	void addTextToBuffer(const std::string& text, size_t& row, size_t& col, WORD attributes);
+	void addTextToBuffer(const std::string& text, size_t& row, size_t& col);
 };
 } // namespace tk

@@ -3,35 +3,52 @@
 #include <utility>
 #include <stdexcept>
 
+#include "os/console.h"
 #include "utils/logger.h"
 
 namespace tk
 {
-window::window(size_t x, size_t y, size_t width, size_t height, const std::string& name)
-: x_(x)
-, y_(y)
-, width_(width)
-, height_(height)
-, buffer_(width * height)
+
+window::window(const std::string& name)
+: pos_ { 0, 0 }
+, useRelativeSize_ { true }
+, relativeSize_ { 1, 1 }
+{ }
+
+window::window(position_on_screen pos, window_size sz, const std::string& name)
+: pos_(pos)
+, size_(sz)
+, buffer_(sz.width * sz.height)
 , name_(name)
+, useRelativeSize_(false)
 {
 	clear();
 }
 
+window::window(position_on_screen pos, relative_size relativeSize, const std::string& name)
+: pos_(pos)
+, name_(name)
+, relativeSize_(relativeSize)
+, useRelativeSize_(true)
+{
+	size_ = calculateAbsoluteSize();
+	buffer_.resize(size_.width * size_.height);
+}
+
 window::window(const window& other)
-: x_(other.x_)
-, y_(other.y_)
-, width_(other.width_)
-, height_(other.height_)
+: pos_(other.pos_)
+, size_(other.size_)
+, useRelativeSize_(other.useRelativeSize_)
+, relativeSize_(other.relativeSize_)
 , buffer_(other.buffer_)
 , name_(other.name_)
 { }
 
 window::window(window&& other) noexcept
-: x_(std::exchange(other.x_, 0))
-, y_(std::exchange(other.y_, 0))
-, width_(std::exchange(other.width_, 0))
-, height_(std::exchange(other.height_, 0))
+: pos_(other.pos_)
+, size_(other.size_)
+, useRelativeSize_(other.useRelativeSize_)
+, relativeSize_(other.relativeSize_)
 , buffer_(std::move(other.buffer_))
 , name_(std::move(other.name_))
 { }
@@ -40,10 +57,8 @@ window& window::operator= (const window& other)
 {
 	if (this != &other)
 	{
-		x_ = other.x_;
-		y_ = other.y_;
-		width_ = other.width_;
-		height_ = other.height_;
+		pos_ = other.pos_;
+		size_ = other.size_;
 		buffer_ = other.buffer_;
 		name_ = other.name_;
 	}
@@ -54,26 +69,24 @@ window& window::operator= (window&& other) noexcept
 {
 	if (this != &other)
 	{
-		x_ = std::exchange(other.x_, 0);
-		y_ = std::exchange(other.y_, 0);
-		width_ = std::exchange(other.width_, 0);
-		height_ = std::exchange(other.height_, 0);
+		pos_ = other.pos_;
+		size_ = other.size_;
 		buffer_ = std::move(other.buffer_);
 		name_ = std::move(other.name_);
 	}
 	return *this;
 }
 
-CHAR_INFO& window::operator[] (size_t x, size_t y)
+window::charInfo& window::operator[] (position_on_window pos)
 {
-	if (x >= width_ || y >= height_)
+	if (pos.x >= width() || pos.y >= height())
 	{
 		throw std::out_of_range("Coordinates (x, y) are out of range");
 	}
-	return buffer_.at(y * width_ + x);
+	return buffer_.at(pos.y * width() + pos.x);
 }
 
-CHAR_INFO& window::operator[] (size_t index)
+window::charInfo& window::operator[] (size_t index)
 {
 	if (index >= buffer_.size())
 	{
@@ -87,82 +100,69 @@ std::string window::name()
 	return name_;
 }
 
-void window::setChar(size_t x, size_t y, char ch)
+void window::setChar(position_on_window pos, charInfo ch)
 {
-	if (x >= width_ || y >= height_)
+	if (pos.x >= width() || pos.y >= height())
 	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_)
-			+ " and height: " + std::to_string(height_);
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(pos.x) + ", " + std::to_string(pos.y)
+			+ " for width: " + std::to_string(width()) + " and height: " + std::to_string(height());
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
-	buffer_.at(y * width_ + x).Char.AsciiChar = ch;
-	buffer_.at(y * width_ + x).Attributes = DEFAULT_COLOR;
+	buffer_.at(pos.y * width() + pos.x) = ch;
 }
 
-void window::setChar(size_t index, char ch)
+void window::setChar(size_t index, charInfo ch)
 {
 	if (index >= buffer_.size())
 	{
-		std::string error = "Index is out of range: " + std::to_string(index) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
+		std::string error =
+			"Index is out of range: " + std::to_string(index) + " for width: " + std::to_string(width()) + " and height: " + std::to_string(height());
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
-	buffer_.at(index).Char.AsciiChar = ch;
-	buffer_.at(index).Attributes = DEFAULT_COLOR;
+	buffer_.at(index) = ch;
 }
 
-void window::setAttribute(size_t x, size_t y, WORD attr)
+window::position_on_screen window::pos() const
 {
-	if (x >= width_ || y >= height_)
-	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(x) + ", " + std::to_string(y) + " for width: " + std::to_string(width_)
-			+ " and height: " + std::to_string(height_);
-		LOG_ERR(error);
-		throw std::out_of_range(error);
-	}
-	buffer_.at(y * width_ + x).Attributes = attr;
+	return pos_;
 }
 
-void window::setAttribute(size_t index, WORD attr)
+window::window_size window::size() const
 {
-	if (index >= buffer_.size())
-	{
-		std::string error = "Index is out of range: " + std::to_string(index) + " for width: " + std::to_string(width_) + " and height: " + std::to_string(height_);
-		LOG_ERR(error);
-		throw std::out_of_range(error);
-	}
-	buffer_.at(index).Attributes = attr;
+	return size_;
 }
 
 size_t window::x() const
 {
-	return x_;
+	return pos_.x;
 }
 
 size_t window::y() const
 {
-	return y_;
+	return pos_.y;
 }
 
 size_t window::width() const
 {
-	return width_;
+	return size_.width;
 }
 
 size_t window::height() const
 {
-	return height_;
+	return size_.height;
 }
 
-size_t window::size() const
+size_t window::length() const
 {
-	return width_ * height_;
+	return size_.width * size_.height;
 }
 
 void window::clear()
 {
-	std::fill(buffer_.begin(), buffer_.end(), CHAR_INFO { .Char = { .AsciiChar = ' ' } });
+	std::fill(
+		buffer_.begin(), buffer_.end(), charInfo { .ch = ' ', .bgColor = os::console::color::CONSOLE_COLOR_BLACK, .txtColor = os::console::CONSOLE_COLOR_WHITE });
 }
 
 window::buffer_type& window::buffer()
@@ -178,5 +178,40 @@ void window::update()
 void window::handleInputEvent(event::shared_ptr_type event)
 {
 	LOG_DBG("Default window input handler");
+}
+
+void window::setRelativeSize(std::pair<double, double> relativeSize)
+{
+	relativeSize_ = relativeSize;
+	useRelativeSize_ = true;
+}
+
+void window::setAbsoluteSize(window_size absoluteSize)
+{
+	size_ = absoluteSize;
+	useRelativeSize_ = false;
+}
+
+void window::setPosition(position_on_screen pos)
+{
+	pos_ = pos;
+}
+
+void window::updateSize()
+{
+	if (useRelativeSize_)
+	{
+		auto newSize = calculateAbsoluteSize();
+		if (newSize.height == size_.height || newSize.width != size_.width)
+		{
+			size_ = newSize;
+			buffer_.resize(size_.width * size_.height);
+		}
+	}
+}
+
+window::window_size window::calculateAbsoluteSize() const
+{
+	return { static_cast<size_t>(os::console::size().width * relativeSize_.first), static_cast<size_t>(os::console::size().height * relativeSize_.second) };
 }
 }; // namespace tk

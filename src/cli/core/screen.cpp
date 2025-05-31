@@ -14,7 +14,7 @@ static bool isColliding(const window& win1, const window& win2)
 	return x_overlap && y_overlap;
 }
 
-void screen::show(consolem& console) const
+void screen::show(os::console::shared_ptr_t console) const
 {
 	for (const auto& name : activatedWindows_)
 	{
@@ -23,7 +23,7 @@ void screen::show(consolem& console) const
 	}
 }
 
-bool screen::showWindow(const std::string& name, consolem& console) const
+bool screen::showWindow(const std::string& name, os::console::shared_ptr_t console) const
 {
 	if (auto it = windows_.find(name); it != windows_.end())
 	{
@@ -31,7 +31,8 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 		{
 			LOG_DBG("Show window: " << name);
 			const auto& activatedWindow = it->second;
-			console.write(activatedWindow->buffer(), activatedWindow->x(), activatedWindow->y(), activatedWindow->width(), activatedWindow->height());
+			if (console)
+				console->write(activatedWindow->buffer(), activatedWindow->pos(), activatedWindow->size());
 		}
 	}
 	else
@@ -43,7 +44,7 @@ bool screen::showWindow(const std::string& name, consolem& console) const
 	return true;
 }
 
-bool screen::registerWindow(window::shared_ptr_type win)
+bool screen::registerWindow(window::shared_ptr_t win)
 {
 	if (!win)
 	{
@@ -110,7 +111,7 @@ void screen::deactivateAllWindows()
 	activatedWindows_.clear();
 }
 
-window::shared_ptr_type screen::controllerWindow()
+window::shared_ptr_t screen::controllerWindow()
 {
 	return controllerWindow_;
 }

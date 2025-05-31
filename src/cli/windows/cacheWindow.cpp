@@ -1,5 +1,7 @@
 #include "cli/windows/cacheWindow.h"
 
+#include <memory>
+
 #include "cli/forms/selectionListForm.h"
 #include "config/config.h"
 
@@ -7,24 +9,17 @@
 #include "cli/core/interface.h"
 #include "cli/core/utils.h"
 #include "cli/windows/borderedWindow.h"
+#include "os/interface.h"
 #include "utils/logger.h"
-#include <memory>
+
 
 static const tk::hintsForm::preset_name_type cachePresetName = "cache";
 
 namespace tk
 {
-cacheWindow::cacheWindow(cache::shared_ptr_type cache, clipboardController::shared_ptr_type clc, size_t x, size_t y, size_t width, size_t height, const std::string& name)
-: borderedWindow(x, y, width, height, name)
-, form_ {
-	0,
-	0,
-	width - 2,
-	height - 3,
-}
-, hintsForm_(0, height - 3, width - 2, 1)
+cacheWindow::cacheWindow(cache::shared_ptr_type cache, const std::string& name)
+: borderedWindow( name)
 , cache_(cache)
-, clc_(clc)
 {
 	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
 	hintsForm_.applyPreset(cachePresetName);
@@ -57,7 +52,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 				cli::core::getScreen().changeControllerWindow("Menu");
 				form_.unshowSelected();
 				update();
-				cli::core::getScreen().show(cli::core::getConsoleManager());
+				cli::core::getScreen().show(os::console::get());
 				pushInputEvent(inputEvent::UNSPECIFIED);
 				break;
 			}
@@ -72,8 +67,8 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 		case inputEvent::ENTER:
 		{
 			auto selected = form_.getSelected();
-			if (clc_)
-				clc_->write(selected);
+			os::writeToClipboard(selected);
+
 			cache_->pushFront(selected);
 			if (config::instance().closeOnChoice())
 			{

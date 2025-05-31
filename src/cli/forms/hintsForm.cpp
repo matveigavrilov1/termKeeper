@@ -1,11 +1,9 @@
 #include "cli/forms/hintsForm.h"
 
+#include "os/console.h"
+
 namespace tk
 {
-
-hintsForm::hintsForm(size_t x, size_t y, size_t width, size_t height)
-: form(x, y, width, height)
-{ }
 
 void hintsForm::show(window& wnd)
 {
@@ -14,20 +12,19 @@ void hintsForm::show(window& wnd)
 		return;
 	}
 
-	size_t x = x_;
-	size_t y = y_;
-	const size_t edgeX = x_ + width_;
-	const size_t edgeY = y_ + height_;
+	size_t startX = x();
+	size_t startY = y();
+	const size_t edgeX = x() + width();
+	const size_t edgeY = x() + height();
 
-	auto setCharWithWrap = [&](char ch, int color) -> bool
+	auto setCharWithWrap = [&](unsigned char ch, os::console::color color) -> bool
 	{
-		wnd.setChar(x, y, ch);
-		wnd.setAttribute(x, y, color);
+		wnd.setChar({ startX, startY }, { .ch = ch, .bgColor = color, .txtColor = os::console::CONSOLE_COLOR_BLACK });
 
-		if (++x >= edgeX)
+		if (++startX >= edgeX)
 		{
-			x = x_;
-			if (++y >= edgeY)
+			startX = x();
+			if (++startY >= edgeY)
 			{
 				return false;
 			}
@@ -35,7 +32,7 @@ void hintsForm::show(window& wnd)
 		return true;
 	};
 
-	auto writeString = [&](const std::string& str, int color) -> bool
+	auto writeString = [&](const std::string& str, os::console::color color) -> bool
 	{
 		for (char ch : str)
 		{
@@ -50,25 +47,25 @@ void hintsForm::show(window& wnd)
 
 	for (const auto& hint : *hints_)
 	{
-		if (!writeString(hint.first, window::HIGHLIGHT_COLOR))
+		if (!writeString(hint.first, os::console::CONSOLE_COLOR_WHITE))
 			return;
 
 
-		if (!setCharWithWrap(':', window::DEFAULT_COLOR))
+		if (!setCharWithWrap(':', os::console::CONSOLE_COLOR_BLACK))
 			return;
 
 
-		if (!writeString(hint.second, window::DEFAULT_COLOR))
+		if (!writeString(hint.second, os::console::CONSOLE_COLOR_BLACK))
 			return;
 
 
-		if (!setCharWithWrap(' ', window::DEFAULT_COLOR))
+		if (!setCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
 			return;
 	}
 
-	while (y < edgeY)
+	while (startY < edgeY)
 	{
-		if (!setCharWithWrap(' ', window::DEFAULT_COLOR))
+		if (!setCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
 			return;
 	}
 }

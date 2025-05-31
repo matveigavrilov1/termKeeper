@@ -9,9 +9,8 @@
 
 namespace tk
 {
-menuWindow::menuWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name)
-: borderedWindow(x, y, width, height, name)
-, form_(0, 0, width - 2, height - 2, true)
+menuWindow::menuWindow(const std::string& name)
+: borderedWindow(name)
 { }
 
 void menuWindow::update()
@@ -37,7 +36,7 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 			cli::core::getScreen().deactivateWindow(form_.getSelected());
 			form_.switchUp();
 			cli::core::getScreen().activateWindow(form_.getSelected());
-			cli::core::getScreen().showWindow(form_.getSelected(), cli::core::getConsoleManager());
+			cli::core::getScreen().showWindow(form_.getSelected(), os::console::get());
 		}
 		break;
 		case inputEvent::ARROW_RIGHT:
@@ -45,7 +44,7 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 			cli::core::getScreen().deactivateWindow(form_.getSelected());
 			form_.switchDown();
 			cli::core::getScreen().activateWindow(form_.getSelected());
-			cli::core::getScreen().showWindow(form_.getSelected(), cli::core::getConsoleManager());
+			cli::core::getScreen().showWindow(form_.getSelected(), os::console::get());
 		}
 		break;
 		case inputEvent::ARROW_DOWN:
@@ -61,7 +60,7 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 	showWindow(shared_from_this());
 }
 
-void menuWindow::addWindow(window::shared_ptr_type win)
+void menuWindow::addWindow(window::shared_ptr_t win)
 {
 	windows_.push_back(win);
 	form_.addItem(win->name());

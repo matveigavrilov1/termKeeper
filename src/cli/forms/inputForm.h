@@ -5,7 +5,7 @@ namespace tk
 class inputForm : public form
 {
 public:
-	inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLineMode = false);
+	using form::form;
 	virtual ~inputForm() = default;
 
 	void show(window& wnd) override;
@@ -30,7 +30,7 @@ public:
 	std::vector<std::string> getInput() const;
 
 private:
-	std::vector<std::string> lines_;
+	std::vector<std::string> lines_ { "" };
 	size_t cursorX_ { 0 };
 	size_t cursorY_ { 0 };
 	size_t offsetX_ { 0 };

@@ -7,6 +7,7 @@
 #include "cli/core/utils.h"
 #include "cli/core/window.h"
 #include "cli/forms/hintsForm.h"
+#include "os/interface.h"
 #include "utils/logger.h"
 
 
@@ -15,14 +16,9 @@ static const tk::hintsForm::preset_name_type inputPresetName = "storageInputMode
 
 namespace tk
 {
-storageWindow::storageWindow(storage::shared_ptr_type storage, clipboardController::shared_ptr_type clc, cache::shared_ptr_type cache, size_t x, size_t y,
-	size_t width, size_t height, const std::string& name)
-: borderedWindow(x, y, width, height, name)
-, selectionForm_(0, 0, width - 2, height - 3)
-, inputForm_(0, 0, width - 2, height - 3, true)
-, hintsForm_(0, height - 3, width - 2, 1)
+storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr_type cache, const std::string& name)
+: borderedWindow(name)
 , storage_(storage)
-, clc_(clc)
 , cache_(cache)
 {
 	hintsForm_.addPreset(selectionPresetName, config::instance().hintsPreset(selectionPresetName));
@@ -122,13 +118,14 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 			inputForm_.keyPressed(ch);
 		}
 		break;
-		case inputEvent::SHIFT_ENTER:
-		{
-			inputForm_.shiftEnter();
-		}
-		break;
 		case inputEvent::ENTER:
 		{
+			if (event->shiftPressed())
+			{
+				inputForm_.shiftEnter();
+				break;
+			}
+
 			auto userInput = inputForm_.getInput();
 			if (userInput.empty() || userInput[0].empty())
 			{
@@ -211,8 +208,8 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			}
 			else
 			{
-				if (clc_)
-					clc_->write(content);
+				os::writeToClipboard(content);
+
 				cache_->pushFront(content);
 				if (config::instance().closeOnChoice())
 				{

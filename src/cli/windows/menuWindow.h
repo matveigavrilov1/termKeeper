@@ -14,16 +14,16 @@ class menuWindow
 , public std::enable_shared_from_this<menuWindow>
 {
 public:
-	menuWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name = "Menu");
+	menuWindow(const std::string& name = "Menu");
 
 	void update() override;
 	void handleInputEvent(event::shared_ptr_type event) override;
 
-	void addWindow(window::shared_ptr_type win);
+	void addWindow(window::shared_ptr_t win);
 	void removeWindow(const std::string& name);
 
 private:
 	selectionListForm form_;
-	std::vector<window::shared_ptr_type> windows_ {};
+	std::vector<window::shared_ptr_t> windows_ {};
 };
 } // namespace tk

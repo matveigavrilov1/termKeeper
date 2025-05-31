@@ -3,55 +3,53 @@
 namespace tk
 {
 
-selectionListForm::selectionListForm(size_t x, size_t y, size_t width, size_t height, bool horizontal, const item_list_type& items)
-: form(x, y, width, height)
-, items_(items)
+selectionListForm::selectionListForm(bool horizontal, const item_list_type& items)
+: items_(items)
 , horizontal_(horizontal)
 , offset_(0)
 { }
 
 void selectionListForm::show(window& wnd)
 {
-	size_t x = x_, y = y_;
-	size_t edgeX_ = x_ + width_, edgeY_ = y_ + height_;
+	size_t startX = x(), startY = y();
+	size_t edgeX = x() + width(), edgeY = y() + height();
 	size_t index = offset_;
 
-	while (y < edgeY_ && x < edgeX_ && index < items_.size())
+	while (startY < edgeY && startX < edgeX && index < items_.size())
 	{
 		const auto& item = items_[index];
 
-		showItem(x, y, items_[index], wnd, index == selectedIndex_);
+		showItem(startX, startY, items_[index], wnd, index == selectedIndex_);
 
 		if (horizontal_)
 		{
-			x += item.size() + 1;
-			if (x >= edgeX_)
+			startX += item.size() + 1;
+			if (startX >= edgeX)
 				break;
 		}
 		else
 		{
-			auto nextY = y + linesNeeded(item);
-			if (nextY > edgeY_)
+			auto nextY = startY + linesNeeded(item);
+			if (nextY > edgeY)
 			{
 				break;
 			}
-			y = nextY;
+			startY = nextY;
 		}
 		++index;
 	}
 
 	if (horizontal_)
-		y++;
+		startY++;
 
-	while (y < edgeY_)
+	while (startY < edgeY)
 	{
-		x = x_;
-		while (x < edgeX_)
+		startX = x();
+		while (startX < edgeX)
 		{
-			wnd.setChar(x, y, ' ');
-			wnd.setAttribute(x++, y, window::DEFAULT_COLOR);
+			wnd.setChar({ startX, startY }, { ' ' });
 		}
-		++y;
+		++startY;
 	}
 }
 
@@ -137,20 +135,22 @@ bool selectionListForm::empty()
 
 size_t selectionListForm::linesNeeded(const std::string& str)
 {
-	return (str.size() + width_ - 1) / width_;
+	return (str.size() + width() - 1) / width();
 }
 
 void selectionListForm::showItem(size_t x, size_t y, const std::string& str, window& wnd, bool selected)
 {
-	size_t edgeX_ = x_ + width_, edgeY_ = y_ + height_;
+	size_t edgeX_ = pos_.x + width(), edgeY_ = pos_.y + height();
 	auto tmp = x;
 	for (auto ch : str)
 	{
 		if (x >= edgeX_ || y >= edgeY_)
 			break;
 
-		wnd.setChar(x, y, ch);
-		wnd.setAttribute(x++, y, selected && showSelected_ ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+		auto bgColor = (selected && showSelected_) ? os::console::color::CONSOLE_COLOR_WHITE : os::console::color::CONSOLE_COLOR_BLACK;
+		auto txtColor = (selected && showSelected_) ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
+		wnd.setChar({ x, y }, { static_cast<unsigned char>(ch), bgColor, txtColor });
+
 		if (x >= edgeX_)
 		{
 			if (horizontal_)
@@ -163,8 +163,7 @@ void selectionListForm::showItem(size_t x, size_t y, const std::string& str, win
 	}
 	while (x < edgeX_ && y < edgeY_)
 	{
-		wnd.setChar(x, y, ' ');
-		wnd.setAttribute(x++, y, window::DEFAULT_COLOR);
+		wnd.setChar({ x, y }, { ' ' });
 	}
 }
 
@@ -180,8 +179,8 @@ void selectionListForm::adjustOffset()
 	}
 
 	size_t visibleItems = 0;
-	size_t y = y_;
-	size_t edgeY_ = y_ + height_;
+	size_t y = pos_.y;
+	size_t edgeY_ = pos_.y + height();
 
 	for (size_t i = offset_; i < items_.size(); ++i)
 	{
@@ -199,7 +198,7 @@ void selectionListForm::adjustOffset()
 	else if (selectedIndex_ >= offset_ + visibleItems)
 	{
 		size_t newOffset = selectedIndex_;
-		y = y_;
+		y = pos_.y;
 
 		while (newOffset > 0)
 		{

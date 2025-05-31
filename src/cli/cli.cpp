@@ -17,15 +17,13 @@ using core = tk::cli::core;
 namespace tk
 {
 
-cliImpl::cliImpl(clipboardController::shared_ptr_type clc, cache::shared_ptr_type cache, storage::shared_ptr_type storage)
-: clc_(clc)
-, cache_(cache)
+cliImpl::cliImpl(cache::shared_ptr_type cache, storage::shared_ptr_type storage)
+: cache_(cache)
 , storage_(storage)
 {
-	auto menuWindow = std::make_shared<tk::menuWindow>(0, 0, core::getConsoleManager().width(), 3);
-	auto storageWindow =
-		std::make_shared<tk::storageWindow>(storage, clc, cache, 0, 3, core::getConsoleManager().width(), core::getConsoleManager().height() - 3);
-	auto cacheWindow = std::make_shared<tk::cacheWindow>(cache, clc, 0, 3, core::getConsoleManager().width(), core::getConsoleManager().height() - 3);
+	auto menuWindow = std::make_shared<tk::menuWindow>();
+	auto storageWindow = std::make_shared<tk::storageWindow>(storage, cache);
+	auto cacheWindow = std::make_shared<tk::cacheWindow>(cache);
 
 	cache->attach(cacheWindow);
 
@@ -65,13 +63,10 @@ void cliImpl::init()
 
 int cliImpl::run()
 {
-	core::getScreen().show(tk::cli::core::getConsoleManager());
+	core::getScreen().show(os::console::get());
 
 	auto eventManagerThread = std::jthread([]() { core::getEventManager().run(); });
 	tk::pushInputEvent(inputEvent::UNSPECIFIED);
-
-	core::getInputManager().run();
-
 	return 0;
 }
 } // namespace tk

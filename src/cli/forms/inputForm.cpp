@@ -7,32 +7,26 @@
 namespace tk
 {
 
-inputForm::inputForm(size_t x, size_t y, size_t width, size_t height, bool oneLineMode)
-: form(x, y, width, height)
-, oneLineMode_ { oneLineMode }
-{
-	lines_.push_back("");
-}
-
 void inputForm::show(window& wnd)
 {
-	if (x_ >= wnd.width() || y_ >= wnd.height())
+	if (x() >= wnd.width() || y() >= wnd.height())
 		return;
 
-	size_t edgeX = std::min(x_ + width_, wnd.width());
-	size_t edgeY = std::min(y_ + height_, wnd.height());
+	size_t edgeX = std::min(x() + width(), wnd.width());
+	size_t edgeY = std::min(y() + height(), wnd.height());
 
-	for (size_t y = y_; y < edgeY; ++y)
+	for (size_t yIt = y(); yIt < edgeY; ++yIt)
 	{
-		size_t lineIndex = y + offsetY_;
+		size_t lineIndex = yIt + offsetY_;
 
 		const std::string& line = lineIndex < lines_.size() ? lines_[lineIndex] : "";
-		for (size_t x = x_; x < edgeX; ++x)
+		for (size_t xIt = x(); xIt < edgeX; ++xIt)
 		{
-			size_t lineCol = x + offsetX_;
-			char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
-			wnd.setChar(x, y, ch);
-			wnd.setAttribute(x, y, (lineIndex == cursorY_ && lineCol == cursorX_) ? window::HIGHLIGHT_COLOR : window::DEFAULT_COLOR);
+			size_t lineCol = xIt + offsetX_;
+			auto bgColor = (lineIndex == cursorY_ && lineCol == cursorX_) ? os::console::color::CONSOLE_COLOR_WHITE : os::console::color::CONSOLE_COLOR_BLACK;
+			auto txtColor = (lineIndex == cursorY_ && lineCol == cursorX_) ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
+			unsigned char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
+			wnd.setChar({ xIt, yIt }, { ch, bgColor, txtColor });
 		}
 	}
 }
@@ -93,9 +87,9 @@ void inputForm::moveCursorRight()
 		cursorX_ = 0;
 	}
 
-	if (cursorX_ >= offsetX_ + width_)
+	if (cursorX_ >= offsetX_ + width())
 	{
-		offsetX_ = cursorX_ - width_ + 1;
+		offsetX_ = cursorX_ - width() + 1;
 	}
 }
 
@@ -121,9 +115,9 @@ void inputForm::moveCursorDown()
 		cursorX_ = std::min(cursorX_, lines_[cursorY_].size());
 	}
 
-	if (cursorY_ >= offsetY_ + height_)
+	if (cursorY_ >= offsetY_ + height())
 	{
-		offsetY_ = cursorY_ - height_ + 1;
+		offsetY_ = cursorY_ - height() + 1;
 	}
 }
 
@@ -140,9 +134,9 @@ void inputForm::shiftEnter()
 		cursorY_++;
 		cursorX_ = 0;
 
-		if (cursorY_ >= offsetY_ + height_)
+		if (cursorY_ >= offsetY_ + height())
 		{
-			offsetY_ = cursorY_ - height_ + 1;
+			offsetY_ = cursorY_ - height() + 1;
 		}
 		offsetX_ = 0;
 	}
@@ -157,9 +151,9 @@ void inputForm::home()
 void inputForm::end()
 {
 	cursorX_ = lines_[cursorY_].size();
-	if (cursorX_ >= offsetX_ + width_)
+	if (cursorX_ >= offsetX_ + width())
 	{
-		offsetX_ = cursorX_ - width_ + 1;
+		offsetX_ = cursorX_ - width() + 1;
 	}
 }
 
@@ -198,9 +192,9 @@ void inputForm::insertChar(char key)
 		}
 		cursorX_++;
 
-		if (cursorX_ >= offsetX_ + width_)
+		if (cursorX_ >= offsetX_ + width())
 		{
-			offsetX_ = cursorX_ - width_ + 1;
+			offsetX_ = cursorX_ - width() + 1;
 		}
 	}
 }

@@ -3,17 +3,24 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
-#include <windows.h>
 
 #include "cli/core/event.h"
+#include "os/console.h"
 
 namespace tk
 {
 class window
 {
 public:
-	window(size_t x, size_t y, size_t width, size_t height, const std::string& name);
+	using charInfo = os::console::charInfo;
+	using position_on_screen = os::console::position;
+	using position_on_window = os::console::position;
+	using window_size = os::console::size;
+	using relative_size = std::pair<double, double>;
+
+	explicit window(const std::string& name);
+	window(position_on_screen pos, window_size sz, const std::string& name);
+	window(position_on_screen pos, relative_size relativeSize, const std::string& name);
 	virtual ~window() = default;
 
 	window(const window& other);
@@ -21,41 +28,50 @@ public:
 	window& operator= (const window& other);
 	window& operator= (window&& other) noexcept;
 
-	using unique_ptr_type = std::unique_ptr<window>;
-	using shared_ptr_type = std::shared_ptr<window>;
+	using unique_ptr_t = std::unique_ptr<window>;
+	using shared_ptr_t = std::shared_ptr<window>;
 
-	CHAR_INFO& operator[] (size_t x, size_t y);
-	CHAR_INFO& operator[] (size_t index);
+	charInfo& operator[] (position_on_window pos);
+	charInfo& operator[] (size_t index);
 
 	std::string name();
 
-	virtual void setChar(size_t x, size_t y, char ch);
-	virtual void setChar(size_t index, char ch);
-	virtual void setAttribute(size_t x, size_t y, WORD attr);
-	virtual void setAttribute(size_t index, WORD attr);
+	virtual void setChar(position_on_window pos, charInfo ch);
+	virtual void setChar(size_t index, charInfo ch);
 
 	// position on screen
+	virtual position_on_screen pos() const;
+	virtual window_size size() const;
 	virtual size_t x() const;
 	virtual size_t y() const;
 	virtual size_t width() const;
 	virtual size_t height() const;
-	virtual size_t size() const;
 
+	virtual size_t length() const;
 	virtual void clear();
 	virtual void update();
 	virtual void handleInputEvent(event::shared_ptr_type event);
 
-public:
-	static const WORD HIGHLIGHT_COLOR = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
-	static const WORD DEFAULT_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+	void setRelativeSize(relative_size relativeSize);
+	void setAbsoluteSize(window_size absoluteSize);
+	void setPosition(position_on_screen pos);
+	void updateSize();
 
 public:
-	using buffer_type = std::vector<CHAR_INFO>;
+	using buffer_type = os::console::charBuffer;
 
 	buffer_type& buffer();
 
 private:
-	size_t x_, y_, width_, height_;
+	window_size calculateAbsoluteSize() const;
+
+private:
+	position_on_screen pos_;
+	window_size size_;
+	
+	relative_size relativeSize_ = { 0.0, 0.0 };
+	bool useRelativeSize_ = false;
+
 	buffer_type buffer_;
 	std::string name_;
 };

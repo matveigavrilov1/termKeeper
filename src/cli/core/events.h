@@ -31,38 +31,7 @@ public:
 		ARROW_RIGHT,
 		ARROW_UP,
 		ARROW_DOWN,
-		CTRL_C,
-		SHIFT_ENTER,
 		KEY_PRESSED,
-		CTRL_A,
-		CTRL_B,
-		CTRL_D,
-		CTRL_E,
-		CTRL_F,
-		CTRL_G,
-		CTRL_H,
-		CTRL_I, // Tab
-		CTRL_J,
-		CTRL_K,
-		CTRL_L,
-		CTRL_M,
-		CTRL_N,
-		CTRL_O,
-		CTRL_P,
-		CTRL_Q,
-		CTRL_R,
-		CTRL_S,
-		CTRL_T,
-		CTRL_U,
-		CTRL_V,
-		CTRL_W,
-		CTRL_X,
-		CTRL_Y,
-		CTRL_Z,
-		CTRL_BACKSLASH,
-		CTRL_SQUARE_BRACKET_RIGHT,
-		CTRL_CARET,
-		CTRL_UNDERSCORE,
 		PAGE_UP,
 		PAGE_DOWN,
 		HOME,
@@ -84,19 +53,31 @@ public:
 		UNSPECIFIED
 	};
 
-	inputEvent(type inputType, std::optional<char> key = std::nullopt)
+	inputEvent(type inputType, std::optional<char> key = std::nullopt, bool shiftPressed = false, bool ctrlPressed = false, bool altPressed = false)
 	: event(INPUT_EVENT)
 	, inputType_(inputType)
 	, key_(key)
+	, shiftPressed_(shiftPressed)
+	, ctrlPressed_(ctrlPressed)
+	, altPressed_(altPressed)
 	{ }
 
 	unsigned inputType() { return inputType_; }
 
 	std::optional<char> key() { return key_; }
 
+	bool shiftPressed() { return shiftPressed_; }
+
+	bool ctrlPressed() { return ctrlPressed_; }
+
+	bool altPressed() { return altPressed_; }
+
 private:
 	unsigned inputType_;
 	std::optional<char> key_;
+	bool shiftPressed_;
+	bool ctrlPressed_;
+	bool altPressed_;
 };
 
 class windowEvent : public event
@@ -104,15 +85,15 @@ class windowEvent : public event
 public:
 	using shared_ptr_type = std::shared_ptr<windowEvent>;
 
-	windowEvent(window::shared_ptr_type window)
+	windowEvent(window::shared_ptr_t window)
 	: event(WINDOW_EVENT)
 	, window_(std::move(window))
 	{ }
 
-	window::shared_ptr_type window() { return window_; }
+	window::shared_ptr_t window() { return window_; }
 
 private:
-	window::shared_ptr_type window_;
+	window::shared_ptr_t window_;
 };
 
 class screenEvent : public event

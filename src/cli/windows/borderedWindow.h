@@ -2,7 +2,6 @@
 #define BORDEREDWINDOW_H
 
 #include "cli/core/window.h"
-#include <string>
 
 namespace tk
 {
@@ -10,16 +9,10 @@ namespace tk
 class borderedWindow : public window
 {
 public:
-	borderedWindow(size_t x, size_t y, size_t width, size_t height, const std::string& name);
-	borderedWindow(const borderedWindow& other);
-	borderedWindow(borderedWindow&& other) noexcept;
-
-	borderedWindow& operator= (const borderedWindow& other);
-	borderedWindow& operator= (borderedWindow&& other) noexcept;
+	using window::window;
 
 	void clear() override;
-	void setChar(size_t x, size_t y, char ch) override;
-	void setAttribute(size_t x, size_t y, WORD attr) override;
+	void setChar(position_on_window pos, charInfo ch) override;
 
 	size_t innerWidth() const;
 	size_t innerHeight() const;
