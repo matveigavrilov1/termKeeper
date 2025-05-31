@@ -7,6 +7,8 @@ namespace tk
 
 void hintsForm::show(window& wnd)
 {
+	form::show(wnd);
+
 	if (!hints_)
 	{
 		return;

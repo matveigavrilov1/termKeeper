@@ -19,7 +19,7 @@ get_git_commit_hash(GIT_COMMIT_HASH)
 message(STATUS "Git commit hash: ${GIT_COMMIT_HASH}")
 add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
 
-if(CMAKE_BUILD_TYPE STREQUAL "debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()
 

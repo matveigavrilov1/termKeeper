@@ -1,4 +1,5 @@
 #include "cli/forms/selectionListForm.h"
+#include "utils/logger.h"
 
 namespace tk
 {
@@ -11,9 +12,13 @@ selectionListForm::selectionListForm(bool horizontal, const item_list_type& item
 
 void selectionListForm::show(window& wnd)
 {
+	form::show(wnd);
+
+
 	size_t startX = x(), startY = y();
 	size_t edgeX = x() + width(), edgeY = y() + height();
 	size_t index = offset_;
+
 
 	while (startY < edgeY && startX < edgeX && index < items_.size())
 	{
@@ -25,11 +30,15 @@ void selectionListForm::show(window& wnd)
 		{
 			startX += item.size() + 1;
 			if (startX >= edgeX)
+			{
 				break;
+			}
 		}
 		else
 		{
-			auto nextY = startY + linesNeeded(item);
+			auto lines = linesNeeded(item);
+
+			auto nextY = startY + lines;
 			if (nextY > edgeY)
 			{
 				break;
@@ -40,14 +49,17 @@ void selectionListForm::show(window& wnd)
 	}
 
 	if (horizontal_)
+	{
 		startY++;
+	}
+
 
 	while (startY < edgeY)
 	{
 		startX = x();
 		while (startX < edgeX)
 		{
-			wnd.setChar({ startX, startY }, { ' ' });
+			wnd.setChar({ startX++, startY }, { ' ' });
 		}
 		++startY;
 	}
@@ -56,11 +68,15 @@ void selectionListForm::show(window& wnd)
 void selectionListForm::addItem(const item_type& item)
 {
 	items_.push_back(item);
-	// Adjust offset if needed when adding new items
+
+
 	adjustOffset();
 }
 
-void selectionListForm::removeItem(const item_type& item) { }
+void selectionListForm::removeItem(const item_type& item)
+{
+	// Реализация удаления должна быть добавлена
+}
 
 selectionListForm::item_type selectionListForm::getSelected()
 {
@@ -68,6 +84,7 @@ selectionListForm::item_type selectionListForm::getSelected()
 	{
 		return {};
 	}
+
 	return items_[selectedIndex_];
 }
 
@@ -82,6 +99,8 @@ void selectionListForm::switchUp()
 	{
 		return;
 	}
+
+
 	if (selectedIndex_ == 0)
 	{
 		selectedIndex_ = items_.size() - 1;
@@ -99,6 +118,8 @@ void selectionListForm::switchDown()
 	{
 		return;
 	}
+
+
 	if (selectedIndex_ == items_.size() - 1)
 	{
 		selectedIndex_ = 0;
@@ -135,42 +156,58 @@ bool selectionListForm::empty()
 
 size_t selectionListForm::linesNeeded(const std::string& str)
 {
-	return (str.size() + width() - 1) / width();
+	if (!width())
+	{
+		return 1;
+	}
+	size_t lines = (str.size() + width() - 1) / width();
+
+	return lines;
 }
 
-void selectionListForm::showItem(size_t x, size_t y, const std::string& str, window& wnd, bool selected)
+void selectionListForm::showItem(size_t startX, size_t startY, const std::string& str, window& wnd, bool selected)
 {
 	size_t edgeX_ = pos_.x + width(), edgeY_ = pos_.y + height();
-	auto tmp = x;
+	auto tmp = startX;
+
+
 	for (auto ch : str)
 	{
-		if (x >= edgeX_ || y >= edgeY_)
+		if (startX >= edgeX_ || startY >= edgeY_)
+		{
 			break;
+		}
 
 		auto bgColor = (selected && showSelected_) ? os::console::color::CONSOLE_COLOR_WHITE : os::console::color::CONSOLE_COLOR_BLACK;
 		auto txtColor = (selected && showSelected_) ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
-		wnd.setChar({ x, y }, { static_cast<unsigned char>(ch), bgColor, txtColor });
 
-		if (x >= edgeX_)
+
+		wnd.setChar({ startX++, startY }, { static_cast<unsigned char>(ch), bgColor, txtColor });
+
+		if (startX >= edgeX_)
 		{
 			if (horizontal_)
 			{
 				return;
 			}
-			y++;
-			x = tmp;
+			startY++;
+			startX = tmp;
 		}
 	}
-	while (x < edgeX_ && y < edgeY_)
+
+
+	while (startX < edgeX_ && startY < edgeY_)
 	{
-		wnd.setChar({ x, y }, { ' ' });
+		wnd.setChar({ startX++, startY }, { ' ' });
 	}
 }
 
 void selectionListForm::adjustOffset()
 {
 	if (items_.empty())
+	{
 		return;
+	}
 
 	if (horizontal_)
 	{
@@ -182,14 +219,19 @@ void selectionListForm::adjustOffset()
 	size_t y = pos_.y;
 	size_t edgeY_ = pos_.y + height();
 
+
 	for (size_t i = offset_; i < items_.size(); ++i)
 	{
 		size_t needed = linesNeeded(items_[i]);
+
 		if (y + needed > edgeY_)
+		{
 			break;
+		}
 		y += needed;
 		visibleItems++;
 	}
+
 
 	if (selectedIndex_ < offset_)
 	{
@@ -203,8 +245,11 @@ void selectionListForm::adjustOffset()
 		while (newOffset > 0)
 		{
 			size_t needed = linesNeeded(items_[newOffset]);
+
 			if (y + needed > edgeY_)
+			{
 				break;
+			}
 			y += needed;
 			newOffset--;
 		}

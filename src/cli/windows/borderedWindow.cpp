@@ -27,16 +27,16 @@ void borderedWindow::clear()
 
 void borderedWindow::setChar(position_on_window pos, charInfo ch)
 {
-	if (pos.x >= innerWidth() || pos.y >= innerHeight())
+	if (pos.x >= width() || pos.y >= width())
 	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(pos.x) + ", " + std::to_string(pos.y) + " for width: " + std::to_string(innerWidth())
-			+ " and height: " + std::to_string(innerHeight());
+		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(pos.x) + ", " + std::to_string(pos.y) + " for width: " + std::to_string(width())
+			+ " and height: " + std::to_string(height());
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
 
-	size_t realX = pos.x + 1;
-	size_t realY = pos.y + 1;
+	size_t realX = pos.x ;
+	size_t realY = pos.y;
 	window::setChar({ realX, realY }, ch);
 }
 

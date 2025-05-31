@@ -69,7 +69,7 @@ private:
 	position_on_screen pos_;
 	window_size size_;
 	
-	relative_size relativeSize_ = { 0.0, 0.0 };
+	relative_size relativeSize_ = { 1, 1 };
 	bool useRelativeSize_ = false;
 
 	buffer_type buffer_;

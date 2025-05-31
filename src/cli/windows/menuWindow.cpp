@@ -11,10 +11,15 @@ namespace tk
 {
 menuWindow::menuWindow(const std::string& name)
 : borderedWindow(name)
-{ }
+, form_ { true }
+{
+	form_.setRelativeSize({ 1, 1 });
+}
 
 void menuWindow::update()
 {
+	updateSize();
+	form_.showSelected();
 	form_.show(*this);
 }
 

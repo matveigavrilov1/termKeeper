@@ -1,6 +1,5 @@
 #include "cli/forms/inputForm.h"
 
-#include <windows.h>
 #include <conio.h>
 #include <algorithm>
 
@@ -9,6 +8,8 @@ namespace tk
 
 void inputForm::show(window& wnd)
 {
+	form::show(wnd);
+
 	if (x() >= wnd.width() || y() >= wnd.height())
 		return;
 

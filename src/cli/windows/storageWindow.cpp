@@ -21,15 +21,24 @@ storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr
 , storage_(storage)
 , cache_(cache)
 {
+
+	selectionForm_.setRelativeSize({1, 1});
+	selectionForm_.updateSize(*this);
+
+	LOG_DBG("Storage Window ctor");
 	hintsForm_.addPreset(selectionPresetName, config::instance().hintsPreset(selectionPresetName));
 	hintsForm_.addPreset(inputPresetName, config::instance().hintsPreset(inputPresetName));
 	hintsForm_.applyPreset(selectionPresetName);
 	storage_->setRoot();
+
+	LOG_DBG("Filling selection form");
 	fillSelectionForm();
 }
 
 void storageWindow::update()
 {
+	updateSize();
+
 	if (inputMode_)
 	{
 		inputForm_.show(*this);
@@ -39,7 +48,7 @@ void storageWindow::update()
 		selectionForm_.show(*this);
 	}
 
-	hintsForm_.show(*this);
+	// hintsForm_.show(*this);
 }
 
 void storageWindow::handleInputEvent(event::shared_ptr_type event)

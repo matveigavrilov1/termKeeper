@@ -64,13 +64,15 @@ struct console::impl
 		std::vector<CHAR_INFO> res;
 		res.reserve(buffer.size());
 		std::transform(buffer.begin(), buffer.end(), std::back_inserter(res),
-			[this](charInfo info)
-			{
-				CHAR_INFO res_info;
-				res_info.Char.AsciiChar = info.ch;
-				res_info.Attributes = convertBackgroundColor(info.bgColor) | convertForegroundColor(info.txtColor);
-				return res_info;
-			});
+		[this](charInfo info)
+		{
+			CHAR_INFO res_info;
+			res_info.Char.AsciiChar = info.ch;
+			res_info.Attributes = convertBackgroundColor(info.bgColor) | convertForegroundColor(info.txtColor);
+			LOG_INF(char(info.ch));
+			return res_info;
+		});
+
 		return res;
 	}
 };
@@ -152,7 +154,11 @@ console::size console::getConsoleSize() const
 	if (!GetConsoleScreenBufferInfo(pimpl_->hConsole, &csbi))
 		return { 80, 25 }; // default size
 
-	return { static_cast<size_t>(csbi.dwSize.X), static_cast<size_t>(csbi.dwSize.Y) };
+	size_t width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	size_t height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+	LOG_DBG("Console size: " << width << ", " << height);
+	return { width, height };
 }
 
 void console::putChar(position pos, char c)

@@ -5,6 +5,7 @@
 #include <codecvt>
 #include <locale>
 
+#include "cli/core/interface.h"
 #include "cli/core/events.h"
 #include "cli/core/utils.h"
 #include "utils/logger.h"
@@ -51,6 +52,15 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				Shell_NotifyIcon(NIM_DELETE, &nid);
 				PostQuitMessage(0);
+			}
+			break;
+		case WM_HOTKEY:
+			if (wParam == HOTKEY_ID)
+			{
+				auto action = visible ? SW_HIDE : SW_SHOW;
+				ShowWindow(GetConsoleWindow(), action);
+				// tk::cli::core::getScreen().show(os::console::get());
+				visible = !visible;
 			}
 			break;
 		case WM_KEYDOWN:

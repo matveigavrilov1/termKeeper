@@ -16,7 +16,7 @@ public:
 
 	virtual ~form() = default;
 
-	virtual void show(window& wnd) = 0;
+	virtual void show(window& wnd);
 	
 	virtual window::position_on_window pos() const;
 	virtual form_size size() const;

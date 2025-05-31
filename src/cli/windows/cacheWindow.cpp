@@ -21,6 +21,11 @@ cacheWindow::cacheWindow(cache::shared_ptr_type cache, const std::string& name)
 : borderedWindow( name)
 , cache_(cache)
 {
+	hintsForm_.setRelativeSize({1, 1});
+	form_.setRelativeSize({1, 1});
+
+	updateSize();
+
 	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
 	hintsForm_.applyPreset(cachePresetName);
 	fillForm();
@@ -28,6 +33,8 @@ cacheWindow::cacheWindow(cache::shared_ptr_type cache, const std::string& name)
 
 void cacheWindow::update()
 {
+	updateSize();
+
 	form_.show(*this);
 	hintsForm_.show(*this);
 }

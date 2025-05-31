@@ -4,15 +4,16 @@
 namespace tk
 {
 
-void eventm::run()
+int eventm::run()
 {
 	if (running_)
 	{
-		return;
+		return 1;
 	}
 	running_ = true;
 	LOG_INF("Event manager started");
 	loop();
+	return 0;
 }
 
 void eventm::stop()

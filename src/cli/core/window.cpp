@@ -13,23 +13,28 @@ window::window(const std::string& name)
 : pos_ { 0, 0 }
 , useRelativeSize_ { true }
 , relativeSize_ { 1, 1 }
-{ }
+, name_ {name}
+{
+	size_ = calculateAbsoluteSize();
+	buffer_.resize(size_.width * size_.height);
+	clear();
+}
 
 window::window(position_on_screen pos, window_size sz, const std::string& name)
 : pos_(pos)
 , size_(sz)
 , buffer_(sz.width * sz.height)
-, name_(name)
 , useRelativeSize_(false)
+, name_(name)
 {
 	clear();
 }
 
 window::window(position_on_screen pos, relative_size relativeSize, const std::string& name)
 : pos_(pos)
-, name_(name)
 , relativeSize_(relativeSize)
 , useRelativeSize_(true)
+, name_(name)
 {
 	size_ = calculateAbsoluteSize();
 	buffer_.resize(size_.width * size_.height);
@@ -109,7 +114,7 @@ void window::setChar(position_on_window pos, charInfo ch)
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
-	buffer_.at(pos.y * width() + pos.x) = ch;
+	buffer_[pos.y * width() + pos.x] = ch;
 }
 
 void window::setChar(size_t index, charInfo ch)
@@ -121,7 +126,7 @@ void window::setChar(size_t index, charInfo ch)
 		LOG_ERR(error);
 		throw std::out_of_range(error);
 	}
-	buffer_.at(index) = ch;
+	buffer_[index] = ch;
 }
 
 window::position_on_screen window::pos() const
@@ -212,6 +217,7 @@ void window::updateSize()
 
 window::window_size window::calculateAbsoluteSize() const
 {
-	return { static_cast<size_t>(os::console::size().width * relativeSize_.first), static_cast<size_t>(os::console::size().height * relativeSize_.second) };
+	auto consoleSize = os::console::get()->getConsoleSize();
+	return { static_cast<size_t>(consoleSize.width * relativeSize_.first), static_cast<size_t>(consoleSize.height * relativeSize_.second) };
 }
 }; // namespace tk

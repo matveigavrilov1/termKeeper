@@ -20,11 +20,18 @@ form::form(window::position_on_window pos, std::pair<double, double> relativeSiz
 void form::setRelativeSize(std::pair<double, double> relativeSize)
 {
 	relativeSize_ = relativeSize;
+	useRelativeSize_ = true;
 }
 
 void form::updateSize(window& wnd)
 {
 	size_ = calculateAbsoluteSize(wnd);
+}
+
+void form::show(window& wnd)
+{
+	if (useRelativeSize_)
+		updateSize(wnd);
 }
 
 form::form_size form::calculateAbsoluteSize(window& wnd) const

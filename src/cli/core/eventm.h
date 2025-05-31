@@ -12,7 +12,7 @@ namespace tk
 class eventm
 {
 public:
-	void run();
+	int run();
 	void stop();
 	void loop();
 
