@@ -33,7 +33,7 @@ window::position_on_screen borderedWindow::contentPos() const
 window::window_size borderedWindow::contentSize() const
 {
 	auto real = window::realSize();
-	return {real.height - 2, real.width - 2};
+	return {real.width - 2, real.height - 2};
 }
 
 bool borderedWindow::isBorder(size_t x, size_t y) const

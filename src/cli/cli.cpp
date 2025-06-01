@@ -26,14 +26,17 @@ cliImpl::cliImpl(cache::shared_ptr_t cache, storage::shared_ptr_type storage)
 	auto menuWindow = std::make_shared<tk::menuWindow>();
 	menuWindow->setRelativeSize({ 0.2, 1 });
 	menuWindow->setPosition({ 0, 0 });
+	menuWindow->clear();
 	LOG_DBG("Creating Storage Window");
 	auto storageWindow = std::make_shared<tk::storageWindow>(storage, cache);
 	storageWindow->setRelativeSize({ 0.8, 1 });
 	storageWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
+	storageWindow->clear();
 	LOG_DBG("Creating Cache Window");
 	auto cacheWindow = std::make_shared<tk::cacheWindow>(cache);
 	cacheWindow->setRelativeSize({ 0.8, 1 });
 	cacheWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
+	cacheWindow->clear();
 
 	cache->attach(cacheWindow);
 
