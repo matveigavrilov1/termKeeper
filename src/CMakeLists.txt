@@ -4,21 +4,21 @@ set(EXEC_TARGET_NAME ${PROJECT_NAME})
 
 set(EXEC_SOURCES 
 	main.cpp
-	cli/cli.cpp
-	cli/core/event.cpp
-	cli/core/eventm.cpp
-	cli/core/form.cpp
-	cli/core/interface.cpp
-	cli/core/screen.cpp
-	cli/core/utils.cpp
-	cli/core/window.cpp
-	cli/forms/hintsForm.cpp
-	cli/forms/inputForm.cpp
-	cli/forms/selectionListForm.cpp
-	cli/windows/borderedWindow.cpp
-	cli/windows/cacheWindow.cpp
-	cli/windows/menuWindow.cpp
-	cli/windows/storageWindow.cpp
+	ui/ui.cpp
+	core/event.cpp
+	core/eventm.cpp
+	core/form.cpp
+	core/interface.cpp
+	core/screen.cpp
+	core/utils.cpp
+	core/window.cpp
+	forms/hintsForm.cpp
+	forms/inputForm.cpp
+	forms/selectionListForm.cpp
+	windows/borderedWindow.cpp
+	windows/cacheWindow.cpp
+	windows/menuWindow.cpp
+	windows/storageWindow.cpp
 	config/config.cpp
 	config/configData.cpp
 	os/windows/console.cpp

@@ -5,8 +5,8 @@
 #include <codecvt>
 #include <locale>
 
-#include "cli/core/events.h"
-#include "cli/core/utils.h"
+#include "core/events.h"
+#include "core/utils.h"
 #include "utils/logger.h"
 
 #define WM_TRAYICON (WM_USER + 1)

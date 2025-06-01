@@ -1,5 +1,5 @@
-#include "cli/core/interface.h"
-#include "cli/cli.h"
+#include "core/interface.h"
+#include "ui/ui.h"
 
 #include "config/config.h"
 
@@ -48,11 +48,11 @@ int main(int, char**)
 	auto storage = xmlStorage.getStorage();
 	auto cache = xmlCache.getCache();
 
-	tk::cli::core::init();
+	tk::ui::core::init();
 
-	tk::cliImpl cli(cache, storage);
+	tk::uiImpl ui(cache, storage);
 	LOG_INF("CLI created");
-	cli.init();
+	ui.init();
 
-	return cli.run();
+	return ui.run();
 }
