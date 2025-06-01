@@ -12,10 +12,9 @@ public:
 	using window::window;
 
 	void clear() override;
-	void setChar(position_on_window pos, charInfo ch) override;
 
-	size_t innerWidth() const;
-	size_t innerHeight() const;
+	position_on_screen contentPos() const override;
+	window_size contentSize() const override;
 
 private:
 	bool isBorder(size_t x, size_t y) const;

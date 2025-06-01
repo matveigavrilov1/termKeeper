@@ -19,9 +19,9 @@ void hintsForm::show(window& wnd)
 	const size_t edgeX = x() + width();
 	const size_t edgeY = x() + height();
 
-	auto setCharWithWrap = [&](unsigned char ch, os::console::color color) -> bool
+	auto setContentCharWithWrap = [&](unsigned char ch, os::console::color color) -> bool
 	{
-		wnd.setChar({ startX, startY }, { .ch = ch, .bgColor = color, .txtColor = os::console::CONSOLE_COLOR_BLACK });
+		wnd.setContentChar({ startX, startY }, { .ch = ch, .bgColor = color, .txtColor = os::console::CONSOLE_COLOR_BLACK });
 
 		if (++startX >= edgeX)
 		{
@@ -38,7 +38,7 @@ void hintsForm::show(window& wnd)
 	{
 		for (char ch : str)
 		{
-			if (!setCharWithWrap(ch, color))
+			if (!setContentCharWithWrap(ch, color))
 			{
 				return false;
 			}
@@ -53,7 +53,7 @@ void hintsForm::show(window& wnd)
 			return;
 
 
-		if (!setCharWithWrap(':', os::console::CONSOLE_COLOR_BLACK))
+		if (!setContentCharWithWrap(':', os::console::CONSOLE_COLOR_BLACK))
 			return;
 
 
@@ -61,13 +61,13 @@ void hintsForm::show(window& wnd)
 			return;
 
 
-		if (!setCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
+		if (!setContentCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
 			return;
 	}
 
 	while (startY < edgeY)
 	{
-		if (!setCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
+		if (!setContentCharWithWrap(' ', os::console::CONSOLE_COLOR_BLACK))
 			return;
 	}
 }

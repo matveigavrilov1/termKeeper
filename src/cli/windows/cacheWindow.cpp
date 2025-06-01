@@ -17,13 +17,14 @@ static const tk::hintsForm::preset_name_type cachePresetName = "cache";
 
 namespace tk
 {
-cacheWindow::cacheWindow(cache::shared_ptr_type cache, const std::string& name)
-: borderedWindow( name)
+cacheWindow::cacheWindow(cache::shared_ptr_t cache, const std::string& name)
+: borderedWindow(name)
 , cache_(cache)
 {
-	hintsForm_.setRelativeSize({1, 1});
-	form_.setRelativeSize({1, 1});
+	clear();
 
+	hintsForm_.setRelativeSize({ 1, 1 });
+	form_.setRelativeSize({ 1, 1 });
 	updateSize();
 
 	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
@@ -36,7 +37,7 @@ void cacheWindow::update()
 	updateSize();
 
 	form_.show(*this);
-	hintsForm_.show(*this);
+	// hintsForm_.show(*this);
 }
 
 void cacheWindow::handleInputEvent(event::shared_ptr_type event)
@@ -54,15 +55,6 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	{
 		case inputEvent::ARROW_UP:
 		{
-			if (form_.selectedIndex() == 0)
-			{
-				cli::core::getScreen().changeControllerWindow("Menu");
-				form_.unshowSelected();
-				update();
-				cli::core::getScreen().show(os::console::get());
-				pushInputEvent(inputEvent::UNSPECIFIED);
-				break;
-			}
 			form_.switchUp();
 		}
 		break;
@@ -70,13 +62,18 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 		{
 			form_.switchDown();
 		}
+		case inputEvent::ARROW_LEFT:
+		{
+			cli::core::getScreen().changeControllerWindow(cli::core::getScreen().findLeftNeighbour(uuid()));
+		}
 		break;
 		case inputEvent::ENTER:
 		{
 			auto selected = form_.getSelected();
-			os::writeToClipboard(selected);
+			auto content = cache_->findItem(selected.uuid)->content;
+			os::writeToClipboard(cache_->findItem(selected.uuid)->content);
 
-			cache_->pushFront(selected);
+			cache_->pushFront(content);
 			if (config::instance().closeOnChoice())
 			{
 				pushExitEvent();
@@ -90,8 +87,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	showWindow(shared_from_this());
 	if (form_.empty())
 	{
-		cli::core::getScreen().changeControllerWindow("Menu");
-		pushInputEvent(inputEvent::UNSPECIFIED);
+		cli::core::getScreen().changeControllerWindow(cli::core::getScreen().findLeftNeighbour(uuid()));
 	}
 }
 
@@ -110,7 +106,7 @@ void cacheWindow::fillForm()
 	form_.clear();
 	for (auto command : cache_->getCache())
 	{
-		form_.addItem(command);
+		form_.addItem({ command->content, command->uuid });
 	}
 }
 } // namespace tk

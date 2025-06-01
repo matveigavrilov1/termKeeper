@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <string>
 
 #include "cli/core/window.h"
 #include "os/console.h"
@@ -12,23 +11,28 @@ class screen
 {
 public:
 	void show(os::console::shared_ptr_t console) const;
-	bool showWindow(const std::string& name, os::console::shared_ptr_t console) const;
+	bool showWindow(const uuids::uuid& name, os::console::shared_ptr_t console) const;
 
 	bool registerWindow(window::shared_ptr_t win);
-	bool unregisterWindow(const std::string& name);
-	bool activateWindow(const std::string& name);
-	bool deactivateWindow(const std::string& name);
+	bool unregisterWindow(const uuids::uuid& uuid);
+	bool activateWindow(const uuids::uuid& uuid);
+	bool deactivateWindow(const uuids::uuid& uuid);
 	void deactivateAllWindows();
 
 	window::shared_ptr_t controllerWindow();
-	bool changeControllerWindow(const std::string& name);
+	bool changeControllerWindow(const uuids::uuid& uuid);
 
-	bool activated(const std::string& name) const;
-	using windows_map_type = std::unordered_map<std::string, window::shared_ptr_t>;
+	bool activated(const uuids::uuid& uuid) const;
+	using windows_map_t = std::unordered_map<uuids::uuid, window::shared_ptr_t>;
+
+	uuids::uuid findUpperNeighbour(const uuids::uuid& target) const;
+	uuids::uuid findLowerNeighbour(const uuids::uuid& target) const;
+	uuids::uuid findLeftNeighbour(const uuids::uuid& target) const;
+	uuids::uuid findRightNeighbour(const uuids::uuid& target) const;
 
 private:
-	windows_map_type windows_;
-	std::vector<std::string> activatedWindows_;
+	windows_map_t windows_;
+	std::vector<uuids::uuid> activatedWindows_;
 	window::shared_ptr_t controllerWindow_ { nullptr };
 };
 

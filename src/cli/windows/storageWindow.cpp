@@ -16,13 +16,12 @@ static const tk::hintsForm::preset_name_type inputPresetName = "storageInputMode
 
 namespace tk
 {
-storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr_type cache, const std::string& name)
+storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr_t cache, const std::string& name)
 : borderedWindow(name)
 , storage_(storage)
 , cache_(cache)
 {
-
-	selectionForm_.setRelativeSize({1, 1});
+	selectionForm_.setRelativeSize({ 1, 1 });
 	selectionForm_.updateSize(*this);
 
 	LOG_DBG("Storage Window ctor");
@@ -154,12 +153,12 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 				break;
 				case FOLDER_EDITING:
 				{
-					storage_->renameFolder(tempOldInput_, userInput[0]);
+					storage_->renameFolder(tempOldUuid_, userInput[0]);
 				}
 				break;
 				case COMMAND_EDITING:
 				{
-					storage_->editCommand(tempOldInput_, userInput[0]);
+					storage_->editCommand(tempOldUuid_, userInput[0]);
 				}
 				break;
 				default: break;
@@ -183,13 +182,6 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 	{
 		case inputEvent::ARROW_UP:
 		{
-			if (selectionForm_.selectedIndex() == 0)
-			{
-				cli::core::getScreen().changeControllerWindow("Menu");
-				selectionForm_.unshowSelected();
-				pushInputEvent(inputEvent::UNSPECIFIED);
-				break;
-			}
 			selectionForm_.switchUp();
 		}
 		break;
@@ -198,25 +190,30 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			selectionForm_.switchDown();
 		}
 		break;
+		case inputEvent::ARROW_LEFT:
+		{
+			cli::core::getScreen().changeControllerWindow(cli::core::getScreen().findLeftNeighbour(uuid()));
+		}
 		case inputEvent::ENTER:
 		{
 			auto selected = selectionForm_.getSelected();
-			auto content = selected.substr(1);
-			if (selected.starts_with("/"))
+
+			if (selected.content.starts_with("/"))
 			{
-				if (selected == "/..")
+				if (selected.content == "/..")
 				{
 					storage_->folderUp();
 				}
 				else
 				{
-					storage_->folderDown(content);
+					storage_->folderDown(selected.uuid);
 				}
 				fillSelectionForm();
 				pushInputEvent(inputEvent::UNSPECIFIED);
 			}
 			else
 			{
+				auto content = storage_->findCommand(selected.uuid)->content;
 				os::writeToClipboard(content);
 
 				cache_->pushFront(content);
@@ -246,13 +243,13 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 		case inputEvent::F3: // edit folder/command
 		{
 			auto selected = selectionForm_.getSelected();
-			if (selected == "/..")
+			if (selected.content == "/..")
 			{
 				break;
 			}
 			inputMode_ = true;
 			hintsForm_.applyPreset(inputPresetName);
-			if (selected.starts_with("/"))
+			if (selected.content.starts_with("/"))
 			{
 				inputModeType_ = FOLDER_EDITING;
 			}
@@ -260,7 +257,8 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			{
 				inputModeType_ = COMMAND_EDITING;
 			}
-			tempOldInput_ = selected.substr(1);
+			tempOldInput_ = selected.content.substr(1);
+			tempOldUuid_ = selected.uuid;
 			inputForm_.setInput({ tempOldInput_ });
 			pushInputEvent(inputEvent::UNSPECIFIED);
 		}
@@ -268,16 +266,16 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 		case inputEvent::DELETE_KEY:
 		{
 			auto selected = selectionForm_.getSelected();
-			if (selected.starts_with("/"))
+			if (selected.content.starts_with("/"))
 			{
-				if (selected != "/..")
+				if (selected.content != "/..")
 				{
-					storage_->deleteFolder(selected.substr(1));
+					storage_->deleteFolder(selected.uuid);
 				}
 			}
 			else
 			{
-				storage_->deleteCommand(selected.substr(1));
+				storage_->deleteCommand(selected.uuid);
 			}
 			fillSelectionForm();
 			pushInputEvent(inputEvent::UNSPECIFIED);
@@ -299,15 +297,15 @@ void storageWindow::fillSelectionForm()
 	auto folder = storage_->currentFolder();
 	if (!storage_->curIsRoot())
 	{
-		selectionForm_.addItem("/..");
+		selectionForm_.addItem({ "/.." });
 	}
-	for (auto [folderName, _] : folder->subFolders_)
+	for (auto [_, subFolder] : folder->subFolders_)
 	{
-		selectionForm_.addItem("/" + folderName);
+		selectionForm_.addItem({ "/" + subFolder->name_, subFolder->uuid_ });
 	}
 	for (auto command : folder->commands_)
 	{
-		selectionForm_.addItem(" " + command);
+		selectionForm_.addItem({ " " + command->content, command->uuid });
 	}
 }
 } // namespace tk

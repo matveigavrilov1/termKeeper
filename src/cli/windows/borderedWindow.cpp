@@ -2,10 +2,9 @@
 
 #include <algorithm>
 #include <iterator>
-#include <stdexcept>
 
+#include "cli/core/window.h"
 #include "os/console.h"
-#include "utils/logger.h"
 
 namespace tk
 {
@@ -25,62 +24,49 @@ void borderedWindow::clear()
 	drawBorder();
 }
 
-void borderedWindow::setChar(position_on_window pos, charInfo ch)
+window::position_on_screen borderedWindow::contentPos() const
 {
-	if (pos.x >= width() || pos.y >= width())
-	{
-		std::string error = "Coordinates (x, y) are out of range: " + std::to_string(pos.x) + ", " + std::to_string(pos.y) + " for width: " + std::to_string(width())
-			+ " and height: " + std::to_string(height());
-		LOG_ERR(error);
-		throw std::out_of_range(error);
-	}
-
-	size_t realX = pos.x ;
-	size_t realY = pos.y;
-	window::setChar({ realX, realY }, ch);
+	auto real = window::realPos();
+	return { real.x + 1, real.y + 1 };
 }
 
-size_t borderedWindow::innerWidth() const
+window::window_size borderedWindow::contentSize() const
 {
-	return window::width() - 2;
-}
-
-size_t borderedWindow::innerHeight() const
-{
-	return window::height() - 2;
+	auto real = window::realSize();
+	return {real.height - 2, real.width - 2};
 }
 
 bool borderedWindow::isBorder(size_t x, size_t y) const
 {
-	return x == 0 || x == width() - 1 || y == 0 || y == height() - 1;
+	return x == 0 || x == realWidth() - 1 || y == 0 || y == realHeight() - 1;
 }
 
 void borderedWindow::drawBorder()
 {
-	for (size_t x = 0; x < width(); ++x)
+	for (size_t x = 0; x < realWidth(); ++x)
 	{
 		window::setChar({ x, 0 }, HORIZONTAL_LINE);
 	}
 
-	for (size_t x = 0; x < width(); ++x)
+	for (size_t x = 0; x < realWidth(); ++x)
 	{
-		window::setChar({ x, height() - 1 }, HORIZONTAL_LINE);
+		window::setChar({ x, realHeight() - 1 }, HORIZONTAL_LINE);
 	}
 
-	for (size_t y = 0; y < height(); ++y)
+	for (size_t y = 0; y < realHeight(); ++y)
 	{
 		window::setChar({ 0, y }, VERTICAL_LINE);
 	}
 
-	for (size_t y = 0; y < height(); ++y)
+	for (size_t y = 0; y < realHeight(); ++y)
 	{
-		window::setChar({ width() - 1, y }, VERTICAL_LINE);
+		window::setChar({ realWidth() - 1, y }, VERTICAL_LINE);
 	}
 
 	window::setChar({ 0, 0 }, TOP_LEFT_CORNER);
-	window::setChar({ width() - 1, 0 }, TOP_RIGHT_CORNER);
-	window::setChar({ 0, height() - 1 }, BOTTOM_LEFT_CORNER);
-	window::setChar({ width() - 1, height() - 1 }, BOTTOM_RIGHT_CORNER);
+	window::setChar({ realWidth() - 1, 0 }, TOP_RIGHT_CORNER);
+	window::setChar({ 0, realHeight() - 1 }, BOTTOM_LEFT_CORNER);
+	window::setChar({ realWidth() - 1, realHeight() - 1 }, BOTTOM_RIGHT_CORNER);
 
 	os::console::charBuffer title;
 	auto titleStr = name();
@@ -93,12 +79,12 @@ void borderedWindow::drawBorder()
 		});
 	size_t titleLength = titleStr.length();
 	size_t titleX = 2;
-	if (titleX + titleLength > width())
+	if (titleX + titleLength > realWidth())
 	{
 		titleX = 1;
 	}
 
-	for (size_t i = 0; i < titleLength && titleX + i < width() - 1; ++i)
+	for (size_t i = 0; i < titleLength && titleX + i < realWidth() - 1; ++i)
 	{
 		window::setChar({ titleX + i, 0 }, title[i]);
 	}

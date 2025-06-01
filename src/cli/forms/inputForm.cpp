@@ -10,11 +10,11 @@ void inputForm::show(window& wnd)
 {
 	form::show(wnd);
 
-	if (x() >= wnd.width() || y() >= wnd.height())
+	if (x() >= wnd.realWidth() || y() >= wnd.realHeight())
 		return;
 
-	size_t edgeX = std::min(x() + width(), wnd.width());
-	size_t edgeY = std::min(y() + height(), wnd.height());
+	size_t edgeX = std::min(x() + width(), wnd.realWidth());
+	size_t edgeY = std::min(y() + height(), wnd.realHeight());
 
 	for (size_t yIt = y(); yIt < edgeY; ++yIt)
 	{
@@ -27,7 +27,7 @@ void inputForm::show(window& wnd)
 			auto bgColor = (lineIndex == cursorY_ && lineCol == cursorX_) ? os::console::color::CONSOLE_COLOR_WHITE : os::console::color::CONSOLE_COLOR_BLACK;
 			auto txtColor = (lineIndex == cursorY_ && lineCol == cursorX_) ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
 			unsigned char ch = (lineCol < line.size()) ? line[lineCol] : ' ';
-			wnd.setChar({ xIt, yIt }, { ch, bgColor, txtColor });
+			wnd.setContentChar({ xIt, yIt }, { ch, bgColor, txtColor });
 		}
 	}
 }

@@ -11,8 +11,10 @@ namespace tk
 {
 menuWindow::menuWindow(const std::string& name)
 : borderedWindow(name)
-, form_ { true }
+, form_ { false }
 {
+	clear();
+
 	form_.setRelativeSize({ 1, 1 });
 }
 
@@ -36,25 +38,25 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 
 	switch (input->inputType())
 	{
-		case inputEvent::ARROW_LEFT:
+		case inputEvent::ARROW_UP:
 		{
-			cli::core::getScreen().deactivateWindow(form_.getSelected());
+			cli::core::getScreen().deactivateWindow(form_.getSelected().uuid);
 			form_.switchUp();
-			cli::core::getScreen().activateWindow(form_.getSelected());
-			cli::core::getScreen().showWindow(form_.getSelected(), os::console::get());
-		}
-		break;
-		case inputEvent::ARROW_RIGHT:
-		{
-			cli::core::getScreen().deactivateWindow(form_.getSelected());
-			form_.switchDown();
-			cli::core::getScreen().activateWindow(form_.getSelected());
-			cli::core::getScreen().showWindow(form_.getSelected(), os::console::get());
+			cli::core::getScreen().activateWindow(form_.getSelected().uuid);
+			cli::core::getScreen().showWindow(form_.getSelected().uuid, os::console::get());
 		}
 		break;
 		case inputEvent::ARROW_DOWN:
 		{
-			cli::core::getScreen().changeControllerWindow(form_.getSelected());
+			cli::core::getScreen().deactivateWindow(form_.getSelected().uuid);
+			form_.switchDown();
+			cli::core::getScreen().activateWindow(form_.getSelected().uuid);
+			cli::core::getScreen().showWindow(form_.getSelected().uuid, os::console::get());
+		}
+		break;
+		case inputEvent::ARROW_RIGHT:
+		{
+			cli::core::getScreen().changeControllerWindow(form_.getSelected().uuid);
 			pushInputEvent(inputEvent::UNSPECIFIED);
 		}
 		break;
@@ -68,7 +70,7 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 void menuWindow::addWindow(window::shared_ptr_t win)
 {
 	windows_.push_back(win);
-	form_.addItem(win->name());
+	form_.addItem({ win->name(), win->uuid() });
 }
 
 void menuWindow::removeWindow(const std::string& name)

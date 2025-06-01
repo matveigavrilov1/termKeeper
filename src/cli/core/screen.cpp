@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "cli/core/utils.h"
 #include "utils/logger.h"
 
 namespace tk
@@ -9,35 +10,35 @@ namespace tk
 
 static bool isColliding(const window& win1, const window& win2)
 {
-	bool x_overlap = (win1.x() < win2.x() + win2.width()) && (win1.x() + win1.width() > win2.x());
-	bool y_overlap = (win1.y() < win2.y() + win2.height()) && (win1.y() + win1.height() > win2.y());
+	bool x_overlap = (win1.realX() < win2.realX() + win2.realWidth()) && (win1.realX() + win1.realWidth() > win2.realX());
+	bool y_overlap = (win1.realY() < win2.realY() + win2.realHeight()) && (win1.realY() + win1.realHeight() > win2.realY());
 	return x_overlap && y_overlap;
 }
 
 void screen::show(os::console::shared_ptr_t console) const
 {
-	for (const auto& name : activatedWindows_)
+	for (const auto& uuid : activatedWindows_)
 	{
-		LOG_DBG("Show window: " << name);
-		showWindow(name, console);
+		LOG_DBG("Show window: " << uuid);
+		showWindow(uuid, console);
 	}
 }
 
-bool screen::showWindow(const std::string& name, os::console::shared_ptr_t console) const
+bool screen::showWindow(const uuids::uuid& uuid, os::console::shared_ptr_t console) const
 {
-	if (auto it = windows_.find(name); it != windows_.end())
+	if (auto it = windows_.find(uuid); it != windows_.end())
 	{
-		if (activated(name))
+		if (activated(uuid))
 		{
-			LOG_DBG("Show window: " << name);
+			LOG_DBG("Show window: " << it->second->name());
 			const auto& activatedWindow = it->second;
 			if (console)
-				console->write(activatedWindow->buffer(), activatedWindow->pos(), activatedWindow->size());
+				console->write(activatedWindow->buffer(), activatedWindow->realPos(), activatedWindow->realSize());
 		}
 	}
 	else
 	{
-		LOG_ERR("Window not found in activated: " << name);
+		LOG_ERR("Window not found in activated: " << uuid);
 		return false;
 	}
 
@@ -51,54 +52,66 @@ bool screen::registerWindow(window::shared_ptr_t win)
 		LOG_WRN("Tried to register nullptr");
 		return false;
 	}
-	if (windows_.find(win->name()) == windows_.end())
+	if (windows_.find(win->uuid()) == windows_.end())
 	{
 		LOG_DBG("Registering window: " << win->name());
-		windows_.emplace(win->name(), std::move(win));
+		windows_.emplace(win->uuid(), std::move(win));
 		return true;
 	}
 	LOG_WRN("Window already registered: " << win->name());
 	return false;
 }
 
-bool screen::unregisterWindow(const std::string& name)
+bool screen::unregisterWindow(const uuids::uuid& uuid)
 {
-	if (windows_.find(name) != windows_.end())
+	if (!uuid.is_nil())
 	{
-		windows_.erase(name);
+		return false;
+	}
+	if (windows_.find(uuid) != windows_.end())
+	{
+		windows_.erase(uuid);
 		return true;
 	}
 	return false;
 }
 
-bool screen::activateWindow(const std::string& name)
+bool screen::activateWindow(const uuids::uuid& uuid)
 {
-	auto it = windows_.find(name);
+	if (!uuid.is_nil())
+	{
+		return false;
+	}
+	auto it = windows_.find(uuid);
 	if (it != windows_.end())
 	{
 		const auto& newWindow = it->second;
 
-		for (const auto& activeWindowName : activatedWindows_)
+		for (const auto& activeWindowUuid : activatedWindows_)
 		{
-			const auto& activeWindow = windows_.find(activeWindowName)->second;
+			const auto& activeWindow = windows_.find(activeWindowUuid)->second;
 			if (isColliding(*newWindow, *activeWindow))
 			{
-				LOG_ERR("Cannot activate window: " << name << " because it collides with window: " << activeWindowName);
+				LOG_ERR("Cannot activate window: " << uuid << " because it collides with window: " << activeWindowUuid);
 				return false;
 			}
 		}
 
-		LOG_DBG("Activating window: " << name);
-		activatedWindows_.push_back(name);
+		LOG_DBG("Activating window: " << uuid);
+		activatedWindows_.push_back(uuid);
 		return true;
 	}
-	LOG_ERR("Cannot activate window: " << name << " because it is not registered");
+	LOG_ERR("Cannot activate window: " << uuid << " because it is not registered");
 	return false;
 }
 
-bool screen::deactivateWindow(const std::string& name)
+bool screen::deactivateWindow(const uuids::uuid& uuid)
 {
-	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), name); it != activatedWindows_.end())
+	if (!uuid.is_nil())
+	{
+		return false;
+	}
+	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), uuid); it != activatedWindows_.end())
 	{
 		activatedWindows_.erase(it);
 		return true;
@@ -116,19 +129,176 @@ window::shared_ptr_t screen::controllerWindow()
 	return controllerWindow_;
 }
 
-bool screen::changeControllerWindow(const std::string& name)
+bool screen::changeControllerWindow(const uuids::uuid& uuid)
 {
-	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), name); it != activatedWindows_.end())
+	if (!uuid.is_nil())
 	{
-		LOG_DBG("Setting active window: " << name);
-		controllerWindow_ = windows_.find(name)->second;
+		return false;
+	}
+	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), uuid); it != activatedWindows_.end())
+	{
+		LOG_DBG("Setting active window: " << uuid);
+		controllerWindow_ = windows_.find(uuid)->second;
+		pushInputEvent(inputEvent::UNSPECIFIED);
 		return true;
 	}
 	return false;
 }
 
-bool screen::activated(const std::string& name) const
+bool screen::activated(const uuids::uuid& uuid) const
 {
-	return std::find(activatedWindows_.begin(), activatedWindows_.end(), name) != activatedWindows_.end();
+	if (!uuid.is_nil())
+	{
+		return false;
+	}
+	return std::find(activatedWindows_.begin(), activatedWindows_.end(), uuid) != activatedWindows_.end();
+}
+
+uuids::uuid screen::findUpperNeighbour(const uuids::uuid& target) const
+{
+	if (!windows_.count(target) || activatedWindows_.empty())
+		return uuids::uuid();
+
+	const auto& targetWin = windows_.at(target);
+	size_t targetBottom = targetWin->realY() + targetWin->realHeight();
+	size_t targetX = targetWin->realX();
+	size_t targetWidth = targetWin->realWidth();
+
+	uuids::uuid result;
+	size_t minDistance = std::numeric_limits<size_t>::max();
+
+	for (const auto& uuid : activatedWindows_)
+	{
+		if (uuid == target || !windows_.count(uuid))
+			continue;
+
+		const auto& win = windows_.at(uuid);
+		size_t winBottom = win->realY() + win->realHeight();
+		size_t winRight = win->realX() + win->realWidth();
+
+		// Проверяем пересечение по горизонтали и что окно выше целевого
+		if (winBottom <= targetWin->realY() && win->realX() < targetX + targetWidth && winRight > targetX)
+		{
+			size_t distance = targetWin->realY() - winBottom;
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				result = uuid;
+			}
+		}
+	}
+
+	return result;
+}
+
+uuids::uuid screen::findLowerNeighbour(const uuids::uuid& target) const
+{
+	if (!windows_.count(target) || activatedWindows_.empty())
+		return uuids::uuid();
+
+	const auto& targetWin = windows_.at(target);
+	size_t targetBottom = targetWin->realY() + targetWin->realHeight();
+	size_t targetX = targetWin->realX();
+	size_t targetWidth = targetWin->realWidth();
+
+	uuids::uuid result;
+	size_t minDistance = std::numeric_limits<size_t>::max();
+
+	for (const auto& uuid : activatedWindows_)
+	{
+		if (uuid == target || !windows_.count(uuid))
+			continue;
+
+		const auto& win = windows_.at(uuid);
+		size_t winY = win->realY();
+		size_t winRight = win->realX() + win->realWidth();
+
+		// Проверяем пересечение по горизонтали и что окно ниже целевого
+		if (winY >= targetBottom && win->realX() < targetX + targetWidth && winRight > targetX)
+		{
+			size_t distance = winY - targetBottom;
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				result = uuid;
+			}
+		}
+	}
+
+	return result;
+}
+
+uuids::uuid screen::findLeftNeighbour(const uuids::uuid& target) const
+{
+	if (!windows_.count(target) || activatedWindows_.empty())
+		return uuids::uuid();
+
+	const auto& targetWin = windows_.at(target);
+	size_t targetX = targetWin->realX();
+	size_t targetY = targetWin->realY();
+	size_t targetHeight = targetWin->realHeight();
+
+	uuids::uuid result;
+	size_t minDistance = std::numeric_limits<size_t>::max();
+
+	for (const auto& uuid : activatedWindows_)
+	{
+		if (uuid == target || !windows_.count(uuid))
+			continue;
+
+		const auto& win = windows_.at(uuid);
+		size_t winRight = win->realX() + win->realWidth();
+		size_t winBottom = win->realY() + win->realHeight();
+
+		// Проверяем пересечение по вертикали и что окно левее целевого
+		if (winRight <= targetX && win->realY() < targetY + targetHeight && winBottom > targetY)
+		{
+			size_t distance = targetX - winRight;
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				result = uuid;
+			}
+		}
+	}
+
+	return result;
+}
+
+uuids::uuid screen::findRightNeighbour(const uuids::uuid& target) const
+{
+	if (!windows_.count(target) || activatedWindows_.empty())
+		return uuids::uuid();
+
+	const auto& targetWin = windows_.at(target);
+	size_t targetRight = targetWin->realX() + targetWin->realWidth();
+	size_t targetY = targetWin->realY();
+	size_t targetHeight = targetWin->realHeight();
+
+	uuids::uuid result;
+	size_t minDistance = std::numeric_limits<size_t>::max();
+
+	for (const auto& uuid : activatedWindows_)
+	{
+		if (uuid == target || !windows_.count(uuid))
+			continue;
+
+		const auto& win = windows_.at(uuid);
+		size_t winX = win->realX();
+		size_t winBottom = win->realY() + win->realHeight();
+
+		// Проверяем пересечение по вертикали и что окно правее целевого
+		if (winX >= targetRight && win->realY() < targetY + targetHeight && winBottom > targetY)
+		{
+			size_t distance = winX - targetRight;
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				result = uuid;
+			}
+		}
+	}
+
+	return result;
 }
 } // namespace tk

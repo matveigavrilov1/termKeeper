@@ -13,12 +13,12 @@ namespace tk
 class cliImpl
 {
 public:
-	cliImpl(cache::shared_ptr_type cache, storage::shared_ptr_type storage);
+	cliImpl(cache::shared_ptr_t cache, storage::shared_ptr_type storage);
 	void init();
 	int run();
 
 private:
-	cache::shared_ptr_type cache_;
+	cache::shared_ptr_t cache_;
 	storage::shared_ptr_type storage_;
 
 	std::map<std::string, window::shared_ptr_t> windows_;

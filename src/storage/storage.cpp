@@ -1,6 +1,8 @@
 #include "storage/storage.h"
+#include "utils/generate_uuid.h"
 
 #include <algorithm>
+#include <memory>
 
 namespace tk
 {
@@ -33,68 +35,139 @@ void storage::setRoot()
 
 void storage::folderUp()
 {
-	if (currentFolder_ != root_)
+	if (currentFolder_ != root_ && !currentFolder_->parent_.expired())
 	{
 		currentFolder_ = currentFolder_->parent_.lock();
 	}
 }
 
-void storage::folderDown(const std::string& name)
+void storage::folderDown(const uuids::uuid& folder_uuid)
 {
-	auto it = currentFolder_->subFolders_.find(name);
+	auto it = std::find_if(
+		currentFolder_->subFolders_.begin(), currentFolder_->subFolders_.end(), [&folder_uuid](const auto& pair) { return pair.second->uuid_ == folder_uuid; });
+
 	if (it != currentFolder_->subFolders_.end())
 	{
 		currentFolder_ = it->second;
 	}
 }
 
-void storage::addFolder(const std::string& name)
+uuids::uuid storage::addFolder(const std::string& name)
 {
 	auto newFolder = std::make_shared<folder>(name);
 	newFolder->parent_ = currentFolder_;
-	currentFolder_->subFolders_[name] = newFolder;
+	currentFolder_->subFolders_[newFolder->uuid_] = newFolder;
+	return newFolder->uuid_;
 }
 
-void storage::addCommand(const std::string& command)
+uuids::uuid storage::addCommand(const std::string& command)
 {
-	currentFolder_->commands_.push_back(command);
+	auto cmd = std::make_shared<command_t>(command, utils::generate_uuid());
+	currentFolder_->commands_.push_back(cmd);
+	return cmd->uuid;
 }
 
-void storage::deleteFolder(const std::string& name)
+void storage::deleteFolder(const uuids::uuid& folder_uuid)
 {
-	auto it = currentFolder_->subFolders_.find(name);
+	auto it = currentFolder_->subFolders_.find(folder_uuid);
 	if (it != currentFolder_->subFolders_.end())
 	{
 		currentFolder_->subFolders_.erase(it);
 	}
 }
 
-void storage::deleteCommand(const std::string& command)
+void storage::deleteCommand(const uuids::uuid& command_uuid)
 {
 	auto& commands = currentFolder_->commands_;
-	commands.erase(std::remove(commands.begin(), commands.end(), command), commands.end());
+	commands.erase(std::remove_if(commands.begin(), commands.end(), [&command_uuid](const auto& cmd) { return cmd->uuid == command_uuid; }), commands.end());
 }
 
-void storage::renameFolder(const std::string& oldName, const std::string& newName)
+void storage::renameFolder(const uuids::uuid& folder_uuid, const std::string& newName)
 {
-	auto it = currentFolder_->subFolders_.find(oldName);
+	auto it = currentFolder_->subFolders_.find(folder_uuid);
 	if (it != currentFolder_->subFolders_.end())
 	{
-		auto folder = it->second;
-		currentFolder_->subFolders_.erase(it);
-		folder->name_ = newName;
-		currentFolder_->subFolders_[newName] = folder;
+		it->second->name_ = newName;
 	}
 }
 
-void storage::editCommand(const std::string& oldCommand, const std::string& newCommand)
+void storage::editCommand(const uuids::uuid& command_uuid, const std::string& newCommand)
 {
 	auto& commands = currentFolder_->commands_;
-	auto it = std::find(commands.begin(), commands.end(), oldCommand);
+	auto it = std::find_if(commands.begin(), commands.end(), [&command_uuid](const auto& cmd) { return cmd->uuid == command_uuid; });
+
 	if (it != commands.end())
 	{
-		*it = newCommand;
+		(*it)->content = newCommand;
 	}
+}
+
+const storage::folder_shared_ptr_t storage::findFolder(const uuids::uuid& uuid) const
+{
+	return findFolderImpl(root_, uuid);
+}
+
+const storage::command_shared_ptr_t storage::findCommand(const uuids::uuid& uuid) const
+{
+	// Search in current folder first
+	auto it = std::find_if(currentFolder_->commands_.begin(), currentFolder_->commands_.end(), [&uuid](const auto& cmd) { return cmd->uuid == uuid; });
+
+	if (it != currentFolder_->commands_.end())
+	{
+		return (*it);
+	}
+
+	// If not found, search recursively in all folders
+	folder_shared_ptr_t folder_with_command;
+	std::function<bool(const folder_shared_ptr_t&)> search = [&](const folder_shared_ptr_t& f)
+	{
+		auto cmd_it = std::find_if(f->commands_.begin(), f->commands_.end(), [&uuid](const auto& cmd) { return cmd->uuid == uuid; });
+
+		if (cmd_it != f->commands_.end())
+		{
+			folder_with_command = f;
+			return true;
+		}
+
+		for (const auto& [_, subfolder] : f->subFolders_)
+		{
+			if (search(subfolder))
+				return true;
+		}
+
+		return false;
+	};
+
+	if (search(root_))
+	{
+		auto cmd_it =
+			std::find_if(folder_with_command->commands_.begin(), folder_with_command->commands_.end(), [&uuid](const auto& cmd) { return cmd->uuid == uuid; });
+		if (cmd_it != folder_with_command->commands_.end())
+		{
+			return (*cmd_it);
+		}
+	}
+
+	return nullptr;
+}
+
+storage::folder_shared_ptr_t storage::findFolderImpl(const folder_shared_ptr_t& current, const uuids::uuid& uuid) const
+{
+	if (current->uuid_ == uuid)
+	{
+		return current;
+	}
+
+	for (const auto& [_, subfolder] : current->subFolders_)
+	{
+		auto found = findFolderImpl(subfolder, uuid);
+		if (found)
+		{
+			return found;
+		}
+	}
+
+	return nullptr;
 }
 
 } // namespace tk

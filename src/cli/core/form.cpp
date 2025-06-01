@@ -23,6 +23,11 @@ void form::setRelativeSize(std::pair<double, double> relativeSize)
 	useRelativeSize_ = true;
 }
 
+void form::setPosition(window::position_on_window pos)
+{
+	pos_ = pos;
+}
+
 void form::updateSize(window& wnd)
 {
 	size_ = calculateAbsoluteSize(wnd);
@@ -36,7 +41,7 @@ void form::show(window& wnd)
 
 form::form_size form::calculateAbsoluteSize(window& wnd) const
 {
-	return { static_cast<size_t>(wnd.size().width * relativeSize_.first), static_cast<size_t>(wnd.size().height * relativeSize_.second) };
+	return { static_cast<size_t>(wnd.contentSize().width * relativeSize_.first), static_cast<size_t>(wnd.contentSize().height * relativeSize_.second) };
 }
 
 window::position_on_screen form::pos() const

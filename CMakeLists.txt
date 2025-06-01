@@ -27,6 +27,7 @@ set(CMAKE_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/project-controller-${CMAKE_BU
 
 find_package(pugixml REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(stduuid REQUIRED)
 
 add_subdirectory(src)
 

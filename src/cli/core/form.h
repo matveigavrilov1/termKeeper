@@ -26,6 +26,7 @@ public:
 	virtual size_t height() const;
 
 	void setAbsoluteSize(form_size absoluteSize);
+	void setPosition(window::position_on_window pos);
 	void setRelativeSize(relative_size relativeSize);
 	void updateSize(window& wnd);
 

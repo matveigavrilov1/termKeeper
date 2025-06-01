@@ -69,7 +69,6 @@ struct console::impl
 			CHAR_INFO res_info;
 			res_info.Char.AsciiChar = info.ch;
 			res_info.Attributes = convertBackgroundColor(info.bgColor) | convertForegroundColor(info.txtColor);
-			LOG_INF(char(info.ch));
 			return res_info;
 		});
 

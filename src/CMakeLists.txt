@@ -27,6 +27,7 @@ set(EXEC_SOURCES
 	storage/storage.cpp
 	storage/xmlCacheManager.cpp
 	storage/xmlStorageManager.cpp
+	utils/generate_uuid.cpp
 )
 	
 add_executable(${EXEC_TARGET_NAME} ${EXEC_SOURCES} tk.rc)
@@ -37,7 +38,9 @@ target_include_directories(${EXEC_TARGET_NAME}
 
 target_link_libraries(${EXEC_TARGET_NAME} 
 	pugixml::pugixml
-	yaml-cpp)
+	yaml-cpp
+	stduuid::stduuid
+)
 
 
 set(STORAGE_FILE ${CMAKE_SOURCE_DIR}/storage/storage.xml)

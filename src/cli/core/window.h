@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include <uuid.h>
+
 #include "cli/core/event.h"
 #include "os/console.h"
 
@@ -34,28 +36,48 @@ public:
 	charInfo& operator[] (position_on_window pos);
 	charInfo& operator[] (size_t index);
 
-	std::string name();
+	const std::string& name() const;
+	const uuids::uuid& uuid() const;
 
 	virtual void setChar(position_on_window pos, charInfo ch);
 	virtual void setChar(size_t index, charInfo ch);
+	virtual void setContentChar(position_on_window pos, charInfo ch);
+	virtual void setContentChar(size_t index, charInfo ch);
 
 	// position on screen
-	virtual position_on_screen pos() const;
-	virtual window_size size() const;
-	virtual size_t x() const;
-	virtual size_t y() const;
-	virtual size_t width() const;
-	virtual size_t height() const;
+	position_on_screen realPos() const;
+	window_size realSize() const;
+	size_t realX() const;
+	size_t realY() const;
+	size_t realWidth() const;
+	size_t realHeight() const;
+
+	virtual position_on_screen contentPos() const;
+	virtual window_size contentSize() const;
+	size_t contentX() const;
+	size_t contentY() const;
+	size_t contentWidth() const;
+	size_t contentHeight() const;
 
 	virtual size_t length() const;
 	virtual void clear();
 	virtual void update();
 	virtual void handleInputEvent(event::shared_ptr_type event);
 
-	void setRelativeSize(relative_size relativeSize);
-	void setAbsoluteSize(window_size absoluteSize);
-	void setPosition(position_on_screen pos);
-	void updateSize();
+	virtual void setRelativeSize(relative_size relativeSize);
+	virtual void setAbsoluteSize(window_size absoluteSize);
+	virtual void setPosition(position_on_screen pos);
+	virtual void updateSize();
+
+	void setLeftNeighbourUuid(uuids::uuid uuid);
+	void setRightNeighbourUuid(uuids::uuid uuid);
+	void setUpperNeighbourUuid(uuids::uuid uuid);
+	void setLowerNeighbourUuid(uuids::uuid uuid);
+
+	uuids::uuid getLeftNeighbourUuid() const;
+	uuids::uuid getRightNeighbourUuid() const;
+	uuids::uuid getUpperNeighbourUuid() const;
+	uuids::uuid getLowerNeighbourUuid() const;
 
 public:
 	using buffer_type = os::console::charBuffer;
@@ -68,12 +90,18 @@ private:
 private:
 	position_on_screen pos_;
 	window_size size_;
-	
+
 	relative_size relativeSize_ = { 1, 1 };
 	bool useRelativeSize_ = false;
 
 	buffer_type buffer_;
 	std::string name_;
+	uuids::uuid uuid_;
+
+	uuids::uuid leftNeighbour_;
+	uuids::uuid rightNeighbour_;
+	uuids::uuid upperNeighbour_;
+	uuids::uuid lowerNeighbour_;
 };
 
 } // namespace tk

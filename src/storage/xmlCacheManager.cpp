@@ -10,7 +10,7 @@ xmlCacheManager::xmlCacheManager()
 : cache_(std::make_shared<cache>(10))
 { }
 
-cache::shared_ptr_type xmlCacheManager::getCache() const
+cache::shared_ptr_t xmlCacheManager::getCache() const
 {
 	return cache_;
 };
@@ -45,7 +45,7 @@ bool xmlCacheManager::dump(const std::string& filename)
 	for (const auto& command : cache_->getCache())
 	{
 		auto commandNode = cacheNode.append_child("command");
-		commandNode.text().set(command.c_str());
+		commandNode.text().set(command->content.c_str());
 	}
 
 	if (!doc.save_file(filename.c_str()))

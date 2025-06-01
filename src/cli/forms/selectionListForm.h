@@ -1,5 +1,7 @@
 #pragma once
 
+#include <uuid.h>
+
 #include "cli/core/form.h"
 
 namespace tk
@@ -7,7 +9,11 @@ namespace tk
 class selectionListForm : public form
 {
 public:
-	using item_type = std::string;
+	struct item {
+		std::string content;
+		uuids::uuid uuid;
+	};
+	using item_type = item;
 	using item_list_type = std::vector<item_type>;
 	selectionListForm(bool horizontal = false, const item_list_type& items = {});
 

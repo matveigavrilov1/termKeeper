@@ -9,8 +9,8 @@
 
 namespace tk
 {
-class menuWindow
-: public borderedWindow
+class menuWindow final
+: public borderedWindow 
 , public std::enable_shared_from_this<menuWindow>
 {
 public:

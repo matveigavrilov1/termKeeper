@@ -13,13 +13,13 @@
 
 namespace tk
 {
-class cacheWindow
+class cacheWindow final
 : public borderedWindow
 , public std::enable_shared_from_this<cacheWindow>
 , public observer
 {
 public:
-	cacheWindow(cache::shared_ptr_type cache, const std::string& name = "Cache");
+	cacheWindow(cache::shared_ptr_t cache, const std::string& name = "Cache");
 	void update() override;
 
 	void handleInputEvent(event::shared_ptr_type event) override;
@@ -29,7 +29,7 @@ public:
 private:
 	void fillForm();
 
-	cache::shared_ptr_type cache_;
+	cache::shared_ptr_t cache_;
 	int activeIndex_ { 0 };
 	selectionListForm form_;
 

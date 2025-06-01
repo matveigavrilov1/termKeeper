@@ -1,4 +1,5 @@
 #include "storage/xmlStorageManager.h"
+#include "utils/generate_uuid.h"
 
 namespace tk
 {
@@ -27,7 +28,8 @@ bool xmlStorageManager::parse(const std::string& filename)
 
 	for (auto commandNode : rootNode.children("command"))
 	{
-		storage_->root()->commands_.push_back(commandNode.text().as_string());
+		auto command = std::make_shared<storage::command_t>(commandNode.text().as_string(), utils::generate_uuid());
+		storage_->root()->commands_.push_back(command);
 	}
 
 	parseFolder(rootNode, storage_->root());
@@ -42,7 +44,7 @@ bool xmlStorageManager::dump(const std::string& filename)
 	for (const auto& command : storage_->root()->commands_)
 	{
 		auto commandNode = storageNode.append_child("command");
-		commandNode.text().set(command.c_str());
+		commandNode.text().set(command->content.c_str());
 	}
 
 	dumpFolder(storageNode, storage_->root());
@@ -62,11 +64,12 @@ void xmlStorageManager::parseFolder(const pugi::xml_node& xmlNode, std::shared_p
 		std::string folderName = subFolderNode.attribute("name").as_string();
 		auto newFolder = std::make_shared<storage::folder>(folderName);
 		newFolder->parent_ = folder;
-		folder->subFolders_[folderName] = newFolder;
+		folder->subFolders_[utils::generate_uuid()] = newFolder;
 
 		for (auto commandNode : subFolderNode.children("command"))
 		{
-			newFolder->commands_.push_back(commandNode.text().as_string());
+			auto command = std::make_shared<storage::command_t>(commandNode.text().as_string(), utils::generate_uuid());
+			newFolder->commands_.push_back(command);
 		}
 
 		parseFolder(subFolderNode, newFolder);
@@ -78,12 +81,12 @@ void xmlStorageManager::dumpFolder(pugi::xml_node& xmlNode, std::shared_ptr<stor
 	for (const auto& [name, subFolder] : folder->subFolders_)
 	{
 		auto subFolderNode = xmlNode.append_child("folder");
-		subFolderNode.append_attribute("name").set_value(name.c_str());
+		subFolderNode.append_attribute("name").set_value(subFolder->name_.c_str());
 
 		for (const auto& command : subFolder->commands_)
 		{
 			auto commandNode = subFolderNode.append_child("command");
-			commandNode.text().set(command.c_str());
+			commandNode.text().set(command->content.c_str());
 		}
 
 		dumpFolder(subFolderNode, subFolder);

@@ -5,7 +5,6 @@
 #include <codecvt>
 #include <locale>
 
-#include "cli/core/interface.h"
 #include "cli/core/events.h"
 #include "cli/core/utils.h"
 #include "utils/logger.h"
@@ -25,6 +24,7 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 		case WM_CREATE:
+		{
 			nid = { sizeof(nid) };
 			nid.hWnd = hWnd;
 			nid.uID = ID_TRAYICON;
@@ -35,6 +35,8 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Shell_NotifyIcon(NIM_ADD, &nid);
 
 			RegisterHotKey(hWnd, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, 'C');
+		}
+		break;
 		case WM_TRAYICON:
 			if (lParam == WM_RBUTTONDOWN)
 			{
@@ -59,7 +61,9 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				auto action = visible ? SW_HIDE : SW_SHOW;
 				ShowWindow(GetConsoleWindow(), action);
-				// tk::cli::core::getScreen().show(os::console::get());
+				if (!visible)
+					SetForegroundWindow(hWnd);
+	
 				visible = !visible;
 			}
 			break;
@@ -70,116 +74,75 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			bool altPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
 
 			WORD virtualKeyCode = LOWORD(wParam);
-			UINT scanCode = LOBYTE(HIWORD(lParam));
+			UINT scanCode = (lParam >> 16) & 0x00FF;
+			bool isExtended = (lParam & 0x01000000) != 0;
+
+			// Handle extended keys
+			if (isExtended)
+			{
+				scanCode |= 0xE000;
+			}
+
 			BYTE keyboardState[256];
 			GetKeyboardState(keyboardState);
 
-			WCHAR charBuffer[2] = { 0 };
-			int result = ToUnicode(virtualKeyCode, scanCode, keyboardState, charBuffer, 2, 0);
+			// Handle dead keys and proper character conversion
+			WCHAR charBuffer[5] = { 0 }; // Increased buffer for surrogate pairs
+			int result = ToUnicode(virtualKeyCode, scanCode, keyboardState, charBuffer, sizeof(charBuffer) / sizeof(charBuffer[0]), 0);
 
-			char asciiChar = (result > 0 && charBuffer[0] < 128) ? static_cast<char>(charBuffer[0]) : 0;
+			char asciiChar = 0;
+			if (result > 0)
+			{
+				// Convert to UTF-8 if needed
+				if (charBuffer[0] < 128)
+				{
+					asciiChar = static_cast<char>(charBuffer[0]);
+				}
+				else
+				{
+					// Handle Unicode characters properly
+					std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+					std::string utf8 = converter.to_bytes(charBuffer);
+					if (!utf8.empty())
+					{
+						asciiChar = utf8[0]; // Simplified - consider handling full UTF-8
+					}
+				}
+			}
+
+			LOG_DBG("Key pressed: " << (int)virtualKeyCode << " Char: " << (int)asciiChar);
 
 			tk::inputEvent::type eventType = tk::inputEvent::UNSPECIFIED;
 
-			if (virtualKeyCode == VK_RETURN)
+			// Handle special keys
+			switch (virtualKeyCode)
 			{
-				eventType = tk::inputEvent::ENTER;
-			}
-			else if (virtualKeyCode == VK_ESCAPE)
-			{
-				eventType = tk::inputEvent::ESC;
-			}
-			else if (virtualKeyCode == VK_HOME)
-			{
-				eventType = tk::inputEvent::HOME;
-			}
-			else if (virtualKeyCode == VK_END)
-			{
-				eventType = tk::inputEvent::END;
-			}
-			else if (virtualKeyCode == VK_PRIOR)
-			{
-				eventType = tk::inputEvent::PAGE_UP;
-			}
-			else if (virtualKeyCode == VK_NEXT)
-			{
-				eventType = tk::inputEvent::PAGE_DOWN;
-			}
-			else if (virtualKeyCode == VK_INSERT)
-			{
-				eventType = tk::inputEvent::INSERT;
-			}
-			else if (virtualKeyCode == VK_DELETE)
-			{
-				eventType = tk::inputEvent::DELETE_KEY;
-			}
-			else if (virtualKeyCode == VK_F1)
-			{
-				eventType = tk::inputEvent::F1;
-			}
-			else if (virtualKeyCode == VK_F2)
-			{
-				eventType = tk::inputEvent::F2;
-			}
-			else if (virtualKeyCode == VK_F3)
-			{
-				eventType = tk::inputEvent::F3;
-			}
-			else if (virtualKeyCode == VK_F4)
-			{
-				eventType = tk::inputEvent::F4;
-			}
-			else if (virtualKeyCode == VK_F5)
-			{
-				eventType = tk::inputEvent::F5;
-			}
-			else if (virtualKeyCode == VK_F6)
-			{
-				eventType = tk::inputEvent::F6;
-			}
-			else if (virtualKeyCode == VK_F7)
-			{
-				eventType = tk::inputEvent::F7;
-			}
-			else if (virtualKeyCode == VK_F8)
-			{
-				eventType = tk::inputEvent::F8;
-			}
-			else if (virtualKeyCode == VK_F9)
-			{
-				eventType = tk::inputEvent::F9;
-			}
-			else if (virtualKeyCode == VK_F10)
-			{
-				eventType = tk::inputEvent::F10;
-			}
-			else if (virtualKeyCode == VK_F11)
-			{
-				eventType = tk::inputEvent::F11;
-			}
-			else if (virtualKeyCode == VK_F12)
-			{
-				eventType = tk::inputEvent::F12;
-			}
-			else if (virtualKeyCode == VK_LEFT)
-			{
-				eventType = tk::inputEvent::ARROW_LEFT;
-			}
-			else if (virtualKeyCode == VK_RIGHT)
-			{
-				eventType = tk::inputEvent::ARROW_RIGHT;
-			}
-			else if (virtualKeyCode == VK_UP)
-			{
-				eventType = tk::inputEvent::ARROW_UP;
-			}
-			else if (virtualKeyCode == VK_DOWN)
-			{
-				eventType = tk::inputEvent::ARROW_DOWN;
-			}
-			else
-			{
-				eventType = tk::inputEvent::KEY_PRESSED;
+				case VK_RETURN: eventType = tk::inputEvent::ENTER; break;
+				case VK_ESCAPE: eventType = tk::inputEvent::ESC; break;
+				case VK_HOME: eventType = tk::inputEvent::HOME; break;
+				case VK_END: eventType = tk::inputEvent::END; break;
+				case VK_PRIOR: eventType = tk::inputEvent::PAGE_UP; break;
+				case VK_NEXT: eventType = tk::inputEvent::PAGE_DOWN; break;
+				case VK_INSERT: eventType = tk::inputEvent::INSERT; break;
+				case VK_DELETE: eventType = tk::inputEvent::DELETE_KEY; break;
+				case VK_LEFT: eventType = tk::inputEvent::ARROW_LEFT; break;
+				case VK_RIGHT: eventType = tk::inputEvent::ARROW_RIGHT; break;
+				case VK_UP: eventType = tk::inputEvent::ARROW_UP; break;
+				case VK_DOWN: eventType = tk::inputEvent::ARROW_DOWN; break;
+				case VK_F1: eventType = tk::inputEvent::F1; break;
+				case VK_F2: eventType = tk::inputEvent::F2; break;
+				case VK_F3: eventType = tk::inputEvent::F3; break;
+				case VK_F4: eventType = tk::inputEvent::F4; break;
+				case VK_F5: eventType = tk::inputEvent::F5; break;
+				case VK_F6: eventType = tk::inputEvent::F6; break;
+				case VK_F7: eventType = tk::inputEvent::F7; break;
+				case VK_F8: eventType = tk::inputEvent::F8; break;
+				case VK_F9: eventType = tk::inputEvent::F9; break;
+				case VK_F10: eventType = tk::inputEvent::F10; break;
+				case VK_F11: eventType = tk::inputEvent::F11; break;
+				case VK_F12: eventType = tk::inputEvent::F12; break;
+				case VK_BACK: eventType = tk::inputEvent::BACKSPACE; break;
+				default: eventType = tk::inputEvent::KEY_PRESSED; break;
 			}
 
 			tk::pushInputEvent(eventType, asciiChar, shiftPressed, ctrlPressed, altPressed);
@@ -210,11 +173,15 @@ int os::runApp(const char* appName, std::atomic<bool>& running)
 	wc.lpszClassName = TEXT(appName);
 	RegisterClass(&wc);
 
-	hWnd = CreateWindow(wc.lpszClassName, TEXT(appName), 0, 0, 0, 0, 0, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow(wc.lpszClassName, TEXT(appName),
+		WS_OVERLAPPEDWINDOW,					// Добавлен стиль окна
+		CW_USEDEFAULT, CW_USEDEFAULT, // Позиция
+		400, 300,											// Размеры
+		NULL, NULL, hInstance, NULL);
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	MSG msg;
-	while (running && GetMessage(&msg, NULL, 0, 0))
+	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);

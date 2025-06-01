@@ -1,5 +1,4 @@
 #include "cli/forms/selectionListForm.h"
-#include "utils/logger.h"
 
 namespace tk
 {
@@ -24,11 +23,11 @@ void selectionListForm::show(window& wnd)
 	{
 		const auto& item = items_[index];
 
-		showItem(startX, startY, items_[index], wnd, index == selectedIndex_);
+		showItem(startX, startY, items_[index].content, wnd, index == selectedIndex_);
 
 		if (horizontal_)
 		{
-			startX += item.size() + 1;
+			startX += item.content.size() + 1;
 			if (startX >= edgeX)
 			{
 				break;
@@ -36,7 +35,7 @@ void selectionListForm::show(window& wnd)
 		}
 		else
 		{
-			auto lines = linesNeeded(item);
+			auto lines = linesNeeded(item.content);
 
 			auto nextY = startY + lines;
 			if (nextY > edgeY)
@@ -59,7 +58,7 @@ void selectionListForm::show(window& wnd)
 		startX = x();
 		while (startX < edgeX)
 		{
-			wnd.setChar({ startX++, startY }, { ' ' });
+			wnd.setContentChar({ startX++, startY }, { ' ' });
 		}
 		++startY;
 	}
@@ -167,13 +166,13 @@ size_t selectionListForm::linesNeeded(const std::string& str)
 
 void selectionListForm::showItem(size_t startX, size_t startY, const std::string& str, window& wnd, bool selected)
 {
-	size_t edgeX_ = pos_.x + width(), edgeY_ = pos_.y + height();
+	size_t edgeX = pos_.x + width(), edgeY = pos_.y + height();
 	auto tmp = startX;
 
 
 	for (auto ch : str)
 	{
-		if (startX >= edgeX_ || startY >= edgeY_)
+		if (startX >= edgeX || startY >= edgeY)
 		{
 			break;
 		}
@@ -182,9 +181,9 @@ void selectionListForm::showItem(size_t startX, size_t startY, const std::string
 		auto txtColor = (selected && showSelected_) ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
 
 
-		wnd.setChar({ startX++, startY }, { static_cast<unsigned char>(ch), bgColor, txtColor });
+		wnd.setContentChar({ startX++, startY }, { static_cast<unsigned char>(ch), bgColor, txtColor });
 
-		if (startX >= edgeX_)
+		if (startX >= edgeX)
 		{
 			if (horizontal_)
 			{
@@ -196,9 +195,9 @@ void selectionListForm::showItem(size_t startX, size_t startY, const std::string
 	}
 
 
-	while (startX < edgeX_ && startY < edgeY_)
+	while (startX < edgeX && startY < edgeY)
 	{
-		wnd.setChar({ startX++, startY }, { ' ' });
+		wnd.setContentChar({ startX++, startY }, { ' ' });
 	}
 }
 
@@ -222,7 +221,7 @@ void selectionListForm::adjustOffset()
 
 	for (size_t i = offset_; i < items_.size(); ++i)
 	{
-		size_t needed = linesNeeded(items_[i]);
+		size_t needed = linesNeeded(items_[i].content);
 
 		if (y + needed > edgeY_)
 		{
@@ -244,7 +243,7 @@ void selectionListForm::adjustOffset()
 
 		while (newOffset > 0)
 		{
-			size_t needed = linesNeeded(items_[newOffset]);
+			size_t needed = linesNeeded(items_[newOffset].content);
 
 			if (y + needed > edgeY_)
 			{
@@ -255,7 +254,7 @@ void selectionListForm::adjustOffset()
 		}
 
 		offset_ = newOffset;
-		if (y + linesNeeded(items_[selectedIndex_]) > edgeY_)
+		if (y + linesNeeded(items_[selectedIndex_].content) > edgeY_)
 		{
 			offset_++;
 		}
