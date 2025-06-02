@@ -1,10 +1,9 @@
 #pragma once
 
-#include <atomic>
 #include <string>
 
 namespace os 
 {
-	int runApp(const char * appName, std::atomic<bool>& running);
+	int runApp(const char * appName);
 	void writeToClipboard(const std::string& content);
 }

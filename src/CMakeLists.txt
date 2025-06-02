@@ -31,6 +31,7 @@ set(EXEC_SOURCES
 	data/xmlCacheManager.cpp
 	data/xmlStorageManager.cpp
 	utils/generate_uuid.cpp
+	utils/visibilityManager.cpp
 )
 	
 add_executable(${EXEC_TARGET_NAME} ${EXEC_SOURCES} tk.rc)

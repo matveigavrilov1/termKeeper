@@ -7,6 +7,7 @@
 #include "forms/hintsForm.h"
 #include "os/interface.h"
 #include "utils/logger.h"
+#include "utils/visibilityManager.h"
 
 
 static const forms::hintsForm::preset_name_t selectionPresetName = "storageSelectionMode";
@@ -207,7 +208,7 @@ bool storageWindow::handleEnter(const core::inputEvent::keyModifiers& mods)
 			if (conf::config::instance().closeOnChoice())
 			{
 				LOG_DBG("closeOnChoice enabled, pushing exit event");
-				core::pushExitEvent();
+				utils::visibilityManager::instance().hide();
 			}
 		}
 	}

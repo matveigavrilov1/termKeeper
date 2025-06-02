@@ -13,11 +13,16 @@
 #define ID_TRAYICON 1
 #define HOTKEY_ID 1
 
-HWND hWnd;
-NOTIFYICONDATA nid;
+namespace
+{
+HWND hWnd = nullptr;
+NOTIFYICONDATA nid = {};
+bool trayIconAdded = false;
+bool hotkeyRegistered = false;
 
 const char* trayAppName = "unknown";
 bool visible = false;
+} // namespace
 
 LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -31,41 +36,74 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 			nid.uCallbackMessage = WM_TRAYICON;
 			nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-			lstrcpy(nid.szTip, TEXT(trayAppName));
-			Shell_NotifyIcon(NIM_ADD, &nid);
 
-			RegisterHotKey(hWnd, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, 'C');
+			lstrcpy(nid.szTip, TEXT(trayAppName));
+
+			trayIconAdded = Shell_NotifyIcon(NIM_ADD, &nid);
+			if (!trayIconAdded)
+			{
+				LOG_ERR("Failed to add tray icon: " << GetLastError());
+			}
+
+			hotkeyRegistered = RegisterHotKey(hWnd, HOTKEY_ID, MOD_CONTROL | MOD_SHIFT, 'C');
+			if (!hotkeyRegistered)
+			{
+				LOG_ERR("Failed to register hotkey: " << GetLastError());
+			}
 		}
 		break;
+
 		case WM_TRAYICON:
 			if (lParam == WM_RBUTTONDOWN)
 			{
 				POINT pt;
 				GetCursorPos(&pt);
 				HMENU hMenu = CreatePopupMenu();
-				AppendMenu(hMenu, MF_STRING, 2, TEXT("Exit"));
-				SetForegroundWindow(hWnd);
-				TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hWnd, NULL);
-				DestroyMenu(hMenu);
+				if (hMenu)
+				{
+					AppendMenu(hMenu, MF_STRING, 2, TEXT("Exit"));
+					SetForegroundWindow(hWnd);
+					TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hWnd, NULL);
+					DestroyMenu(hMenu);
+				}
 			}
 			break;
+
 		case WM_COMMAND:
 			if (LOWORD(wParam) == 2)
 			{
-				Shell_NotifyIcon(NIM_DELETE, &nid);
-				PostQuitMessage(0);
+				DestroyWindow(hWnd);
 			}
 			break;
+
 		case WM_HOTKEY:
 			if (wParam == HOTKEY_ID)
 			{
-				auto action = visible ? SW_HIDE : SW_SHOW;
-				ShowWindow(GetConsoleWindow(), action);
-				if (!visible)
-					SetForegroundWindow(hWnd);
-	
-				visible = !visible;
+				HWND consoleWnd = GetConsoleWindow();
+				if (consoleWnd)
+				{
+					auto action = visible ? SW_HIDE : SW_SHOW;
+					ShowWindow(consoleWnd, action);
+					if (!visible)
+					{
+						SetForegroundWindow(hWnd);
+					}
+					visible = !visible;
+				}
 			}
+			break;
+
+		case WM_DESTROY:
+			if (trayIconAdded)
+			{
+				Shell_NotifyIcon(NIM_DELETE, &nid);
+			}
+			if (hotkeyRegistered)
+			{
+				UnregisterHotKey(hWnd, HOTKEY_ID);
+			}
+			core::pushExitEvent();
+			PostQuitMessage(0);
 			break;
 		case WM_KEYDOWN:
 		{
@@ -148,36 +186,43 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			core::pushInputEvent(eventType, asciiChar, shiftPressed, ctrlPressed, altPressed);
 		}
 		break;
-		case WM_DESTROY:
-		{
-			Shell_NotifyIcon(NIM_DELETE, &nid);
-			PostQuitMessage(0);
-		}
-		break;
-
 		default: return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
 	return 0;
 }
 
-int os::runApp(const char* appName, std::atomic<bool>& running)
+int os::runApp(const char* appName)
 {
 	SetConsoleOutputCP(437);
 	trayAppName = appName;
 
 	HINSTANCE hInstance = GetModuleHandle(nullptr);
+	if (!hInstance)
+	{
+		LOG_ERR("GetModuleHandle failed: " << GetLastError());
+		return 1;
+	}
+
 	WNDCLASS wc = { 0 };
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInstance;
-	wc.lpszClassName = TEXT(appName);
-	RegisterClass(&wc);
+	wc.lpszClassName = TEXT("AppWindowClass");
 
-	hWnd = CreateWindow(wc.lpszClassName, TEXT(appName),
-		WS_OVERLAPPEDWINDOW,					// Добавлен стиль окна
-		CW_USEDEFAULT, CW_USEDEFAULT, // Позиция
-		400, 300,											// Размеры
-		NULL, NULL, hInstance, NULL);
+	if (!RegisterClass(&wc))
+	{
+		LOG_ERR("Window class registration failed: " << GetLastError());
+		return 1;
+	}
+
+	hWnd = CreateWindow(wc.lpszClassName, TEXT("Application"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 400, 300, NULL, NULL, hInstance, NULL);
+
+	if (!hWnd)
+	{
+		LOG_ERR("Window creation failed: " << GetLastError());
+		return 1;
+	}
+
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	MSG msg;
@@ -185,6 +230,16 @@ int os::runApp(const char* appName, std::atomic<bool>& running)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+	}
+
+	// Очистка при выходе из цикла сообщений
+	if (trayIconAdded)
+	{
+		Shell_NotifyIcon(NIM_DELETE, &nid);
+	}
+	if (hotkeyRegistered)
+	{
+		UnregisterHotKey(hWnd, HOTKEY_ID);
 	}
 
 	return 0;

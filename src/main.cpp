@@ -11,20 +11,40 @@
 
 #include "utils/finally.h"
 #include "utils/logger.h"
+#include "utils/visibilityManager.h"
 
 #include <cstdlib>
-
-std::atomic<bool> running = true;
 
 int main(int, char**)
 {
 	LOG_INF("Starting project controller");
-	std::thread([&]() { os::runApp("project-controller", running); }).detach();
-	LOG_INF("Event loop started");
+
 
 	conf::config::instance().init();
 	LOG_INF("Config initialized");
 
+	data::xmlStorageManager xmlStorage;
+	xmlStorage.parse(conf::config::instance().storageFile());
+	auto xmlStorageDumpCallback = [&xmlStorage]()
+	{
+		xmlStorage.dump(conf::config::instance().storageFile());
+	};
+	utils::visibilityManager::instance().addCallback(xmlStorageDumpCallback);
+	utils::finally xmlStorageDump(xmlStorageDumpCallback);
+	LOG_INF("XML storage loaded");
+
+	data::xmlCacheManager xmlCache;
+	xmlCache.parse(conf::config::instance().cacheFile());
+	auto xmlCacheDumpCallback = [&xmlCache]()
+	{
+		xmlCache.dump(conf::config::instance().cacheFile());
+	};
+	utils::visibilityManager::instance().addCallback(xmlCacheDumpCallback);
+	utils::finally xmlCacheDump(xmlCacheDumpCallback);
+	LOG_INF("XML cache loaded");
+
+	std::thread([&]() { os::runApp("project-controller"); }).detach();
+	LOG_INF("Event loop started");
 	auto screenWidth = conf::config::instance().screenWidth();
 	auto screenHeight = conf::config::instance().screenHeight();
 	if (screenWidth && screenHeight && !os::console::get()->setConsoleSize({ screenWidth, screenHeight }))
@@ -33,17 +53,6 @@ int main(int, char**)
 		return EXIT_FAILURE;
 	}
 	LOG_INF("Window size set");
-
-	data::xmlStorageManager xmlStorage;
-	xmlStorage.parse(conf::config::instance().storageFile());
-	utils::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump(conf::config::instance().storageFile()); });
-	LOG_INF("XML storage loaded");
-
-	data::xmlCacheManager xmlCache;
-	xmlCache.parse(conf::config::instance().cacheFile());
-	utils::finally xmlCacheDump([&xmlCache]() { xmlCache.dump(conf::config::instance().cacheFile()); });
-	LOG_INF("XML cache loaded");
-
 
 	auto storage = xmlStorage.getStorage();
 	auto cache = xmlCache.getCache();

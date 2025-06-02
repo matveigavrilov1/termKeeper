@@ -64,13 +64,13 @@ struct console::impl
 		std::vector<CHAR_INFO> res;
 		res.reserve(buffer.size());
 		std::transform(buffer.begin(), buffer.end(), std::back_inserter(res),
-		[this](charInfo info)
-		{
-			CHAR_INFO res_info;
-			res_info.Char.AsciiChar = info.ch;
-			res_info.Attributes = convertBackgroundColor(info.bgColor) | convertForegroundColor(info.txtColor);
-			return res_info;
-		});
+			[this](charInfo info)
+			{
+				CHAR_INFO res_info;
+				res_info.Char.AsciiChar = info.ch;
+				res_info.Attributes = convertBackgroundColor(info.bgColor) | convertForegroundColor(info.txtColor);
+				return res_info;
+			});
 
 		return res;
 	}
@@ -87,6 +87,37 @@ console::console()
 { }
 
 console::~console() = default;
+
+bool console::show()
+{
+	if (!pimpl_->isVisible)
+	{
+		if (ShowWindow(GetConsoleWindow(), SW_SHOW))
+		{
+			pimpl_->isVisible = true;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool console::hide()
+{
+	if (pimpl_->isVisible)
+	{
+		if (ShowWindow(GetConsoleWindow(), SW_HIDE))
+		{
+			pimpl_->isVisible = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool console::visible()
+{
+	return pimpl_->isVisible;
+}
 
 void console::clear()
 {
@@ -252,5 +283,4 @@ void console::resetColors()
 {
 	SetConsoleTextAttribute(pimpl_->hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
-
 } // namespace os

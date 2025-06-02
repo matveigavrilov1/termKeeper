@@ -50,6 +50,10 @@ public:
 	console();
 	~console();
 
+	bool show();
+	bool hide();
+	bool visible();
+
 	void clear();
 
 	void setCursorPosition(position pos);
@@ -71,7 +75,6 @@ public:
 	void clearArea(position pos1, position pos2);
 
 	void resetColors();
-
 private:
 	struct impl;
 	std::unique_ptr<impl> pimpl_;
