@@ -5,7 +5,7 @@
 #include "core/window.h"
 #include "os/console.h"
 
-namespace tk
+namespace core
 {
 class screen
 {
@@ -36,4 +36,4 @@ private:
 	window::shared_ptr_t controllerWindow_ { nullptr };
 };
 
-} // namespace tk
+} // namespace core

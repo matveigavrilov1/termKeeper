@@ -4,25 +4,25 @@
 
 #include "core/form.h"
 
-namespace tk
+namespace forms
 {
-class selectionListForm : public form
+class selectionListForm : public core::form
 {
 public:
 	struct item {
 		std::string content;
 		uuids::uuid uuid;
 	};
-	using item_type = item;
-	using item_list_type = std::vector<item_type>;
-	selectionListForm(bool horizontal = false, const item_list_type& items = {});
+	using item_t = item;
+	using item_list_t = std::vector<item_t>;
+	selectionListForm(bool horizontal = false, const item_list_t& items = {});
 
-	void show(window& wnd) override;
+	void show(core::window& wnd) override;
 
-	void addItem(const item_type& item);
-	void removeItem(const item_type& item);
+	void addItem(const item_t& item);
+	void removeItem(const item_t& item);
 
-	item_type getSelected();
+	item_t getSelected();
 	size_t selectedIndex();
 
 	void switchUp();
@@ -37,7 +37,7 @@ public:
 
 private:
 	size_t linesNeeded(const std::string& str);
-	void showItem(size_t x, size_t y, const std::string& str, window& wnd, bool selected = false);
+	void showItem(size_t x, size_t y, const std::string& str, core::window& wnd, bool selected = false);
 	void adjustOffset();
 
 private:
@@ -45,6 +45,6 @@ private:
 	bool horizontal_ { false };
 	size_t selectedIndex_ { 0 };
 	size_t offset_ { 0 };
-	item_list_type items_;
+	item_list_t items_;
 };
-} // namespace tk
+} // namespace forms

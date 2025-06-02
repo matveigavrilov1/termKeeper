@@ -6,7 +6,7 @@
 
 #include "utils/logger.h"
 
-namespace tk
+namespace conf
 {
 
 bool configData::load(const std::string& path)
@@ -129,4 +129,4 @@ bool configData::load(const std::string& path)
 	return true;
 }
 
-} // namespace tk
+} // namespace conf

@@ -112,40 +112,40 @@ LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			LOG_DBG("Key pressed: " << (int)virtualKeyCode << " Char: " << (int)asciiChar);
 
-			tk::inputEvent::type eventType = tk::inputEvent::UNSPECIFIED;
+			core::inputEvent::type eventType = core::inputEvent::UNSPECIFIED;
 
 			// Handle special keys
 			switch (virtualKeyCode)
 			{
-				case VK_RETURN: eventType = tk::inputEvent::ENTER; break;
-				case VK_ESCAPE: eventType = tk::inputEvent::ESC; break;
-				case VK_HOME: eventType = tk::inputEvent::HOME; break;
-				case VK_END: eventType = tk::inputEvent::END; break;
-				case VK_PRIOR: eventType = tk::inputEvent::PAGE_UP; break;
-				case VK_NEXT: eventType = tk::inputEvent::PAGE_DOWN; break;
-				case VK_INSERT: eventType = tk::inputEvent::INSERT; break;
-				case VK_DELETE: eventType = tk::inputEvent::DELETE_KEY; break;
-				case VK_LEFT: eventType = tk::inputEvent::ARROW_LEFT; break;
-				case VK_RIGHT: eventType = tk::inputEvent::ARROW_RIGHT; break;
-				case VK_UP: eventType = tk::inputEvent::ARROW_UP; break;
-				case VK_DOWN: eventType = tk::inputEvent::ARROW_DOWN; break;
-				case VK_F1: eventType = tk::inputEvent::F1; break;
-				case VK_F2: eventType = tk::inputEvent::F2; break;
-				case VK_F3: eventType = tk::inputEvent::F3; break;
-				case VK_F4: eventType = tk::inputEvent::F4; break;
-				case VK_F5: eventType = tk::inputEvent::F5; break;
-				case VK_F6: eventType = tk::inputEvent::F6; break;
-				case VK_F7: eventType = tk::inputEvent::F7; break;
-				case VK_F8: eventType = tk::inputEvent::F8; break;
-				case VK_F9: eventType = tk::inputEvent::F9; break;
-				case VK_F10: eventType = tk::inputEvent::F10; break;
-				case VK_F11: eventType = tk::inputEvent::F11; break;
-				case VK_F12: eventType = tk::inputEvent::F12; break;
-				case VK_BACK: eventType = tk::inputEvent::BACKSPACE; break;
-				default: eventType = tk::inputEvent::KEY_PRESSED; break;
+				case VK_RETURN: eventType = core::inputEvent::ENTER; break;
+				case VK_ESCAPE: eventType = core::inputEvent::ESC; break;
+				case VK_HOME: eventType = core::inputEvent::HOME; break;
+				case VK_END: eventType = core::inputEvent::END; break;
+				case VK_PRIOR: eventType = core::inputEvent::PAGE_UP; break;
+				case VK_NEXT: eventType = core::inputEvent::PAGE_DOWN; break;
+				case VK_INSERT: eventType = core::inputEvent::INSERT; break;
+				case VK_DELETE: eventType = core::inputEvent::DELETE_KEY; break;
+				case VK_LEFT: eventType = core::inputEvent::ARROW_LEFT; break;
+				case VK_RIGHT: eventType = core::inputEvent::ARROW_RIGHT; break;
+				case VK_UP: eventType = core::inputEvent::ARROW_UP; break;
+				case VK_DOWN: eventType = core::inputEvent::ARROW_DOWN; break;
+				case VK_F1: eventType = core::inputEvent::F1; break;
+				case VK_F2: eventType = core::inputEvent::F2; break;
+				case VK_F3: eventType = core::inputEvent::F3; break;
+				case VK_F4: eventType = core::inputEvent::F4; break;
+				case VK_F5: eventType = core::inputEvent::F5; break;
+				case VK_F6: eventType = core::inputEvent::F6; break;
+				case VK_F7: eventType = core::inputEvent::F7; break;
+				case VK_F8: eventType = core::inputEvent::F8; break;
+				case VK_F9: eventType = core::inputEvent::F9; break;
+				case VK_F10: eventType = core::inputEvent::F10; break;
+				case VK_F11: eventType = core::inputEvent::F11; break;
+				case VK_F12: eventType = core::inputEvent::F12; break;
+				case VK_BACK: eventType = core::inputEvent::BACKSPACE; break;
+				default: eventType = core::inputEvent::KEY_PRESSED; break;
 			}
 
-			tk::pushInputEvent(eventType, asciiChar, shiftPressed, ctrlPressed, altPressed);
+			core::pushInputEvent(eventType, asciiChar, shiftPressed, ctrlPressed, altPressed);
 		}
 		break;
 		case WM_DESTROY:

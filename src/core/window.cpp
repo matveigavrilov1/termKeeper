@@ -8,7 +8,7 @@
 #include "utils/generate_uuid.h"
 #include "utils/logger.h"
 
-namespace tk
+namespace core
 {
 
 window::window(const std::string& name)
@@ -249,7 +249,7 @@ void window::update()
 	LOG_DBG("Default window update handler");
 }
 
-void window::handleInputEvent(event::shared_ptr_type event)
+void window::handleInputEvent(event::shared_ptr_t event)
 {
 	LOG_DBG("Default window input handler");
 }
@@ -290,4 +290,4 @@ window::window_size window::calculateAbsoluteSize() const
 	auto consoleSize = os::console::get()->getConsoleSize();
 	return { static_cast<size_t>(consoleSize.width * relativeSize_.first), static_cast<size_t>(consoleSize.height * relativeSize_.second) };
 }
-}; // namespace tk
+}; // namespace core

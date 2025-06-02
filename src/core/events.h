@@ -5,7 +5,7 @@
 #include "core/event.h"
 #include "core/window.h"
 
-namespace tk
+namespace core
 {
 class exitEvent : public event
 {
@@ -116,4 +116,4 @@ private:
 	unsigned type_;
 };
 
-} // namespace tk
+} // namespace core

@@ -5,7 +5,7 @@
 
 #include "config/configData.h"
 
-namespace tk
+namespace conf
 {
 void config::init()
 {
@@ -89,4 +89,4 @@ configData::hints_type config::hintsPreset(const std::string& name) const
 	}
 	return {};
 }
-} // namespace tk
+} // namespace conf

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace tk
+namespace conf
 {
 class config;
 
@@ -39,4 +39,4 @@ private:
 
 	std::map<std::string, hints_type> hintsPresets {};
 };
-} // namespace tk
+} // namespace conf

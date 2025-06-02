@@ -7,7 +7,7 @@
 #include "windows/borderedWindow.h"
 #include "forms/selectionListForm.h"
 
-namespace tk
+namespace wndws
 {
 class menuWindow final
 : public borderedWindow 
@@ -17,13 +17,13 @@ public:
 	menuWindow(const std::string& name = "Menu");
 
 	void update() override;
-	void handleInputEvent(event::shared_ptr_type event) override;
+	void handleInputEvent(core::event::shared_ptr_t event) override;
 
 	void addWindow(window::shared_ptr_t win);
 	void removeWindow(const std::string& name);
 
 private:
-	selectionListForm form_;
+	forms::selectionListForm form_;
 	std::vector<window::shared_ptr_t> windows_ {};
 };
-} // namespace tk
+} // namespace wndws

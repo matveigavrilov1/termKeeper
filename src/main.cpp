@@ -6,8 +6,8 @@
 #include "os/console.h"
 
 #include "os/interface.h"
-#include "storage/xmlStorageManager.h"
-#include "storage/xmlCacheManager.h"
+#include "data/xmlStorageManager.h"
+#include "data/xmlCacheManager.h"
 
 #include "utils/finally.h"
 #include "utils/logger.h"
@@ -22,11 +22,11 @@ int main(int, char**)
 	std::thread([&]() { os::runApp("project-controller", running); }).detach();
 	LOG_INF("Event loop started");
 
-	tk::config::instance().init();
+	conf::config::instance().init();
 	LOG_INF("Config initialized");
 
-	auto screenWidth = tk::config::instance().screenWidth();
-	auto screenHeight = tk::config::instance().screenHeight();
+	auto screenWidth = conf::config::instance().screenWidth();
+	auto screenHeight = conf::config::instance().screenHeight();
 	if (screenWidth && screenHeight && !os::console::get()->setConsoleSize({ screenWidth, screenHeight }))
 	{
 		LOG_ERR("Failed to set screen size");
@@ -34,23 +34,23 @@ int main(int, char**)
 	}
 	LOG_INF("Window size set");
 
-	tk::xmlStorageManager xmlStorage;
-	xmlStorage.parse(tk::config::instance().storageFile());
-	tk::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump(tk::config::instance().storageFile()); });
+	data::xmlStorageManager xmlStorage;
+	xmlStorage.parse(conf::config::instance().storageFile());
+	utils::finally xmlStorageDump([&xmlStorage]() { xmlStorage.dump(conf::config::instance().storageFile()); });
 	LOG_INF("XML storage loaded");
 
-	tk::xmlCacheManager xmlCache;
-	xmlCache.parse(tk::config::instance().cacheFile());
-	tk::finally xmlCacheDump([&xmlCache]() { xmlCache.dump(tk::config::instance().cacheFile()); });
+	data::xmlCacheManager xmlCache;
+	xmlCache.parse(conf::config::instance().cacheFile());
+	utils::finally xmlCacheDump([&xmlCache]() { xmlCache.dump(conf::config::instance().cacheFile()); });
 	LOG_INF("XML cache loaded");
 
 
 	auto storage = xmlStorage.getStorage();
 	auto cache = xmlCache.getCache();
 
-	tk::ui::core::init();
+	core::core::init();
 
-	tk::uiImpl ui(cache, storage);
+	ui::uiImpl ui(cache, storage);
 	LOG_INF("CLI created");
 	ui.init();
 

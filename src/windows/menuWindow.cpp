@@ -7,7 +7,7 @@
 #include "core/window.h"
 #include "utils/logger.h"
 
-namespace tk
+namespace wndws
 {
 menuWindow::menuWindow(const std::string& name)
 : borderedWindow(name)
@@ -32,11 +32,11 @@ void menuWindow::update()
 	form_.show(*this);
 }
 
-void menuWindow::handleInputEvent(event::shared_ptr_type event)
+void menuWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in menuWindow");
 
-	if (event->type() != INPUT_EVENT)
+	if (event->type() != core::INPUT_EVENT)
 	{
 		LOG_ERR("Incorrect event type: " << event->type());
 		return;
@@ -45,52 +45,52 @@ void menuWindow::handleInputEvent(event::shared_ptr_type event)
 	LOG_DBG("Showing selected item in form");
 	form_.showSelected();
 
-	auto input = std::static_pointer_cast<inputEvent>(event);
+	auto input = std::static_pointer_cast<core::inputEvent>(event);
 	LOG_DBG("Processing input event type: " << input->inputType());
 
 	switch (input->inputType())
 	{
-		case inputEvent::ARROW_UP:
+		case core::inputEvent::ARROW_UP:
 		{
 			LOG_DBG("Handling ARROW_UP event");
 			auto selected = form_.getSelected();
 			LOG_DBG("Deactivating current window: " << selected.uuid);
-			ui::core::getScreen().deactivateWindow(selected.uuid);
+			core::core::getScreen().deactivateWindow(selected.uuid);
 
 			LOG_DBG("Switching to previous item");
 			form_.switchUp();
 
 			selected = form_.getSelected();
 			LOG_DBG("Activating new selected window: " << selected.uuid);
-			ui::core::getScreen().activateWindow(selected.uuid);
-			ui::core::getScreen().showWindow(selected.uuid, os::console::get());
+			core::core::getScreen().activateWindow(selected.uuid);
+			core::core::getScreen().showWindow(selected.uuid, os::console::get());
 		}
 		break;
-		case inputEvent::ARROW_DOWN:
+		case core::inputEvent::ARROW_DOWN:
 		{
 			LOG_DBG("Handling ARROW_DOWN event");
 			auto selected = form_.getSelected();
 			LOG_DBG("Deactivating current window: " << selected.uuid);
-			ui::core::getScreen().deactivateWindow(selected.uuid);
+			core::core::getScreen().deactivateWindow(selected.uuid);
 
 			LOG_DBG("Switching to next item");
 			form_.switchDown();
 
 			selected = form_.getSelected();
 			LOG_DBG("Activating new selected window: " << selected.uuid);
-			ui::core::getScreen().activateWindow(selected.uuid);
-			ui::core::getScreen().showWindow(selected.uuid, os::console::get());
+			core::core::getScreen().activateWindow(selected.uuid);
+			core::core::getScreen().showWindow(selected.uuid, os::console::get());
 		}
 		break;
-		case inputEvent::ARROW_RIGHT:
+		case core::inputEvent::ARROW_RIGHT:
 		{
 			LOG_DBG("Handling ARROW_RIGHT event");
 			auto selected = form_.getSelected();
 			LOG_DBG("Changing controller window to: " << selected.uuid);
-			ui::core::getScreen().changeControllerWindow(selected.uuid);
+			core::core::getScreen().changeControllerWindow(selected.uuid);
 
 			LOG_DBG("Pushing unspecified input event");
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 		}
 		break;
 		default: LOG_DBG("Unhandled input event type: " << input->inputType()); break;
@@ -133,4 +133,4 @@ void menuWindow::removeWindow(const std::string& name)
 	}
 }
 
-} // namespace tk
+} // namespace wndws

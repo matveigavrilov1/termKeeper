@@ -9,7 +9,7 @@
 #include "core/event.h"
 #include "os/console.h"
 
-namespace tk
+namespace core
 {
 class window
 {
@@ -62,7 +62,7 @@ public:
 	virtual size_t length() const;
 	virtual void clear();
 	virtual void update();
-	virtual void handleInputEvent(event::shared_ptr_type event);
+	virtual void handleInputEvent(event::shared_ptr_t event);
 
 	virtual void setRelativeSize(relative_size relativeSize);
 	virtual void setAbsoluteSize(window_size absoluteSize);
@@ -104,4 +104,4 @@ private:
 	uuids::uuid lowerNeighbour_;
 };
 
-} // namespace tk
+} // namespace core

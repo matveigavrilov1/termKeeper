@@ -4,23 +4,22 @@
 
 #include "core/window.h"
 
+#include "data/cache.h"
+#include "data/storage.h"
 
-#include "storage/cache.h"
-#include "storage/storage.h"
-
-namespace tk
+namespace ui
 {
 class uiImpl
 {
 public:
-	uiImpl(cache::shared_ptr_t cache, storage::shared_ptr_type storage);
+	uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t storage);
 	void init();
 	int run();
 
 private:
-	cache::shared_ptr_t cache_;
-	storage::shared_ptr_type storage_;
+	data::cache::shared_ptr_t cache_;
+	data::storage::shared_ptr_t storage_;
 
-	std::map<std::string, window::shared_ptr_t> windows_;
+	std::map<std::string, core::window::shared_ptr_t> windows_;
 };
-} // namespace tk
+} // namespace ui

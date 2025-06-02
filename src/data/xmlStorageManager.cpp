@@ -1,13 +1,13 @@
-#include "storage/xmlStorageManager.h"
+#include "data/xmlStorageManager.h"
 #include "utils/generate_uuid.h"
 
-namespace tk
+namespace data
 {
 xmlStorageManager::xmlStorageManager()
 : storage_(std::make_shared<storage>())
 { }
 
-storage::shared_ptr_type xmlStorageManager::getStorage() const
+storage::shared_ptr_t xmlStorageManager::getStorage() const
 {
 	return storage_;
 }
@@ -92,4 +92,4 @@ void xmlStorageManager::dumpFolder(pugi::xml_node& xmlNode, std::shared_ptr<stor
 		dumpFolder(subFolderNode, subFolder);
 	}
 }
-} // namespace tk
+} // namespace data

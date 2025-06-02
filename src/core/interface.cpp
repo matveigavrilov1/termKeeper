@@ -5,10 +5,9 @@
 #include "core/eventm.h"
 #include "utils/logger.h"
 
-namespace tk
+namespace core
 {
-namespace ui
-{
+
 bool core::isInitialized_ { false };
 
 std::optional<eventm> core::eventm_ { std::nullopt };
@@ -43,5 +42,5 @@ screen& core::getScreen()
 
 	return *screen_;
 }
-} // namespace ui
-} // namespace tk
+
+} // namespace core

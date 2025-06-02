@@ -2,10 +2,10 @@
 
 #include "utils/logger.h"
 
-namespace tk
+namespace forms
 {
 
-selectionListForm::selectionListForm(bool horizontal, const item_list_type& items)
+selectionListForm::selectionListForm(bool horizontal, const item_list_t& items)
 : items_(items)
 , horizontal_(horizontal)
 , offset_(0)
@@ -13,7 +13,7 @@ selectionListForm::selectionListForm(bool horizontal, const item_list_type& item
 	LOG_DBG("Creating selectionListForm: horizontal=" << horizontal << ", items count=" << items.size());
 }
 
-void selectionListForm::show(window& wnd)
+void selectionListForm::show(core::window& wnd)
 {
 	form::show(wnd);
 
@@ -77,19 +77,19 @@ void selectionListForm::show(window& wnd)
 	}
 }
 
-void selectionListForm::addItem(const item_type& item)
+void selectionListForm::addItem(const item_t& item)
 {
 	LOG_DBG("Adding item: '" << item.content << "'");
 	items_.push_back(item);
 }
 
-void selectionListForm::removeItem(const item_type& item)
+void selectionListForm::removeItem(const item_t& item)
 {
 	LOG_DBG("Attempting to remove item: '" << item.content << "'");
 	// Реализация удаления должна быть добавлена
 }
 
-selectionListForm::item_type selectionListForm::getSelected()
+selectionListForm::item_t selectionListForm::getSelected()
 {
 	LOG_DBG("Getting selected item. selectedIndex=" << selectedIndex_ << ", items count=" << items_.size());
 	if (items_.empty() || selectedIndex_ >= items_.size())
@@ -191,7 +191,7 @@ size_t selectionListForm::linesNeeded(const std::string& str)
 	return lines;
 }
 
-void selectionListForm::showItem(size_t startX, size_t startY, const std::string& str, window& wnd, bool selected)
+void selectionListForm::showItem(size_t startX, size_t startY, const std::string& str, core::window& wnd, bool selected)
 {
 	LOG_DBG("Showing item '" << str << "' at (" << startX << ", " << startY << "), selected=" << selected);
 	size_t edgeX = pos_.x + width(), edgeY = pos_.y + height();
@@ -308,4 +308,4 @@ void selectionListForm::adjustOffset()
 	LOG_DBG("Final offset=" << offset_);
 }
 
-} // namespace tk
+} // namespace forms

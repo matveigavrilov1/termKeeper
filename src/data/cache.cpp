@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace tk
+namespace data
 {
 
 cache::cache(size_t maxSize)
@@ -118,4 +118,4 @@ void cache::setMaxSize(size_t maxSize)
 	subject::notify("Cache max size update");
 }
 
-} // namespace tk
+} // namespace data

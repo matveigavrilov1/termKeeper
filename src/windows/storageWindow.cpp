@@ -11,12 +11,12 @@
 #include "utils/logger.h"
 
 
-static const tk::hintsForm::preset_name_type selectionPresetName = "storageSelectionMode";
-static const tk::hintsForm::preset_name_type inputPresetName = "storageInputMode";
+static const forms::hintsForm::preset_name_t selectionPresetName = "storageSelectionMode";
+static const forms::hintsForm::preset_name_t inputPresetName = "storageInputMode";
 
-namespace tk
+namespace wndws
 {
-storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr_t cache, const std::string& name)
+storageWindow::storageWindow(data::storage::shared_ptr_t storage, data::cache::shared_ptr_t cache, const std::string& name)
 : borderedWindow(name)
 , storage_(storage)
 , cache_(cache)
@@ -28,8 +28,8 @@ storageWindow::storageWindow(storage::shared_ptr_type storage, cache::shared_ptr
 	LOG_DBG("Selection form size set to relative {1,1}");
 
 	LOG_DBG("Adding hint presets");
-	hintsForm_.addPreset(selectionPresetName, config::instance().hintsPreset(selectionPresetName));
-	hintsForm_.addPreset(inputPresetName, config::instance().hintsPreset(inputPresetName));
+	hintsForm_.addPreset(selectionPresetName, conf::config::instance().hintsPreset(selectionPresetName));
+	hintsForm_.addPreset(inputPresetName, conf::config::instance().hintsPreset(inputPresetName));
 	hintsForm_.applyPreset(selectionPresetName);
 	LOG_DBG("Applied selection preset: " << selectionPresetName);
 
@@ -59,11 +59,11 @@ void storageWindow::update()
 	// hintsForm_.show(*this);
 }
 
-void storageWindow::handleInputEvent(event::shared_ptr_type event)
+void storageWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in storageWindow");
 
-	if (event->type() != INPUT_EVENT)
+	if (event->type() != core::INPUT_EVENT)
 	{
 		LOG_ERR("Incorrect event type: " << event->type());
 		return;
@@ -72,12 +72,12 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 	if (inputMode_)
 	{
 		LOG_DBG("Processing event in input mode");
-		handleInputEventInInputMode(static_pointer_cast<inputEvent>(event));
+		handleInputEventInInputMode(static_pointer_cast<core::inputEvent>(event));
 	}
 	else
 	{
 		LOG_DBG("Processing event in selection mode");
-		handleInputEventInSelectionMode(static_pointer_cast<inputEvent>(event));
+		handleInputEventInSelectionMode(static_pointer_cast<core::inputEvent>(event));
 	}
 
 	update();
@@ -85,58 +85,58 @@ void storageWindow::handleInputEvent(event::shared_ptr_type event)
 	showWindow(shared_from_this());
 }
 
-void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type event)
+void storageWindow::handleInputEventInInputMode(core::inputEvent::shared_ptr_type event)
 {
 	LOG_DBG("Handling input event in input mode. Type: " << event->inputType());
 
 	switch (event->inputType())
 	{
-		case inputEvent::ARROW_UP:
+		case core::inputEvent::ARROW_UP:
 			LOG_DBG("Moving cursor up in input form");
 			inputForm_.moveCursorUp();
 			break;
 
-		case inputEvent::ARROW_DOWN:
+		case core::inputEvent::ARROW_DOWN:
 			LOG_DBG("Moving cursor down in input form");
 			inputForm_.moveCursorDown();
 			break;
 
-		case inputEvent::ARROW_LEFT:
+		case core::inputEvent::ARROW_LEFT:
 			LOG_DBG("Moving cursor left in input form");
 			inputForm_.moveCursorLeft();
 			break;
 
-		case inputEvent::ARROW_RIGHT:
+		case core::inputEvent::ARROW_RIGHT:
 			LOG_DBG("Moving cursor right in input form");
 			inputForm_.moveCursorRight();
 			break;
 
-		case inputEvent::BACKSPACE:
+		case core::inputEvent::BACKSPACE:
 			LOG_DBG("Processing backspace in input form");
 			inputForm_.backspace();
 			break;
 
-		case inputEvent::HOME:
+		case core::inputEvent::HOME:
 			LOG_DBG("Moving cursor to home position");
 			inputForm_.home();
 			break;
 
-		case inputEvent::END:
+		case core::inputEvent::END:
 			LOG_DBG("Moving cursor to end position");
 			inputForm_.end();
 			break;
 
-		case inputEvent::DELETE_KEY:
+		case core::inputEvent::DELETE_KEY:
 			LOG_DBG("Deleting character in input form");
 			inputForm_.deleteChar();
 			break;
 
-		case inputEvent::INSERT:
+		case core::inputEvent::INSERT:
 			LOG_DBG("Toggling insert mode");
 			inputForm_.toggleInsertMode();
 			break;
 
-		case inputEvent::KEY_PRESSED:
+		case core::inputEvent::KEY_PRESSED:
 		{
 			auto ch = *(event->key());
 			LOG_DBG("Key pressed: " << ch << " (0x" << std::hex << (int)ch << ")");
@@ -144,7 +144,7 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 			break;
 		}
 
-		case inputEvent::ENTER:
+		case core::inputEvent::ENTER:
 		{
 			LOG_DBG("Enter pressed in input mode");
 
@@ -193,7 +193,7 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 			inputMode_ = false;
 			LOG_DBG("Exiting input mode, applying selection preset");
 			hintsForm_.applyPreset(selectionPresetName);
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 			break;
 		}
 
@@ -201,32 +201,32 @@ void storageWindow::handleInputEventInInputMode(inputEvent::shared_ptr_type even
 	}
 }
 
-void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type event)
+void storageWindow::handleInputEventInSelectionMode(core::inputEvent::shared_ptr_type event)
 {
 	LOG_DBG("Handling input event in selection mode. Type: " << event->inputType());
 	selectionForm_.showSelected();
 
 	switch (event->inputType())
 	{
-		case inputEvent::ARROW_UP:
+		case core::inputEvent::ARROW_UP:
 			LOG_DBG("Moving selection up");
 			selectionForm_.switchUp();
 			break;
 
-		case inputEvent::ARROW_DOWN:
+		case core::inputEvent::ARROW_DOWN:
 			LOG_DBG("Moving selection down");
 			selectionForm_.switchDown();
 			break;
 
-		case inputEvent::ARROW_LEFT:
+		case core::inputEvent::ARROW_LEFT:
 			LOG_DBG("Changing to left neighbour window");
 			selectionForm_.unshowSelected();
 			selectionForm_.show(*this);
 			showWindow(shared_from_this());
-			ui::core::getScreen().changeControllerWindow(ui::core::getScreen().findLeftNeighbour(uuid()));
+			core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
 			break;
 
-		case inputEvent::ENTER:
+		case core::inputEvent::ENTER:
 		{
 			auto selected = selectionForm_.getSelected();
 			LOG_DBG("Enter pressed on item: " << selected.content << " (UUID: " << selected.uuid << ")");
@@ -244,7 +244,7 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 					storage_->folderDown(selected.uuid);
 				}
 				fillSelectionForm();
-				pushInputEvent(inputEvent::UNSPECIFIED);
+				pushInputEvent(core::inputEvent::UNSPECIFIED);
 			}
 			else
 			{
@@ -260,32 +260,32 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 				LOG_DBG("Command added to cache: " << command->content);
 				cache_->pushFront(command->content);
 
-				if (config::instance().closeOnChoice())
+				if (conf::config::instance().closeOnChoice())
 				{
 					LOG_DBG("closeOnChoice enabled, pushing exit event");
-					pushExitEvent();
+					core::pushExitEvent();
 				}
 			}
 			break;
 		}
 
-		case inputEvent::F1: // adding command
+		case core::inputEvent::F1: // adding command
 			LOG_DBG("F1 pressed - entering command creation mode");
 			inputMode_ = true;
 			hintsForm_.applyPreset(inputPresetName);
 			inputModeType_ = COMMAND_CREATING;
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 			break;
 
-		case inputEvent::F2: // adding folder
+		case core::inputEvent::F2: // adding folder
 			LOG_DBG("F2 pressed - entering folder creation mode");
 			inputMode_ = true;
 			hintsForm_.applyPreset(inputPresetName);
 			inputModeType_ = FOLDER_CREATING;
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 			break;
 
-		case inputEvent::F3: // edit folder/command
+		case core::inputEvent::F3: // edit folder/command
 		{
 			auto selected = selectionForm_.getSelected();
 			LOG_DBG("F3 pressed on item: " << selected.content);
@@ -314,11 +314,11 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			tempOldUuid_ = selected.uuid;
 			LOG_DBG("Setting initial input to: " << tempOldInput_);
 			inputForm_.setInput({ tempOldInput_ });
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 			break;
 		}
 
-		case inputEvent::DELETE_KEY:
+		case core::inputEvent::DELETE_KEY:
 		{
 			auto selected = selectionForm_.getSelected();
 			LOG_DBG("Delete pressed on item: " << selected.content);
@@ -342,11 +342,11 @@ void storageWindow::handleInputEventInSelectionMode(inputEvent::shared_ptr_type 
 			}
 
 			fillSelectionForm();
-			pushInputEvent(inputEvent::UNSPECIFIED);
+			pushInputEvent(core::inputEvent::UNSPECIFIED);
 			break;
 		}
 
-		case inputEvent::UNSPECIFIED:
+		case core::inputEvent::UNSPECIFIED:
 			LOG_DBG("Refresh event received");
 			fillSelectionForm();
 			selectionForm_.showSelected();
@@ -384,4 +384,4 @@ void storageWindow::fillSelectionForm()
 
 	LOG_DBG("Selection form filled with " << folder->subFolders_.size() << " folders and " << folder->commands_.size() << " commands");
 }
-} // namespace tk
+} // namespace wndws

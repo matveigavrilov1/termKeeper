@@ -1,8 +1,8 @@
 #pragma once
 
-#include "storage/cache.h"
+#include "data/cache.h"
 
-namespace tk
+namespace data
 {
 class xmlCacheManager
 {
@@ -16,4 +16,4 @@ public:
 private:
 	cache::shared_ptr_t cache_;
 };
-} // namespace tk
+} // namespace data

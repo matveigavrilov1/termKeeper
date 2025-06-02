@@ -23,10 +23,10 @@ set(EXEC_SOURCES
 	config/configData.cpp
 	os/windows/console.cpp
 	os/windows/interface.cpp
-	storage/cache.cpp
-	storage/storage.cpp
-	storage/xmlCacheManager.cpp
-	storage/xmlStorageManager.cpp
+	data/cache.cpp
+	data/storage.cpp
+	data/xmlCacheManager.cpp
+	data/xmlStorageManager.cpp
 	utils/generate_uuid.cpp
 )
 	

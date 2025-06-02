@@ -10,31 +10,31 @@
 #include "forms/inputForm.h"
 #include "forms/selectionListForm.h"
 
-#include "storage/cache.h"
-#include "storage/storage.h"
+#include "data/cache.h"
+#include "data/storage.h"
 
-namespace tk
+namespace wndws
 {
 class storageWindow final
 : public borderedWindow
 , public std::enable_shared_from_this<storageWindow>
 {
 public:
-	storageWindow(storage::shared_ptr_type storage, cache::shared_ptr_t cache, const std::string& name = "Storage");
+	storageWindow(data::storage::shared_ptr_t storage, data::cache::shared_ptr_t cache, const std::string& name = "Storage");
 
 	void update() override;
-	void handleInputEvent(event::shared_ptr_type event) override;
+	void handleInputEvent(core::event::shared_ptr_t event) override;
 
-	void handleInputEventInInputMode(inputEvent::shared_ptr_type event);
-	void handleInputEventInSelectionMode(inputEvent::shared_ptr_type event);
+	void handleInputEventInInputMode(core::inputEvent::shared_ptr_type event);
+	void handleInputEventInSelectionMode(core::inputEvent::shared_ptr_type event);
 
 private:
 	void fillSelectionForm();
 
 private:
-	selectionListForm selectionForm_;
-	inputForm inputForm_;
-	hintsForm hintsForm_;
+	forms::selectionListForm selectionForm_;
+	forms::inputForm inputForm_;
+	forms::hintsForm hintsForm_;
 
 	bool inputMode_ { false };
 
@@ -51,7 +51,7 @@ private:
 	std::string tempOldInput_;
 	uuids::uuid tempOldUuid_;
 
-	storage::shared_ptr_type storage_;
-	cache::shared_ptr_t cache_;
+	data::storage::shared_ptr_t storage_;
+	data::cache::shared_ptr_t cache_;
 };
-} // namespace tk
+} // namespace wndws

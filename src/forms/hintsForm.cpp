@@ -2,10 +2,10 @@
 
 #include "os/console.h"
 
-namespace tk
+namespace forms
 {
 
-void hintsForm::show(window& wnd)
+void hintsForm::show(core::window& wnd)
 {
 	form::show(wnd);
 
@@ -102,4 +102,4 @@ void hintsForm::applyPreset(const std::string& presetName)
 	}
 }
 
-} // namespace tk
+} // namespace forms

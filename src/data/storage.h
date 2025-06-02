@@ -9,13 +9,13 @@
 
 #include "utils/generate_uuid.h"
 
-namespace tk
+namespace data
 {
 
 class storage
 {
 public:
-	using shared_ptr_type = std::shared_ptr<storage>;
+	using shared_ptr_t = std::shared_ptr<storage>;
 
 	struct command
 	{
@@ -73,4 +73,4 @@ private:
 	folder_shared_ptr_t currentFolder_;
 };
 
-} // namespace tk
+} // namespace data

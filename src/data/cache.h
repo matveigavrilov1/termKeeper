@@ -8,9 +8,9 @@
 #include "utils/subject.h"
 #include "utils/generate_uuid.h"
 
-namespace tk
+namespace data
 {
-class cache : public subject
+class cache : public utils::subject
 {
 public:
 	using shared_ptr_t = std::shared_ptr<cache>;
@@ -47,4 +47,4 @@ private:
 	vector_t items_;
 	size_t maxSize_;
 };
-} // namespace tk
+} // namespace data

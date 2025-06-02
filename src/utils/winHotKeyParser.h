@@ -2,7 +2,7 @@
 #include <shellapi.h>
 #include <string>
 
-namespace tk
+namespace utils
 {
 bool parseHotkey(const std::string& hotkeyStr, UINT& modifiers, UINT& vk);
 }

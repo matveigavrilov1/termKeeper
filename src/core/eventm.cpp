@@ -1,7 +1,7 @@
 #include "core/eventm.h"
 #include "utils/logger.h"
 
-namespace tk
+namespace core
 {
 
 int eventm::run()
@@ -31,9 +31,9 @@ void eventm::loop()
 	}
 }
 
-void eventm::pushEvent(event::shared_ptr_type event, eventm::event_handler_type handler)
+void eventm::pushEvent(event::shared_ptr_t event, eventm::event_handler_t handler)
 {
 	LOG_DBG("Push event: " << event->type());
 	eventQueue_.push(std::make_pair(event, handler));
 }
-} // namespace tk
+} // namespace core

@@ -3,7 +3,7 @@
 #include <memory>
 #include <windows.h>
 
-namespace tk
+namespace core
 {
 enum eventType
 {
@@ -21,12 +21,12 @@ public:
 
 	virtual ~event() = default;
 
-	using unique_ptr_type = std::unique_ptr<event>;
-	using shared_ptr_type = std::shared_ptr<event>;
+	using unique_ptr_t = std::unique_ptr<event>;
+	using shared_ptr_t = std::shared_ptr<event>;
 
 	unsigned type();
 
 private:
 	unsigned type_ { NONE_EVENT };
 };
-} // namespace tk
+} // namespace core

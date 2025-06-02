@@ -1,14 +1,14 @@
 #include "core/form.h"
 
-namespace tk
+namespace forms
 {
-class inputForm : public form
+class inputForm : public core::form
 {
 public:
 	using form::form;
 	virtual ~inputForm() = default;
 
-	void show(window& wnd) override;
+	void show(core::window& wnd) override;
 
 	void backspace();
 	void moveCursorLeft();
@@ -38,4 +38,4 @@ private:
 	bool oneLineMode_ { false };
 	bool insertMode_ { false };
 };
-} // namespace tk
+} // namespace forms

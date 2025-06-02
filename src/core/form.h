@@ -2,7 +2,7 @@
 
 #include "core/window.h"
 
-namespace tk
+namespace core
 {
 class form
 {
@@ -40,4 +40,4 @@ protected:
 	relative_size relativeSize_ = { 0.0, 0.0 };
 	bool useRelativeSize_ = false;
 };
-} // namespace tk
+} // namespace core

@@ -3,13 +3,13 @@
 
 #include "core/window.h"
 
-namespace tk
+namespace wndws
 {
 
-class borderedWindow : public window
+class borderedWindow : public core::window
 {
 public:
-	using window::window;
+	using core::window::window;
 
 	void clear() override;
 
@@ -21,6 +21,6 @@ private:
 	void drawBorder();
 };
 
-} // namespace tk
+} // namespace wndws
 
 #endif // BORDEREDWINDOW_H

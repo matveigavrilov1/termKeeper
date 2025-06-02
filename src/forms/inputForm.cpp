@@ -3,10 +3,10 @@
 #include <conio.h>
 #include <algorithm>
 
-namespace tk
+namespace forms
 {
 
-void inputForm::show(window& wnd)
+void inputForm::show(core::window& wnd)
 {
 	form::show(wnd);
 
@@ -230,4 +230,4 @@ void inputForm::clear()
 	lines_ = { "" };
 }
 
-} // namespace tk
+} // namespace forms

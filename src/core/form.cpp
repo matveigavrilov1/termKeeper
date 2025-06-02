@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace tk
+namespace core
 {
 
 form::form(window::position_on_window pos, form_size size)
@@ -74,4 +74,4 @@ size_t form::height() const
 	return size_.height;
 }
 
-} // namespace tk
+} // namespace core

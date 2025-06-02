@@ -1,10 +1,10 @@
-#include "storage/xmlCacheManager.h"
+#include "data/xmlCacheManager.h"
 
 #include <memory>
 
 #include <pugixml.hpp>
 
-namespace tk
+namespace data
 {
 xmlCacheManager::xmlCacheManager()
 : cache_(std::make_shared<cache>(10))
@@ -55,4 +55,4 @@ bool xmlCacheManager::dump(const std::string& filename)
 
 	return true;
 }
-} // namespace tk
+} // namespace data

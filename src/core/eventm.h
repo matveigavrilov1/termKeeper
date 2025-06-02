@@ -6,7 +6,7 @@
 #include "core/event.h"
 #include "utils/pcQueue.h"
 
-namespace tk
+namespace core
 {
 
 class eventm
@@ -16,14 +16,14 @@ public:
 	void stop();
 	void loop();
 
-	using event_handler_type = std::function<void(event::shared_ptr_type)>;
-	using event_queue_type = pcQueue<std::pair<event::shared_ptr_type, event_handler_type>>;
+	using event_handler_t = std::function<void(event::shared_ptr_t)>;
+	using event_queue_t = utils::pcQueue<std::pair<event::shared_ptr_t, event_handler_t>>;
 
-	void pushEvent(event::shared_ptr_type event, event_handler_type handler);
+	void pushEvent(event::shared_ptr_t event, event_handler_t handler);
 
 private:
 	std::atomic<bool> running_ { false };
 
-	event_queue_type eventQueue_;
+	event_queue_t eventQueue_;
 };
-} // namespace tk
+} // namespace core

@@ -1,10 +1,10 @@
-#include "storage/storage.h"
+#include "data/storage.h"
 #include "utils/generate_uuid.h"
 
 #include <algorithm>
 #include <memory>
 
-namespace tk
+namespace data
 {
 
 storage::storage()
@@ -170,4 +170,4 @@ storage::folder_shared_ptr_t storage::findFolderImpl(const folder_shared_ptr_t& 
 	return nullptr;
 }
 
-} // namespace tk
+} // namespace data

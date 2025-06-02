@@ -13,11 +13,11 @@
 #include "utils/logger.h"
 
 
-static const tk::hintsForm::preset_name_type cachePresetName = "cache";
+static const forms::hintsForm::preset_name_t cachePresetName = "cache";
 
-namespace tk
+namespace wndws
 {
-cacheWindow::cacheWindow(cache::shared_ptr_t cache, const std::string& name)
+cacheWindow::cacheWindow(data::cache::shared_ptr_t cache, const std::string& name)
 : borderedWindow(name)
 , cache_(cache)
 {
@@ -29,7 +29,7 @@ cacheWindow::cacheWindow(cache::shared_ptr_t cache, const std::string& name)
 	updateSize();
 
 	LOG_DBG("Setting up hints form with preset: " << cachePresetName);
-	hintsForm_.addPreset(cachePresetName, config::instance().hintsPreset(cachePresetName));
+	hintsForm_.addPreset(cachePresetName, conf::config::instance().hintsPreset(cachePresetName));
 	hintsForm_.applyPreset(cachePresetName);
 
 	LOG_DBG("Filling form with cache items");
@@ -46,11 +46,11 @@ void cacheWindow::update()
 	// hintsForm_.show(*this);
 }
 
-void cacheWindow::handleInputEvent(event::shared_ptr_type event)
+void cacheWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in cacheWindow: " << event->type());
 
-	if (event->type() != INPUT_EVENT)
+	if (event->type() != core::INPUT_EVENT)
 	{
 		LOG_ERR("Incorrect event type: " << event->type());
 		return;
@@ -59,31 +59,31 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	LOG_DBG("Showing selected item in form");
 	form_.showSelected();
 
-	auto input = std::static_pointer_cast<inputEvent>(event);
+	auto input = std::static_pointer_cast<core::inputEvent>(event);
 	LOG_DBG("Input event type: " << input->inputType());
 
 	switch (input->inputType())
 	{
-		case inputEvent::ARROW_UP:
+		case core::inputEvent::ARROW_UP:
 		{
 			LOG_DBG("Processing ARROW_UP event");
 			form_.switchUp();
 		}
 		break;
-		case inputEvent::ARROW_DOWN:
+		case core::inputEvent::ARROW_DOWN:
 		{
 			LOG_DBG("Processing ARROW_DOWN event");
 			form_.switchDown();
 		}
 		break;
-		case inputEvent::ARROW_LEFT:
+		case core::inputEvent::ARROW_LEFT:
 		{
 			LOG_DBG("Processing ARROW_LEFT event");
-			ui::core::getScreen().changeControllerWindow(ui::core::getScreen().findLeftNeighbour(uuid()));
+			core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
 			LOG_DBG("Changed controller window to left neighbour");
 		}
 		break;
-		case inputEvent::ENTER:
+		case core::inputEvent::ENTER:
 		{
 			LOG_DBG("Processing ENTER event");
 			auto selected = form_.getSelected();
@@ -102,10 +102,10 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 			LOG_DBG("Moving item to front of cache");
 			cache_->pushFront(item->content);
 
-			if (config::instance().closeOnChoice())
+			if (conf::config::instance().closeOnChoice())
 			{
 				LOG_DBG("Config closeOnChoice is true, pushing exit event");
-				pushExitEvent();
+				core::pushExitEvent();
 			}
 		}
 		break;
@@ -119,7 +119,7 @@ void cacheWindow::handleInputEvent(event::shared_ptr_type event)
 	if (form_.empty())
 	{
 		LOG_DBG("Form is empty, changing to left neighbour window");
-		ui::core::getScreen().changeControllerWindow(ui::core::getScreen().findLeftNeighbour(uuid()));
+		core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
 	}
 }
 
@@ -129,10 +129,10 @@ void cacheWindow::update(const std::string&)
 	fillForm();
 	form_.show(*this);
 
-	if (ui::core::getScreen().controllerWindow()->name() == name())
+	if (core::core::getScreen().controllerWindow()->name() == name())
 	{
 		LOG_DBG("This window is controller, pushing unspecified input event");
-		pushInputEvent(inputEvent::UNSPECIFIED);
+		pushInputEvent(core::inputEvent::UNSPECIFIED);
 	}
 }
 
@@ -152,4 +152,4 @@ void cacheWindow::fillForm()
 
 	LOG_DBG("Form now contains " << (form_.empty() ? "no" : std::to_string(cacheItems.size())) << " items");
 }
-} // namespace tk
+} // namespace wndws

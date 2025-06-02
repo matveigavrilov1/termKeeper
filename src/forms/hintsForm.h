@@ -6,20 +6,19 @@
 #include <string>
 #include <unordered_map>
 
-namespace tk
+namespace forms
 {
 
-class hintsForm : public form
+class hintsForm : public core::form
 {
 public:
-	using hint_type = std::pair<std::string, std::string>;
-	using preset_type = std::vector<hint_type>;
-	using preset_name_type = std::string;
+	using hint_t = std::pair<std::string, std::string>;
+	using preset_t = std::vector<hint_t>;
+	using preset_name_t = std::string;
 
 	using form::form;
 
-	void show(window& wnd) override;
-
+	void show(core::window& wnd) override;
 
 	void addHint(const std::string& key, const std::string& description);
 
@@ -30,10 +29,10 @@ public:
 	void applyPreset(const std::string& presetName);
 
 private:
-	preset_type* hints_ { nullptr };
+	preset_t* hints_ { nullptr };
 
-	std::unordered_map<preset_name_type, preset_type> presets_;
+	std::unordered_map<preset_name_t, preset_t> presets_;
 
 	void addTextToBuffer(const std::string& text, size_t& row, size_t& col);
 };
-} // namespace tk
+} // namespace forms

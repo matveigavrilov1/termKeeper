@@ -6,11 +6,8 @@
 
 #include "core/screen.h"
 
-namespace tk
+namespace core
 {
-namespace ui
-{
-
 class core
 {
 public:
@@ -25,6 +22,4 @@ private:
 	static std::optional<eventm> eventm_;
 	static std::optional<screen> screen_;
 };
-
-} // namespace ui
-} // namespace tk
+} // namespace core

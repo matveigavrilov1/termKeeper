@@ -5,7 +5,7 @@
 #include "core/utils.h"
 #include "utils/logger.h"
 
-namespace tk
+namespace core
 {
 
 static bool isColliding(const window& win1, const window& win2)
@@ -373,4 +373,4 @@ uuids::uuid screen::findRightNeighbour(const uuids::uuid& target) const
 	LOG_DBG("Selected right neighbour: " << result << (result.is_nil() ? " (none)" : ""));
 	return result;
 }
-} // namespace tk
+} // namespace core

@@ -13,27 +13,25 @@
 
 #include "utils/logger.h"
 
-using core = tk::ui::core;
-
-namespace tk
+namespace ui
 {
 
-uiImpl::uiImpl(cache::shared_ptr_t cache, storage::shared_ptr_type storage)
+uiImpl::uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t storage)
 : cache_(cache)
 , storage_(storage)
 {
 	LOG_DBG("Creating Menu Window");
-	auto menuWindow = std::make_shared<tk::menuWindow>();
+	auto menuWindow = std::make_shared<wndws::menuWindow>();
 	menuWindow->setRelativeSize({ 0.2, 1 });
 	menuWindow->setPosition({ 0, 0 });
 	menuWindow->clear();
 	LOG_DBG("Creating Storage Window");
-	auto storageWindow = std::make_shared<tk::storageWindow>(storage, cache);
+	auto storageWindow = std::make_shared<wndws::storageWindow>(storage, cache);
 	storageWindow->setRelativeSize({ 0.8, 1 });
 	storageWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	storageWindow->clear();
 	LOG_DBG("Creating Cache Window");
-	auto cacheWindow = std::make_shared<tk::cacheWindow>(cache);
+	auto cacheWindow = std::make_shared<wndws::cacheWindow>(cache);
 	cacheWindow->setRelativeSize({ 0.8, 1 });
 	cacheWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	cacheWindow->clear();
@@ -52,12 +50,12 @@ void uiImpl::init()
 {
 	LOG_INF("Registrating windows:");
 
-	for (const auto& windowName : config::instance().registrated())
+	for (const auto& windowName : conf::config::instance().registrated())
 	{
 		if (windows_.contains(windowName))
 		{
 			LOG_INF(windowName);
-			core::getScreen().registerWindow(windows_[windowName]);
+			core::core::getScreen().registerWindow(windows_[windowName]);
 		}
 		else
 		{
@@ -66,12 +64,12 @@ void uiImpl::init()
 	}
 
 	LOG_INF("Adding windows to menu:");
-	for (const auto& windowName : config::instance().menu())
+	for (const auto& windowName : conf::config::instance().menu())
 	{
 		if (windows_["Menu"] && windows_.contains(windowName))
 		{
 			LOG_INF(windowName);
-			static_pointer_cast<menuWindow>(windows_["Menu"])->addWindow(windows_[windowName]);
+			static_pointer_cast<wndws::menuWindow>(windows_["Menu"])->addWindow(windows_[windowName]);
 		}
 		else
 		{
@@ -80,18 +78,18 @@ void uiImpl::init()
 	}
 
 	LOG_INF("Activating windows:");
-	for (const auto& windowName : config::instance().activated())
+	for (const auto& windowName : conf::config::instance().activated())
 	{
 		LOG_INF(windowName);
 		auto it = windows_.find(windowName);
 		if (it != windows_.end() && it->second)
-			core::getScreen().activateWindow(it->second->uuid());
+			core::core::getScreen().activateWindow(it->second->uuid());
 	}
 
 	LOG_INF("Setting controller: " << config::instance().initialController());
-	auto it = windows_.find(config::instance().initialController());
+	auto it = windows_.find(conf::config::instance().initialController());
 	if (it != windows_.end() && it->second)
-		core::getScreen().changeControllerWindow(it->second->uuid());
+		core::core::getScreen().changeControllerWindow(it->second->uuid());
 
 	LOG_INF("Updating all windows:");
 	for (auto [_, window] : windows_)
@@ -103,8 +101,8 @@ void uiImpl::init()
 
 int uiImpl::run()
 {
-	core::getScreen().show(os::console::get());
-	tk::pushInputEvent(inputEvent::UNSPECIFIED);
-	return core::getEventManager().run();
+	core::core::getScreen().show(os::console::get());
+	core::pushInputEvent(core::inputEvent::UNSPECIFIED);
+	return core::core::getEventManager().run();
 }
-} // namespace tk
+} // namespace ui
