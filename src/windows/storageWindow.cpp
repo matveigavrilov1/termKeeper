@@ -44,6 +44,8 @@ void storageWindow::update()
 {
 	LOG_DBG("Updating storageWindow");
 	updateSize();
+	drawBorder();
+	drawTitle();
 
 	if (inputMode_)
 	{
@@ -62,6 +64,7 @@ void storageWindow::update()
 void storageWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in storageWindow");
+	setHighlightTitle(true);
 
 	if (event->type() != core::INPUT_EVENT)
 	{
@@ -222,6 +225,7 @@ void storageWindow::handleInputEventInSelectionMode(core::inputEvent::shared_ptr
 			LOG_DBG("Changing to left neighbour window");
 			selectionForm_.unshowSelected();
 			selectionForm_.show(*this);
+			setHighlightTitle(false);
 			showWindow(shared_from_this());
 			core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
 			break;

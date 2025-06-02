@@ -46,6 +46,11 @@ core::window::window_size borderedWindow::contentSize() const
 	return { real.width - 2, real.height - 2 };
 }
 
+void borderedWindow::setHighlightTitle(bool highlight)
+{
+	highlightTitle_ = highlight;
+}
+
 bool borderedWindow::isBorder(size_t x, size_t y) const
 {
 	return x == 0 || x == realWidth() - 1 || y == 0 || y == realHeight() - 1;
@@ -77,14 +82,22 @@ void borderedWindow::drawBorder()
 	core::window::setChar({ realWidth() - 1, 0 }, TOP_RIGHT_CORNER);
 	core::window::setChar({ 0, realHeight() - 1 }, BOTTOM_LEFT_CORNER);
 	core::window::setChar({ realWidth() - 1, realHeight() - 1 }, BOTTOM_RIGHT_CORNER);
+}
 
+void borderedWindow::drawTitle()
+{
 	os::console::charBuffer title;
 	auto titleStr = name();
+	auto bgColor = highlightTitle_ ? os::console::color::CONSOLE_COLOR_WHITE : os::console::color::CONSOLE_COLOR_BLACK;
+	auto txtColor = highlightTitle_ ? os::console::color::CONSOLE_COLOR_BLACK : os::console::color::CONSOLE_COLOR_WHITE;
+
 	std::transform(titleStr.begin(), titleStr.end(), std::back_inserter(title),
-		[](char ch)
+		[bgColor, txtColor](char ch)
 		{
 			os::console::charInfo res_info;
 			res_info.ch = ch;
+			res_info.bgColor = bgColor;
+			res_info.txtColor = txtColor;
 			return res_info;
 		});
 	size_t titleLength = titleStr.length();
@@ -99,5 +112,6 @@ void borderedWindow::drawBorder()
 		core::window::setChar({ titleX + i, 0 }, title[i]);
 	}
 }
+
 
 } // namespace wndws

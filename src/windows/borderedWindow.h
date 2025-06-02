@@ -16,9 +16,14 @@ public:
 	position_on_screen contentPos() const override;
 	window_size contentSize() const override;
 
-private:
+	void setHighlightTitle(bool highlight);
+
 	bool isBorder(size_t x, size_t y) const;
 	void drawBorder();
+	void drawTitle();
+
+private:
+	bool highlightTitle_ = false;
 };
 
 } // namespace wndws

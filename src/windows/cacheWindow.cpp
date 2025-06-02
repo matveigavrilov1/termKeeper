@@ -40,7 +40,8 @@ void cacheWindow::update()
 {
 	LOG_DBG("Updating cacheWindow");
 	updateSize();
-
+	drawBorder();
+	drawTitle();
 	LOG_DBG("Showing main form");
 	form_.show(*this);
 	// hintsForm_.show(*this);
@@ -49,6 +50,7 @@ void cacheWindow::update()
 void cacheWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in cacheWindow: " << event->type());
+	setHighlightTitle(true);
 
 	if (event->type() != core::INPUT_EVENT)
 	{
@@ -79,6 +81,7 @@ void cacheWindow::handleInputEvent(core::event::shared_ptr_t event)
 		case core::inputEvent::ARROW_LEFT:
 		{
 			LOG_DBG("Processing ARROW_LEFT event");
+			setHighlightTitle(false);
 			core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
 			LOG_DBG("Changed controller window to left neighbour");
 		}
@@ -112,15 +115,17 @@ void cacheWindow::handleInputEvent(core::event::shared_ptr_t event)
 		default: LOG_DBG("Unhandled input event type: " << input->inputType()); break;
 	}
 
+	if (form_.empty())
+	{
+		LOG_DBG("Form is empty, changing to left neighbour window");
+		setHighlightTitle(false);
+		core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
+	}
+
 	update();
 	LOG_DBG("Showing updated window");
 	showWindow(shared_from_this());
 
-	if (form_.empty())
-	{
-		LOG_DBG("Form is empty, changing to left neighbour window");
-		core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
-	}
 }
 
 void cacheWindow::update(const std::string&)
@@ -129,7 +134,7 @@ void cacheWindow::update(const std::string&)
 	fillForm();
 	form_.show(*this);
 
-	if (core::core::getScreen().controllerWindow()->name() == name())
+	if (core::core::getScreen().controllerWindow()->uuid() == uuid())
 	{
 		LOG_DBG("This window is controller, pushing unspecified input event");
 		pushInputEvent(core::inputEvent::UNSPECIFIED);

@@ -10,11 +10,11 @@ void inputForm::show(core::window& wnd)
 {
 	form::show(wnd);
 
-	if (x() >= wnd.realWidth() || y() >= wnd.realHeight())
+	if (x() >= wnd.contentWidth() || y() >= wnd.contentHeight())
 		return;
 
-	size_t edgeX = std::min(x() + width(), wnd.realWidth());
-	size_t edgeY = std::min(y() + height(), wnd.realHeight());
+	size_t edgeX = std::min(x() + width(), wnd.contentWidth());
+	size_t edgeY = std::min(y() + height(), wnd.contentHeight());
 
 	for (size_t yIt = y(); yIt < edgeY; ++yIt)
 	{

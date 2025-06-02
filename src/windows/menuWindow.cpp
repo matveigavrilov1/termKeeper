@@ -24,6 +24,8 @@ void menuWindow::update()
 {
 	LOG_DBG("Updating menuWindow");
 	updateSize();
+	drawBorder();
+	drawTitle();
 
 	LOG_DBG("Showing selected item in form");
 	form_.showSelected();
@@ -35,6 +37,7 @@ void menuWindow::update()
 void menuWindow::handleInputEvent(core::event::shared_ptr_t event)
 {
 	LOG_DBG("Handling input event in menuWindow");
+	setHighlightTitle(true);
 
 	if (event->type() != core::INPUT_EVENT)
 	{
@@ -88,7 +91,9 @@ void menuWindow::handleInputEvent(core::event::shared_ptr_t event)
 			auto selected = form_.getSelected();
 			LOG_DBG("Changing controller window to: " << selected.uuid);
 			core::core::getScreen().changeControllerWindow(selected.uuid);
-
+			
+			setHighlightTitle(false);
+		
 			LOG_DBG("Pushing unspecified input event");
 			pushInputEvent(core::inputEvent::UNSPECIFIED);
 		}
