@@ -4,14 +4,12 @@
 #include <memory>
 #include <string>
 
-#include <uuid.h>
-
-#include "core/event.h"
 #include "os/console.h"
+#include "utils/with_uuid.h"
 
 namespace core
 {
-class window
+class window : virtual public utils::with_uuid, public std::enable_shared_from_this<window>
 {
 public:
 	using charInfo = os::console::charInfo;
@@ -37,7 +35,6 @@ public:
 	charInfo& operator[] (size_t index);
 
 	const std::string& name() const;
-	const uuids::uuid& uuid() const;
 
 	virtual void setChar(position_on_window pos, charInfo ch);
 	virtual void setChar(size_t index, charInfo ch);
@@ -60,9 +57,9 @@ public:
 	size_t contentHeight() const;
 
 	virtual size_t length() const;
+
 	virtual void clear();
 	virtual void update();
-	virtual void handleInputEvent(event::shared_ptr_t event);
 
 	virtual void setRelativeSize(relative_size relativeSize);
 	virtual void setAbsoluteSize(window_size absoluteSize);
@@ -96,7 +93,6 @@ private:
 
 	buffer_type buffer_;
 	std::string name_;
-	uuids::uuid uuid_;
 
 	uuids::uuid leftNeighbour_;
 	uuids::uuid rightNeighbour_;

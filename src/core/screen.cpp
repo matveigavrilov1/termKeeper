@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "core/utils.h"
 #include "utils/logger.h"
 
 namespace core
@@ -51,6 +50,14 @@ bool screen::showWindow(const uuids::uuid& uuid, os::console::shared_ptr_t conso
 		LOG_ERR("Window not found in registry: " << uuid);
 	}
 	return false;
+}
+
+void screen::updateWindow(const uuids::uuid& uuid)
+{
+	if (auto it = windows_.find(uuid); it != windows_.end())
+	{
+		it->second->update();
+	}
 }
 
 bool screen::registerWindow(window::shared_ptr_t win)
@@ -147,32 +154,6 @@ void screen::deactivateAllWindows()
 {
 	LOG_DBG("Deactivating all windows (count: " << activatedWindows_.size() << ")");
 	activatedWindows_.clear();
-}
-
-window::shared_ptr_t screen::controllerWindow()
-{
-	LOG_DBG("Getting controller window: " << (controllerWindow_ ? controllerWindow_->name() : "nullptr"));
-	return controllerWindow_;
-}
-
-bool screen::changeControllerWindow(const uuids::uuid& uuid)
-{
-	if (uuid.is_nil())
-	{
-		LOG_WRN("Attempt to change controller to nil UUID");
-		return false;
-	}
-
-	if (auto it = std::find(activatedWindows_.begin(), activatedWindows_.end(), uuid); it != activatedWindows_.end())
-	{
-		controllerWindow_ = windows_.find(uuid)->second;
-		LOG_DBG("Changed controller window to '" << controllerWindow_->name() << "' with UUID: " << uuid);
-		pushInputEvent(inputEvent::UNSPECIFIED);
-		return true;
-	}
-
-	LOG_ERR("Cannot change controller - window not active: " << uuid);
-	return false;
 }
 
 bool screen::activated(const uuids::uuid& uuid) const

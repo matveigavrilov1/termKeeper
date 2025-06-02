@@ -2,24 +2,15 @@
 
 #include <optional>
 
+#include "core/controllerm.h"
 #include "core/eventm.h"
-
 #include "core/screen.h"
 
 namespace core
 {
-class core
-{
-public:
-	static void init();
+void init();
 
-	static eventm& getEventManager();
-	static screen& getScreen();
-
-private:
-	static bool isInitialized_;
-
-	static std::optional<eventm> eventm_;
-	static std::optional<screen> screen_;
-};
+controllerm& controllerm();
+eventm& eventm();
+screen& screen();
 } // namespace core

@@ -48,7 +48,7 @@ int main(int, char**)
 	auto storage = xmlStorage.getStorage();
 	auto cache = xmlCache.getCache();
 
-	core::core::init();
+	core::init();
 
 	ui::uiImpl ui(cache, storage);
 	LOG_INF("CLI created");

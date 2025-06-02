@@ -1,8 +1,9 @@
-#include "windows/borderedWindow.h"
+#include "windows/utils/borderedWindow.h"
 
 #include <algorithm>
 #include <iterator>
 
+#include "core/interface.h"
 #include "core/window.h"
 #include "os/console.h"
 
@@ -33,6 +34,17 @@ void borderedWindow::clear()
 	window::clear();
 	drawBorder();
 }
+
+void borderedWindow::update()
+{
+	setHighlightTitle(core::controllerm().active(uuid()));
+	updateSize();
+	drawBorder();
+	drawTitle();
+	updateBordered();
+}
+
+void borderedWindow::updateBordered() { }
 
 core::window::position_on_screen borderedWindow::contentPos() const
 {

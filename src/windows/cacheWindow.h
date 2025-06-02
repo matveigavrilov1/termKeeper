@@ -5,7 +5,7 @@
 
 #include "forms/selectionListForm.h"
 #include "forms/hintsForm.h"
-#include "windows/borderedWindow.h"
+#include "windows/utils/controllerWindow.h"
 
 #include "data/cache.h"
 
@@ -14,17 +14,19 @@
 namespace wndws
 {
 class cacheWindow final
-: public borderedWindow
-, public std::enable_shared_from_this<cacheWindow>
+: public controllerWindow
 , public utils::observer
 {
 public:
 	cacheWindow(data::cache::shared_ptr_t cache, const std::string& name = "Cache");
-	void update() override;
-
-	void handleInputEvent(core::event::shared_ptr_t event) override;
+	void updateBordered() override;
 
 	void update(const std::string&) override;
+
+protected:
+	bool handleArrowUpDecorator(const core::inputEvent::keyModifiers &mods) override;
+	bool handleArrowDownDecorator(const core::inputEvent::keyModifiers &mods) override;
+	bool handleEnter(const core::inputEvent::keyModifiers &mods) override;
 
 private:
 	void fillForm();

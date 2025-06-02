@@ -13,6 +13,9 @@ public:
 
 	void clear() override;
 
+	void update() override;
+	virtual void updateBordered();
+
 	position_on_screen contentPos() const override;
 	window_size contentSize() const override;
 

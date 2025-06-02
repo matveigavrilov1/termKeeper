@@ -1,5 +1,6 @@
 #include "ui/ui.h"
 
+#include "core/controllerm.h"
 #include "core/events.h"
 #include "core/window.h"
 #include "config/config.h"
@@ -12,6 +13,7 @@
 #include "windows/storageWindow.h"
 
 #include "utils/logger.h"
+#include <memory>
 
 namespace ui
 {
@@ -55,7 +57,10 @@ void uiImpl::init()
 		if (windows_.contains(windowName))
 		{
 			LOG_INF(windowName);
-			core::core::getScreen().registerWindow(windows_[windowName]);
+			core::screen().registerWindow(windows_[windowName]);
+			auto controller = std::dynamic_pointer_cast<wndws::controllerWindow>(windows_[windowName]);
+			if (controller)
+				core::controllerm().registerController(controller);
 		}
 		else
 		{
@@ -83,13 +88,13 @@ void uiImpl::init()
 		LOG_INF(windowName);
 		auto it = windows_.find(windowName);
 		if (it != windows_.end() && it->second)
-			core::core::getScreen().activateWindow(it->second->uuid());
+			core::screen().activateWindow(it->second->uuid());
 	}
 
-	LOG_INF("Setting controller: " << config::instance().initialController());
+	LOG_INF("Setting controller: " << conf::config::instance().initialController());
 	auto it = windows_.find(conf::config::instance().initialController());
 	if (it != windows_.end() && it->second)
-		core::core::getScreen().changeControllerWindow(it->second->uuid());
+		core::controllerm().setActiveController(it->second->uuid());
 
 	LOG_INF("Updating all windows:");
 	for (auto [_, window] : windows_)
@@ -101,8 +106,8 @@ void uiImpl::init()
 
 int uiImpl::run()
 {
-	core::core::getScreen().show(os::console::get());
+	core::screen().show(os::console::get());
 	core::pushInputEvent(core::inputEvent::UNSPECIFIED);
-	return core::core::getEventManager().run();
+	return core::eventm().run();
 }
 } // namespace ui

@@ -3,14 +3,15 @@
 #include <algorithm>
 
 #include "core/interface.h"
-#include "core/utils.h"
+
 #include "core/window.h"
 #include "utils/logger.h"
+#include "windows/utils/controllerWindow.h"
 
 namespace wndws
 {
 menuWindow::menuWindow(const std::string& name)
-: borderedWindow(name)
+: controllerWindow(name)
 , form_ { false }
 {
 	LOG_DBG("Creating menuWindow with name: " << name);
@@ -20,90 +21,47 @@ menuWindow::menuWindow(const std::string& name)
 	LOG_DBG("Form relative size set to {1, 1}");
 }
 
-void menuWindow::update()
+void menuWindow::updateBordered()
 {
 	LOG_DBG("Updating menuWindow");
-	updateSize();
-	drawBorder();
-	drawTitle();
-
-	LOG_DBG("Showing selected item in form");
-	form_.showSelected();
+	isThisController() ? form_.showSelected() : form_.unshowSelected();
 
 	LOG_DBG("Displaying form content");
 	form_.show(*this);
 }
 
-void menuWindow::handleInputEvent(core::event::shared_ptr_t event)
+bool menuWindow::handleArrowUpDecorator(const core::inputEvent::keyModifiers& mods)
 {
-	LOG_DBG("Handling input event in menuWindow");
-	setHighlightTitle(true);
+	LOG_DBG("Handling ARROW_UP event");
+	auto selected = form_.getSelected();
+	LOG_DBG("Deactivating current window: " << selected.uuid);
+	core::screen().deactivateWindow(selected.uuid);
 
-	if (event->type() != core::INPUT_EVENT)
-	{
-		LOG_ERR("Incorrect event type: " << event->type());
-		return;
-	}
+	LOG_DBG("Switching to previous item");
+	form_.switchUp();
 
-	LOG_DBG("Showing selected item in form");
-	form_.showSelected();
+	selected = form_.getSelected();
+	LOG_DBG("Activating new selected window: " << selected.uuid);
+	core::screen().activateWindow(selected.uuid);
+	core::screen().showWindow(selected.uuid, os::console::get());
+	return true;
+}
 
-	auto input = std::static_pointer_cast<core::inputEvent>(event);
-	LOG_DBG("Processing input event type: " << input->inputType());
+bool menuWindow::handleArrowDownDecorator(const core::inputEvent::keyModifiers& mods)
+{
+	LOG_DBG("Handling ARROW_DOWN event");
+	auto selected = form_.getSelected();
+	LOG_DBG("Deactivating current window: " << selected.uuid);
+	core::screen().deactivateWindow(selected.uuid);
 
-	switch (input->inputType())
-	{
-		case core::inputEvent::ARROW_UP:
-		{
-			LOG_DBG("Handling ARROW_UP event");
-			auto selected = form_.getSelected();
-			LOG_DBG("Deactivating current window: " << selected.uuid);
-			core::core::getScreen().deactivateWindow(selected.uuid);
+	LOG_DBG("Switching to next item");
+	form_.switchDown();
 
-			LOG_DBG("Switching to previous item");
-			form_.switchUp();
-
-			selected = form_.getSelected();
-			LOG_DBG("Activating new selected window: " << selected.uuid);
-			core::core::getScreen().activateWindow(selected.uuid);
-			core::core::getScreen().showWindow(selected.uuid, os::console::get());
-		}
-		break;
-		case core::inputEvent::ARROW_DOWN:
-		{
-			LOG_DBG("Handling ARROW_DOWN event");
-			auto selected = form_.getSelected();
-			LOG_DBG("Deactivating current window: " << selected.uuid);
-			core::core::getScreen().deactivateWindow(selected.uuid);
-
-			LOG_DBG("Switching to next item");
-			form_.switchDown();
-
-			selected = form_.getSelected();
-			LOG_DBG("Activating new selected window: " << selected.uuid);
-			core::core::getScreen().activateWindow(selected.uuid);
-			core::core::getScreen().showWindow(selected.uuid, os::console::get());
-		}
-		break;
-		case core::inputEvent::ARROW_RIGHT:
-		{
-			LOG_DBG("Handling ARROW_RIGHT event");
-			auto selected = form_.getSelected();
-			LOG_DBG("Changing controller window to: " << selected.uuid);
-			core::core::getScreen().changeControllerWindow(selected.uuid);
-			
-			setHighlightTitle(false);
-		
-			LOG_DBG("Pushing unspecified input event");
-			pushInputEvent(core::inputEvent::UNSPECIFIED);
-		}
-		break;
-		default: LOG_DBG("Unhandled input event type: " << input->inputType()); break;
-	}
-
-	update();
-	LOG_DBG("Showing updated window");
-	showWindow(shared_from_this());
+	selected = form_.getSelected();
+	LOG_DBG("Activating new selected window: " << selected.uuid);
+	core::screen().activateWindow(selected.uuid);
+	core::screen().showWindow(selected.uuid, os::console::get());
+	return true;
 }
 
 void menuWindow::addWindow(window::shared_ptr_t win)

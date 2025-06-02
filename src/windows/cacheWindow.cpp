@@ -1,16 +1,13 @@
 #include "windows/cacheWindow.h"
 
-#include <memory>
-
 #include "forms/selectionListForm.h"
 #include "config/config.h"
 
 #include "core/events.h"
-#include "core/interface.h"
 #include "core/utils.h"
-#include "windows/borderedWindow.h"
 #include "os/interface.h"
 #include "utils/logger.h"
+#include "windows/utils/controllerWindow.h"
 
 
 static const forms::hintsForm::preset_name_t cachePresetName = "cache";
@@ -18,7 +15,7 @@ static const forms::hintsForm::preset_name_t cachePresetName = "cache";
 namespace wndws
 {
 cacheWindow::cacheWindow(data::cache::shared_ptr_t cache, const std::string& name)
-: borderedWindow(name)
+: controllerWindow(name)
 , cache_(cache)
 {
 	LOG_DBG("Creating cacheWindow with name: " << name);
@@ -36,96 +33,14 @@ cacheWindow::cacheWindow(data::cache::shared_ptr_t cache, const std::string& nam
 	fillForm();
 }
 
-void cacheWindow::update()
+void cacheWindow::updateBordered()
 {
 	LOG_DBG("Updating cacheWindow");
-	updateSize();
-	drawBorder();
-	drawTitle();
+	isThisController() ? form_.showSelected() : form_.unshowSelected();
+
 	LOG_DBG("Showing main form");
 	form_.show(*this);
 	// hintsForm_.show(*this);
-}
-
-void cacheWindow::handleInputEvent(core::event::shared_ptr_t event)
-{
-	LOG_DBG("Handling input event in cacheWindow: " << event->type());
-	setHighlightTitle(true);
-
-	if (event->type() != core::INPUT_EVENT)
-	{
-		LOG_ERR("Incorrect event type: " << event->type());
-		return;
-	}
-
-	LOG_DBG("Showing selected item in form");
-	form_.showSelected();
-
-	auto input = std::static_pointer_cast<core::inputEvent>(event);
-	LOG_DBG("Input event type: " << input->inputType());
-
-	switch (input->inputType())
-	{
-		case core::inputEvent::ARROW_UP:
-		{
-			LOG_DBG("Processing ARROW_UP event");
-			form_.switchUp();
-		}
-		break;
-		case core::inputEvent::ARROW_DOWN:
-		{
-			LOG_DBG("Processing ARROW_DOWN event");
-			form_.switchDown();
-		}
-		break;
-		case core::inputEvent::ARROW_LEFT:
-		{
-			LOG_DBG("Processing ARROW_LEFT event");
-			setHighlightTitle(false);
-			core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
-			LOG_DBG("Changed controller window to left neighbour");
-		}
-		break;
-		case core::inputEvent::ENTER:
-		{
-			LOG_DBG("Processing ENTER event");
-			auto selected = form_.getSelected();
-			LOG_DBG("Selected item UUID: " << selected.uuid);
-
-			auto item = cache_->findItem(selected.uuid);
-			if (!item)
-			{
-				LOG_ERR("Item not found in cache with UUID: " << selected.uuid);
-				break;
-			}
-
-			LOG_DBG("Writing item content to uipboard: " << item->content);
-			os::writeToClipboard(item->content);
-
-			LOG_DBG("Moving item to front of cache");
-			cache_->pushFront(item->content);
-
-			if (conf::config::instance().closeOnChoice())
-			{
-				LOG_DBG("Config closeOnChoice is true, pushing exit event");
-				core::pushExitEvent();
-			}
-		}
-		break;
-		default: LOG_DBG("Unhandled input event type: " << input->inputType()); break;
-	}
-
-	if (form_.empty())
-	{
-		LOG_DBG("Form is empty, changing to left neighbour window");
-		setHighlightTitle(false);
-		core::core::getScreen().changeControllerWindow(core::core::getScreen().findLeftNeighbour(uuid()));
-	}
-
-	update();
-	LOG_DBG("Showing updated window");
-	showWindow(shared_from_this());
-
 }
 
 void cacheWindow::update(const std::string&)
@@ -133,12 +48,45 @@ void cacheWindow::update(const std::string&)
 	LOG_DBG("Updating cacheWindow with string parameter");
 	fillForm();
 	form_.show(*this);
+}
 
-	if (core::core::getScreen().controllerWindow()->uuid() == uuid())
+bool cacheWindow::handleArrowUpDecorator(const core::inputEvent::keyModifiers& mods)
+{
+	form_.switchUp();
+	return true;
+}
+
+bool cacheWindow::handleArrowDownDecorator(const core::inputEvent::keyModifiers& mods)
+{
+	form_.switchDown();
+	return true;
+}
+
+bool cacheWindow::handleEnter(const core::inputEvent::keyModifiers& mods)
+{
+	LOG_DBG("Processing ENTER event");
+	auto selected = form_.getSelected();
+	LOG_DBG("Selected item UUID: " << selected.uuid);
+
+	auto item = cache_->findItem(selected.uuid);
+	if (!item)
 	{
-		LOG_DBG("This window is controller, pushing unspecified input event");
-		pushInputEvent(core::inputEvent::UNSPECIFIED);
+		LOG_ERR("Item not found in cache with UUID: " << selected.uuid);
+		return false;
 	}
+
+	LOG_DBG("Writing item content to uipboard: " << item->content);
+	os::writeToClipboard(item->content);
+
+	LOG_DBG("Moving item to front of cache");
+	cache_->pushFront(item->content);
+
+	if (conf::config::instance().closeOnChoice())
+	{
+		LOG_DBG("Config closeOnChoice is true, pushing exit event");
+		core::pushExitEvent();
+	}
+	return true;
 }
 
 void cacheWindow::fillForm()

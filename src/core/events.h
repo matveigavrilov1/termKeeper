@@ -10,7 +10,7 @@ namespace core
 class exitEvent : public event
 {
 public:
-	using shared_ptr_type = std::shared_ptr<exitEvent>;
+	using shared_ptr_t = std::shared_ptr<exitEvent>;
 
 	exitEvent()
 	: event(EXIT_EVENT)
@@ -20,7 +20,7 @@ public:
 class inputEvent : public event
 {
 public:
-	using shared_ptr_type = std::shared_ptr<inputEvent>;
+	using shared_ptr_t = std::shared_ptr<inputEvent>;
 
 	enum type
 	{
@@ -53,52 +53,69 @@ public:
 		UNSPECIFIED
 	};
 
-	inputEvent(type inputType, std::optional<char> key = std::nullopt, bool shiftPressed = false, bool ctrlPressed = false, bool altPressed = false)
+	struct keyModifiers
+	{
+		bool shift = false;
+		bool ctrl = false;
+		bool alt = false;
+
+		bool any() const { return shift || ctrl || alt; }
+
+		bool none() const { return !any(); }
+	};
+
+	inputEvent(type inputType, std::optional<char> key = std::nullopt, keyModifiers modifiers = keyModifiers(false, false, false))
 	: event(INPUT_EVENT)
 	, inputType_(inputType)
 	, key_(key)
-	, shiftPressed_(shiftPressed)
-	, ctrlPressed_(ctrlPressed)
-	, altPressed_(altPressed)
+	, modifiers_ { modifiers }
 	{ }
 
 	unsigned inputType() { return inputType_; }
 
 	std::optional<char> key() { return key_; }
 
-	bool shiftPressed() { return shiftPressed_; }
+	bool shiftPressed() { return modifiers_.shift; }
 
-	bool ctrlPressed() { return ctrlPressed_; }
+	bool ctrlPressed() { return modifiers_.ctrl; }
 
-	bool altPressed() { return altPressed_; }
+	bool altPressed() { return modifiers_.alt; }
+
+	const keyModifiers& modifiers() { return modifiers_; }
 
 private:
 	unsigned inputType_;
 	std::optional<char> key_;
-	bool shiftPressed_;
-	bool ctrlPressed_;
-	bool altPressed_;
+	keyModifiers modifiers_;
 };
 
 class windowEvent : public event
 {
 public:
-	using shared_ptr_type = std::shared_ptr<windowEvent>;
+	using shared_ptr_t = std::shared_ptr<windowEvent>;
 
-	windowEvent(window::shared_ptr_t window)
+	enum type
+	{
+		SHOW_WINDOW = 0
+	};
+
+	windowEvent(window::shared_ptr_t window, unsigned type = SHOW_WINDOW)
 	: event(WINDOW_EVENT)
 	, window_(std::move(window))
+	, type_(type)
 	{ }
 
 	window::shared_ptr_t window() { return window_; }
 
 private:
 	window::shared_ptr_t window_;
+	unsigned type_;
 };
 
 class screenEvent : public event
 {
-	using shared_ptr_type = std::shared_ptr<screenEvent>;
+public:
+	using shared_ptr_t = std::shared_ptr<screenEvent>;
 
 	enum type
 	{

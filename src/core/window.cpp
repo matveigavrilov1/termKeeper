@@ -5,7 +5,6 @@
 #include <uuid.h>
 
 #include "os/console.h"
-#include "utils/generate_uuid.h"
 #include "utils/logger.h"
 
 namespace core
@@ -16,7 +15,6 @@ window::window(const std::string& name)
 , useRelativeSize_ { true }
 , relativeSize_ { 1, 1 }
 , name_ { name }
-, uuid_ { utils::generate_uuid() }
 {
 	size_ = calculateAbsoluteSize();
 	buffer_.resize(size_.width * size_.height);
@@ -29,7 +27,6 @@ window::window(position_on_screen pos, window_size sz, const std::string& name)
 , buffer_(sz.width * sz.height)
 , useRelativeSize_(false)
 , name_(name)
-, uuid_ { utils::generate_uuid() }
 {
 	clear();
 }
@@ -39,7 +36,6 @@ window::window(position_on_screen pos, relative_size relativeSize, const std::st
 , relativeSize_(relativeSize)
 , useRelativeSize_(true)
 , name_(name)
-, uuid_ { utils::generate_uuid() }
 {
 	size_ = calculateAbsoluteSize();
 	buffer_.resize(size_.width * size_.height);
@@ -52,7 +48,6 @@ window::window(const window& other)
 , relativeSize_(other.relativeSize_)
 , buffer_(other.buffer_)
 , name_(other.name_)
-, uuid_ { utils::generate_uuid() }
 { }
 
 window::window(window&& other) noexcept
@@ -62,7 +57,7 @@ window::window(window&& other) noexcept
 , relativeSize_(other.relativeSize_)
 , buffer_(std::move(other.buffer_))
 , name_(std::move(other.name_))
-, uuid_ { std::move(other.uuid_) }
+
 { }
 
 window& window::operator= (const window& other)
@@ -73,7 +68,6 @@ window& window::operator= (const window& other)
 		size_ = other.size_;
 		buffer_ = other.buffer_;
 		name_ = other.name_;
-		uuid_ = utils::generate_uuid();
 	}
 	return *this;
 }
@@ -86,7 +80,6 @@ window& window::operator= (window&& other) noexcept
 		size_ = other.size_;
 		buffer_ = std::move(other.buffer_);
 		name_ = std::move(other.name_);
-		uuid_ = std::move(other.uuid_);
 	}
 	return *this;
 }
@@ -112,11 +105,6 @@ window::charInfo& window::operator[] (size_t index)
 const std::string& window::name() const
 {
 	return name_;
-}
-
-const uuids::uuid& window::uuid() const
-{
-	return uuid_;
 }
 
 void window::setChar(position_on_window pos, charInfo ch)
@@ -247,11 +235,6 @@ window::buffer_type& window::buffer()
 void window::update()
 {
 	LOG_DBG("Default window update handler");
-}
-
-void window::handleInputEvent(event::shared_ptr_t event)
-{
-	LOG_DBG("Default window input handler");
 }
 
 void window::setRelativeSize(std::pair<double, double> relativeSize)

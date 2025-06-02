@@ -4,23 +4,26 @@
 #include <string>
 #include <vector>
 
-#include "windows/borderedWindow.h"
+#include "windows/utils/controllerWindow.h"
 #include "forms/selectionListForm.h"
 
 namespace wndws
 {
 class menuWindow final
-: public borderedWindow 
+: public controllerWindow 
 , public std::enable_shared_from_this<menuWindow>
 {
 public:
 	menuWindow(const std::string& name = "Menu");
 
-	void update() override;
-	void handleInputEvent(core::event::shared_ptr_t event) override;
+	void updateBordered() override;
 
 	void addWindow(window::shared_ptr_t win);
 	void removeWindow(const std::string& name);
+
+protected:
+	bool handleArrowUpDecorator(const core::inputEvent::keyModifiers &mods) override;
+	bool handleArrowDownDecorator(const core::inputEvent::keyModifiers &mods) override;
 
 private:
 	forms::selectionListForm form_;

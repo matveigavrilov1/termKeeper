@@ -5,6 +5,8 @@ set(EXEC_TARGET_NAME ${PROJECT_NAME})
 set(EXEC_SOURCES 
 	main.cpp
 	ui/ui.cpp
+	core/controller.cpp
+	core/controllerm.cpp
 	core/event.cpp
 	core/eventm.cpp
 	core/form.cpp
@@ -15,7 +17,8 @@ set(EXEC_SOURCES
 	forms/hintsForm.cpp
 	forms/inputForm.cpp
 	forms/selectionListForm.cpp
-	windows/borderedWindow.cpp
+	windows/utils/borderedWindow.cpp
+	windows/utils/controllerWindow.cpp
 	windows/cacheWindow.cpp
 	windows/menuWindow.cpp
 	windows/storageWindow.cpp

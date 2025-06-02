@@ -5,7 +5,7 @@
 
 #include "core/events.h"
 
-#include "windows/borderedWindow.h"
+#include "windows/utils/controllerWindow.h"
 #include "forms/hintsForm.h"
 #include "forms/inputForm.h"
 #include "forms/selectionListForm.h"
@@ -15,18 +15,32 @@
 
 namespace wndws
 {
-class storageWindow final
-: public borderedWindow
-, public std::enable_shared_from_this<storageWindow>
+class storageWindow final : public controllerWindow
 {
 public:
 	storageWindow(data::storage::shared_ptr_t storage, data::cache::shared_ptr_t cache, const std::string& name = "Storage");
 
-	void update() override;
-	void handleInputEvent(core::event::shared_ptr_t event) override;
+	void updateBordered() override;
 
-	void handleInputEventInInputMode(core::inputEvent::shared_ptr_type event);
-	void handleInputEventInSelectionMode(core::inputEvent::shared_ptr_type event);
+
+protected:
+	bool handleArrowUpDecorator(const core::inputEvent::keyModifiers& mods) override;
+	bool handleArrowDownDecorator(const core::inputEvent::keyModifiers& mods) override;
+	bool handleArrowLeftDecorator(const core::inputEvent::keyModifiers& mods) override;
+	bool handleArrowRightDecorator(const core::inputEvent::keyModifiers& mods) override;
+
+	bool handleKeyPressed(char ch, const core::inputEvent::keyModifiers& mods) override;
+	bool handleEnter(const core::inputEvent::keyModifiers& mods) override;
+	bool handleBackspace(const core::inputEvent::keyModifiers& mods) override;
+
+	bool handleHome(const core::inputEvent::keyModifiers& mods) override;
+	bool handleEnd(const core::inputEvent::keyModifiers& mods) override;
+	bool handleInsert(const core::inputEvent::keyModifiers& mods) override;
+	bool handleDelete(const core::inputEvent::keyModifiers& mods) override;
+
+	bool handleF1(const core::inputEvent::keyModifiers& mods) override;
+	bool handleF2(const core::inputEvent::keyModifiers& mods) override;
+	bool handleF3(const core::inputEvent::keyModifiers& mods) override;
 
 private:
 	void fillSelectionForm();
