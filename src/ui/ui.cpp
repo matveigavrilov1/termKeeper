@@ -22,17 +22,17 @@ uiImpl::uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t stor
 {
 	LOG_DBG("Creating Menu Window");
 	auto menuWindow = std::make_shared<wndws::menuWindow>();
-	menuWindow->setRelativeSize({ 0.2, 1 });
+	menuWindow->setRelativeSize({ 0.1, 1 });
 	menuWindow->setPosition({ 0, 0 });
 	menuWindow->clear();
 	LOG_DBG("Creating Storage Window");
 	auto storageWindow = std::make_shared<wndws::storageWindow>(storage, cache);
-	storageWindow->setRelativeSize({ 0.8, 1 });
+	storageWindow->setRelativeSize({ 0.9, 1 });
 	storageWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	storageWindow->clear();
 	LOG_DBG("Creating Cache Window");
 	auto cacheWindow = std::make_shared<wndws::cacheWindow>(cache);
-	cacheWindow->setRelativeSize({ 0.8, 1 });
+	cacheWindow->setRelativeSize({ 0.9, 1 });
 	cacheWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	cacheWindow->clear();
 
