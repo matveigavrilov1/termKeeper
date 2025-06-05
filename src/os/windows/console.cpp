@@ -4,7 +4,10 @@
 #include <windows.h>
 #include <memory>
 #include <stdexcept>
+#include <thread>
 
+#include "core/events.h"
+#include "core/utils.h"
 #include "utils/logger.h"
 
 namespace os
@@ -13,10 +16,14 @@ namespace os
 struct console::impl
 {
 	HANDLE hConsole;
+	HWND hWnd;
 	bool isVisible;
+	std::atomic<bool> running { false };
+	std::jthread inputHandlerThread;
 
 	impl()
 	: hConsole(GetStdHandle(STD_OUTPUT_HANDLE))
+	, hWnd(GetConsoleWindow())
 	, isVisible(true)
 	{
 		if (hConsole == INVALID_HANDLE_VALUE)
@@ -74,6 +81,101 @@ struct console::impl
 
 		return res;
 	}
+
+	void inputHandler()
+	{
+		HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+		if (hStdin == INVALID_HANDLE_VALUE)
+		{
+			std::cerr << "GetStdHandle failed (" << GetLastError() << ")\n";
+			running = false; // Stop the thread if we can't get the input handle.
+			return;
+		}
+
+		INPUT_RECORD ir[128];
+		DWORD cNumRead;
+
+		while (running)
+		{
+			WaitForSingleObject(hStdin, INFINITE); // Ждем события ввода
+			if (!ReadConsoleInput(hStdin, ir, 128, &cNumRead))
+			{
+				continue;
+			}
+
+			for (DWORD i = 0; i < cNumRead; i++)
+			{
+				if (ir[i].EventType == KEY_EVENT)
+				{
+					KEY_EVENT_RECORD& ker = ir[i].Event.KeyEvent;
+					if (ker.bKeyDown)
+					{
+						char asciiChar = ker.uChar.AsciiChar;
+						WORD virtualKeyCode = ker.wVirtualKeyCode;
+
+						bool shiftPressed = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+						bool ctrlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+						bool altPressed = (GetKeyState(VK_MENU) & 0x8000) != 0;
+
+						LOG_DBG("Key pressed: " << (int)virtualKeyCode << " Char: " << (int)asciiChar);
+
+						core::inputEvent::type eventType = core::inputEvent::UNSPECIFIED;
+
+						// Handle special keys
+						switch (virtualKeyCode)
+						{
+							case VK_RETURN: eventType = core::inputEvent::ENTER; break;
+							case VK_ESCAPE: eventType = core::inputEvent::ESC; break;
+							case VK_HOME: eventType = core::inputEvent::HOME; break;
+							case VK_END: eventType = core::inputEvent::END; break;
+							case VK_PRIOR: eventType = core::inputEvent::PAGE_UP; break;
+							case VK_NEXT: eventType = core::inputEvent::PAGE_DOWN; break;
+							case VK_INSERT: eventType = core::inputEvent::INSERT; break;
+							case VK_DELETE: eventType = core::inputEvent::DELETE_KEY; break;
+							case VK_LEFT: eventType = core::inputEvent::ARROW_LEFT; break;
+							case VK_RIGHT: eventType = core::inputEvent::ARROW_RIGHT; break;
+							case VK_UP: eventType = core::inputEvent::ARROW_UP; break;
+							case VK_DOWN: eventType = core::inputEvent::ARROW_DOWN; break;
+							case VK_F1: eventType = core::inputEvent::F1; break;
+							case VK_F2: eventType = core::inputEvent::F2; break;
+							case VK_F3: eventType = core::inputEvent::F3; break;
+							case VK_F4: eventType = core::inputEvent::F4; break;
+							case VK_F5: eventType = core::inputEvent::F5; break;
+							case VK_F6: eventType = core::inputEvent::F6; break;
+							case VK_F7: eventType = core::inputEvent::F7; break;
+							case VK_F8: eventType = core::inputEvent::F8; break;
+							case VK_F9: eventType = core::inputEvent::F9; break;
+							case VK_F10: eventType = core::inputEvent::F10; break;
+							case VK_F11: eventType = core::inputEvent::F11; break;
+							case VK_F12: eventType = core::inputEvent::F12; break;
+							case VK_BACK: eventType = core::inputEvent::BACKSPACE; break;
+							default: eventType = core::inputEvent::KEY_PRESSED; break;
+						}
+
+						core::pushInputEvent(eventType, asciiChar, shiftPressed, ctrlPressed, altPressed);
+					}
+				}
+			}
+		}
+	}
+
+	void runInputHandler()
+	{
+		if (!running)
+		{
+			running = true;
+			inputHandlerThread = std::jthread([this]() { inputHandler(); });
+		}
+	}
+
+	void stopInputHandler()
+	{
+		if (running)
+		{
+			running = false;
+			inputHandlerThread.join();
+		}
+	}
 };
 
 console::shared_ptr_t console::get()
@@ -92,11 +194,12 @@ bool console::show()
 {
 	if (!pimpl_->isVisible)
 	{
-		if (ShowWindow(GetConsoleWindow(), SW_SHOW))
-		{
-			pimpl_->isVisible = true;
-			return true;
-		}
+		ShowWindow(pimpl_->hWnd, SW_SHOW);
+		SetForegroundWindow(pimpl_->hWnd);
+		SetFocus(pimpl_->hWnd);
+		pimpl_->runInputHandler();
+		pimpl_->isVisible = true;
+		return true;
 	}
 	return false;
 }
@@ -105,11 +208,10 @@ bool console::hide()
 {
 	if (pimpl_->isVisible)
 	{
-		if (ShowWindow(GetConsoleWindow(), SW_HIDE))
-		{
-			pimpl_->isVisible = false;
-			return true;
-		}
+		ShowWindow(pimpl_->hWnd, SW_HIDE);
+		pimpl_->stopInputHandler();
+		pimpl_->isVisible = false;
+		return true;
 	}
 	return false;
 }
@@ -117,6 +219,11 @@ bool console::hide()
 bool console::visible()
 {
 	return pimpl_->isVisible;
+}
+
+void console::setConsoleName(const char* name)
+{
+	SetConsoleTitle(TEXT(name));
 }
 
 void console::clear()

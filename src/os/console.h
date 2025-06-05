@@ -53,6 +53,7 @@ public:
 	bool show();
 	bool hide();
 	bool visible();
+	void setConsoleName(const char * name);
 
 	void clear();
 
