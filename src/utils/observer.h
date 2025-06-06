@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace tk
+namespace utils
 {
 class observer
 {
@@ -14,4 +14,4 @@ public:
 	using unique_ptr_type = std::unique_ptr<observer>;
 	using shared_ptr_type = std::shared_ptr<observer>;
 };
-} // namespace tk
+} // namespace utils

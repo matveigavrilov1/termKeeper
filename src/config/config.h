@@ -6,9 +6,9 @@
 
 #include "utils/singleton.h"
 
-namespace tk
+namespace conf
 {
-class config : public singleton<config>
+class config : public utils::singleton<config>
 {
 public:
 	void init();
@@ -33,4 +33,4 @@ private:
 	configData::unique_ptr_type data_ { std::make_unique<configData>() };
 	std::string configFile { "settings.yaml" };
 };
-} // namespace tk
+} // namespace conf

@@ -2,7 +2,7 @@
 
 TermKeeper is a software application designed for storing and managing frequently used terminal commands. Upon launch, the program resides in the Windows system tray and awaits the activation of a hotkey (default: Ctrl+Alt+R). When the hotkey is pressed, a window opens, allowing users to create, edit, delete, and select commands (by pressing Enter). The commands are organized in a hierarchical structure similar to a file system, where users can create and delete folders to better organize their commands. 
 
-Selected commands are cached for quick access, and both the commands and the command cache are stored in XML format (storage.xml and cache.xml, respectively). The application is configured using a settings.yaml file, which allows users to customize various aspects of the program, including hotkey assignments and storage paths. Once a command is selected and Enter is pressed, the window closes, and the command is copied to the clipboard. Cached commands can be accessed and managed through the dedicated Cache window.
+Selected commands are cached for quick access, and both the commands and the command cache are stored in XML format (storage.xml and cache.xml, respectively). The application is configured using a settings.yaml file, which allows users to customize various aspects of the program, including hotkey assignments and storage paths. Once a command is selected and Enter is pressed, the window closes, and the command is copied to the uipboard. Cached commands can be accessed and managed through the dedicated Cache window.
 
 # Build with Docker
 

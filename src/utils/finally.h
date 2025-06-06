@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace tk
+namespace utils
 {
 class finally
 {
@@ -26,4 +26,4 @@ private:
 	std::function<void()> action_;
 };
 
-} // namespace tk
+} // namespace utils

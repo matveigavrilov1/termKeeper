@@ -3,7 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace tk
+namespace utils
 
 {
 
@@ -45,4 +45,4 @@ private:
 	mutable std::mutex mutex_;
 	std::condition_variable cond_;
 };
-} // namespace tk
+} // namespace utils

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <map>
 
-namespace tk
+namespace utils
 {
 bool parseHotkey(const std::string& hotkeyStr, UINT& modifiers, UINT& vk)
 {
@@ -127,4 +127,4 @@ bool parseHotkey(const std::string& hotkeyStr, UINT& modifiers, UINT& vk)
 
 	return true;
 }
-} // namespace tk
+} // namespace utils

@@ -5,7 +5,7 @@
 
 #include "utils/observer.h"
 
-namespace tk
+namespace utils
 {
 class subject
 {
@@ -25,4 +25,4 @@ public:
 private:
 	std::vector<observer::shared_ptr_type> observers_;
 };
-} // namespace tk
+} // namespace utils

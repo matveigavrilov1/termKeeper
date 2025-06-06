@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tk
+namespace utils
 {
 template<typename T>
 class singleton
@@ -22,4 +22,4 @@ protected:
 	singleton() = default;
 	~singleton() = default;
 };
-} // namespace tk
+} // namespace utils
