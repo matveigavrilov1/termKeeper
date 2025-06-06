@@ -8,6 +8,7 @@
 
 #include "core/events.h"
 #include "core/utils.h"
+#include "core/interface.h"
 #include "utils/logger.h"
 
 namespace os
@@ -105,7 +106,12 @@ struct console::impl
 
 			for (DWORD i = 0; i < cNumRead; i++)
 			{
-				if (ir[i].EventType == KEY_EVENT)
+				if (ir[i].EventType == WINDOW_BUFFER_SIZE_EVENT)
+				{
+					core::screen().updateAll();
+					core::screen().show(get());
+				}
+				else if (ir[i].EventType == KEY_EVENT)
 				{
 					KEY_EVENT_RECORD& ker = ir[i].Event.KeyEvent;
 					if (ker.bKeyDown)

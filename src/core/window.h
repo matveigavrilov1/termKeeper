@@ -61,22 +61,18 @@ public:
 	virtual void clear();
 	virtual void update();
 
+	struct relative_pos
+	{
+		uuids::uuid left{}, upper{};
+	};
+
 	virtual void setRelativeSize(relative_size relativeSize);
+	virtual void setRelativePos(relative_pos relativePos);
 	virtual void setAbsoluteSize(window_size absoluteSize);
 	virtual void setPosition(position_on_screen pos);
 	virtual void updateSize();
+	virtual void updatePosition();
 
-	void setLeftNeighbourUuid(uuids::uuid uuid);
-	void setRightNeighbourUuid(uuids::uuid uuid);
-	void setUpperNeighbourUuid(uuids::uuid uuid);
-	void setLowerNeighbourUuid(uuids::uuid uuid);
-
-	uuids::uuid getLeftNeighbourUuid() const;
-	uuids::uuid getRightNeighbourUuid() const;
-	uuids::uuid getUpperNeighbourUuid() const;
-	uuids::uuid getLowerNeighbourUuid() const;
-
-public:
 	using buffer_type = os::console::charBuffer;
 
 	buffer_type& buffer();
@@ -89,15 +85,12 @@ private:
 	window_size size_;
 
 	relative_size relativeSize_ = { 1, 1 };
+	relative_pos relativePos_;
 	bool useRelativeSize_ = false;
 
 	buffer_type buffer_;
 	std::string name_;
 
-	uuids::uuid leftNeighbour_;
-	uuids::uuid rightNeighbour_;
-	uuids::uuid upperNeighbour_;
-	uuids::uuid lowerNeighbour_;
 };
 
 } // namespace core

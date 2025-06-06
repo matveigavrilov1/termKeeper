@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <uuid.h>
 
+#include "core/interface.h"
 #include "os/console.h"
 #include "utils/logger.h"
 
@@ -138,12 +139,11 @@ void window::setContentChar(position_on_window pos, charInfo ch)
 	size_t realX = pos.x + diffX;
 	size_t realY = pos.y + diffY;
 
-	setChar({realX, realY}, ch);
+	setChar({ realX, realY }, ch);
 }
 
 void window::setContentChar(size_t index, charInfo ch)
 {
-
 	size_t x = index % contentWidth();
 	size_t y = index / contentWidth();
 
@@ -153,7 +153,7 @@ void window::setContentChar(size_t index, charInfo ch)
 	size_t realX = x + diffX;
 	size_t realY = y + diffY;
 
-	setChar({realX, realY}, ch);
+	setChar({ realX, realY }, ch);
 }
 
 window::position_on_screen window::realPos() const
@@ -244,6 +244,11 @@ void window::setRelativeSize(std::pair<double, double> relativeSize)
 	updateSize();
 }
 
+void window::setRelativePos(relative_pos relativePos)
+{
+	relativePos_ = relativePos;
+}
+
 void window::setAbsoluteSize(window_size absoluteSize)
 {
 	size_ = absoluteSize;
@@ -266,6 +271,19 @@ void window::updateSize()
 			buffer_.resize(size_.width * size_.height);
 		}
 	}
+}
+
+void window::updatePosition()
+{
+	auto leftNeighbourPos = screen().getWindowPosition(relativePos_.left);
+	auto leftNeighbourSize = screen().getWindowSize(relativePos_.left);
+
+	auto upperNeighbourPos = screen().getWindowPosition(relativePos_.upper);
+	auto upperNeighbourSize = screen().getWindowSize(relativePos_.upper);
+
+	pos_.x = leftNeighbourPos.x + leftNeighbourSize.width;
+	pos_.y = upperNeighbourPos.y + upperNeighbourSize.height;
+	LOG_DBG("Window " << uuid() << "position was updated to (" << pos_.x << ", " << pos_.y << ")");
 }
 
 window::window_size window::calculateAbsoluteSize() const

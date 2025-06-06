@@ -71,12 +71,21 @@ bool screen::registerWindow(window::shared_ptr_t win)
 	if (windows_.find(win->uuid()) == windows_.end())
 	{
 		LOG_DBG("Registering new window '" << win->name() << "' with UUID: " << win->uuid());
+		allWindows_.push_back(win->uuid());
 		windows_.emplace(win->uuid(), std::move(win));
 		return true;
 	}
 
 	LOG_WRN("Window '" << win->name() << "' already registered with UUID: " << win->uuid());
 	return false;
+}
+
+void screen::updateAll()
+{
+	for (auto& uuid : allWindows_)
+	{
+		updateWindow(uuid);
+	}
 }
 
 bool screen::unregisterWindow(const uuids::uuid& uuid)
@@ -354,4 +363,23 @@ uuids::uuid screen::findRightNeighbour(const uuids::uuid& target) const
 	LOG_DBG("Selected right neighbour: " << result << (result.is_nil() ? " (none)" : ""));
 	return result;
 }
+
+window::position_on_screen screen::getWindowPosition(const uuids::uuid& uuid) const
+{
+	if (windows_.count(uuid))
+	{
+		return windows_.at(uuid)->realPos();
+	}
+	return { 0, 0 };
+}
+
+window::window_size screen::getWindowSize(const uuids::uuid& uuid) const
+{
+	if (windows_.count(uuid))
+	{
+		return windows_.at(uuid)->realSize();
+	}
+	return { 0, 0 };
+}
+
 } // namespace core

@@ -32,11 +32,13 @@ uiImpl::uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t stor
 	storageWindow->setRelativeSize({ 0.9, 1 });
 	storageWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	storageWindow->clear();
+	storageWindow->setRelativePos({.left = menuWindow->uuid()});
 	LOG_DBG("Creating Cache Window");
 	auto cacheWindow = std::make_shared<wndws::cacheWindow>(cache);
 	cacheWindow->setRelativeSize({ 0.9, 1 });
 	cacheWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
 	cacheWindow->clear();
+	cacheWindow->setRelativePos({.left = menuWindow->uuid()});
 
 	cache->attach(cacheWindow);
 

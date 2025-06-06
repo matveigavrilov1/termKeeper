@@ -6,6 +6,7 @@
 #include "core/interface.h"
 #include "core/window.h"
 #include "os/console.h"
+#include "utils/logger.h"
 
 namespace wndws
 {
@@ -37,11 +38,19 @@ void borderedWindow::clear()
 
 void borderedWindow::update()
 {
+	LOG_DBG("Updating bordered window: " << name());
 	setHighlightTitle(core::controllerm().active(uuid()));
+	LOG_DBG("Title status set");
+	updatePosition();
+	LOG_DBG("Position updated");
 	updateSize();
+	LOG_DBG("Size updated");
 	drawBorder();
+	LOG_DBG("Border drawn");
 	drawTitle();
+	LOG_DBG("Title drawn");
 	updateBordered();
+	LOG_DBG("Bordered updated");
 }
 
 void borderedWindow::updateBordered() { }
