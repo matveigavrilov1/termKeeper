@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<actions>
+	<action uuid="3422b448-2460-4fd2-9183-8000de6f8343">
+		<alias>config</alias>
+		<content>code config</content>
+		<description>Open app config in VS Code</description>
+		<type>exec</type>
+	</action>
+	<folder uuid="3422b448-2460-4fd2-9183-8000de6f8345">
+		<name>exampleFolder</name>
+		<description>exampleFolderDescription</description>
+		<actions>
+			<action uuid="3422b448-2460-4fd2-9183-8000de6f8344">
+			<alias>commandInFolder</alias>
+			<content>mkdir example</content>
+			<description>Create example dir</description>
+			<type>copy</type>
+		</action>
+	</folder>
+</actions>

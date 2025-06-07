@@ -19,7 +19,6 @@ int main(int, char**)
 {
 	LOG_INF("Starting project controller");
 
-
 	conf::config::instance().init();
 	LOG_INF("Config initialized");
 

@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <windows.h>
+#include <shellapi.h>
 #include <string>
 #include <codecvt>
 #include <locale>
@@ -336,4 +337,62 @@ void os::writeToClipboard(const std::string& content)
 	}
 
 	CloseClipboard();
+}
+
+void os::execute(data::action::shared_ptr_t action)
+{
+	if (!action)
+	{
+		LOG_ERR("Attempt to execute null action");
+		return;
+	}
+
+	try
+	{
+		switch (action->getType())
+		{
+			case data::action::COPY_TERMINAL_COMMAND:
+			{
+				// Copy the action content to clipboard
+				os::writeToClipboard(action->getContent());
+				LOG_INF("Copied to clipboard: " << action->getContent());
+				break;
+			}
+			case data::action::EXECUTE_TERMINAL_COMMAND:
+			{
+				// Execute the command in the terminal
+				std::string command = action->getContent();
+
+				// First copy to clipboard (as backup and for potential pasting)
+				os::writeToClipboard(command);
+
+				// Prepare for execution
+				STARTUPINFOW si = { sizeof(si) };
+				PROCESS_INFORMATION pi;
+
+				// Create a command process
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring wCommand = L"cmd.exe /C " + converter.from_bytes(command);
+
+				if (!CreateProcessW(NULL, const_cast<wchar_t*>(wCommand.c_str()), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+				{
+					LOG_ERR("CreateProcess failed: " << GetLastError());
+					return;
+				}
+
+				// Close process and thread handles
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+
+				LOG_INF("Executed command: " << command);
+				break;
+			}
+			case data::action::NONE:
+			default: LOG_WRN("Attempt to execute action with NONE type"); break;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERR("Failed to execute action: " << e.what());
+	}
 }

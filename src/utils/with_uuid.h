@@ -28,9 +28,11 @@ public:
 		return *this;
 	}
 
-	const uuids::uuid& uuid() { return uuid_; }
+	const uuids::uuid& uuid() const { return uuid_; }
+
+	void setUuid(uuids::uuid uuid = utils::generate_uuid()) { uuid_ = uuid; }
 
 private:
 	uuids::uuid uuid_;
 };
-} // namespace core
+} // namespace utils

@@ -26,8 +26,10 @@ set(EXEC_SOURCES
 	config/configData.cpp
 	os/windows/console.cpp
 	os/windows/interface.cpp
+	data/actions.cpp
 	data/cache.cpp
 	data/storage.cpp
+	data/xmlActionseManager.cpp
 	data/xmlCacheManager.cpp
 	data/xmlStorageManager.cpp
 	utils/generate_uuid.cpp

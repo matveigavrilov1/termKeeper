@@ -10,6 +10,8 @@ namespace core
 class controller : virtual public utils::with_uuid
 {
 public:
+	virtual ~controller() = default;
+
 	using shared_ptr_t = std::shared_ptr<controller>;
 
 	virtual bool handleInputEvent(inputEvent::shared_ptr_t inputEvent);
