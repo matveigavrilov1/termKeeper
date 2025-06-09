@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -10,23 +11,34 @@
 namespace wndws
 {
 class menuWindow final
-: public controllerWindow 
+: public controllerWindow
 , public std::enable_shared_from_this<menuWindow>
 {
 public:
+	struct windowsGroup
+	{
+		std::vector<uuids::uuid> windows_;
+		std::string title_ { "unknown" };
+	};
+
 	menuWindow(const std::string& name = "Menu");
 
 	void updateBordered() override;
 
-	void addWindow(window::shared_ptr_t win);
-	void removeWindow(const std::string& name);
+	uuids::uuid createGroup(const std::string& title);
+
+	void addWindow(uuids::uuid groupUuid, uuids::uuid winUuid);
 
 protected:
-	bool handleArrowUpDecorator(const core::inputEvent::keyModifiers &mods) override;
-	bool handleArrowDownDecorator(const core::inputEvent::keyModifiers &mods) override;
+	bool handleArrowUpDecorator(const core::inputEvent::keyModifiers& mods) override;
+	bool handleArrowDownDecorator(const core::inputEvent::keyModifiers& mods) override;
+
+private:
+	void activateGroup(const windowsGroup& group);
+	void deactivateGroup(const windowsGroup& group);
 
 private:
 	forms::selectionListForm form_;
-	std::vector<window::shared_ptr_t> windows_ {};
+	std::map<uuids::uuid, windowsGroup> groups_;
 };
 } // namespace wndws

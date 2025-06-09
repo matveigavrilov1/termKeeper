@@ -42,6 +42,9 @@ uiImpl::uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t stor
 
 	cache->attach(cacheWindow);
 
+	menuWindow->addWindow(menuWindow->createGroup("Storage"), storageWindow->uuid());
+	menuWindow->addWindow(menuWindow->createGroup("Cache"), cacheWindow->uuid());
+
 	LOG_DBG("Adding window: " << menuWindow->name());
 	windows_[menuWindow->name()] = menuWindow;
 	LOG_DBG("Adding window: " << storageWindow->name());
@@ -63,20 +66,6 @@ void uiImpl::init()
 			auto controller = std::dynamic_pointer_cast<wndws::controllerWindow>(windows_[windowName]);
 			if (controller)
 				core::controllerm().registerController(controller);
-		}
-		else
-		{
-			LOG_WRN("Unknown window name: " << windowName);
-		}
-	}
-
-	LOG_INF("Adding windows to menu:");
-	for (const auto& windowName : conf::config::instance().menu())
-	{
-		if (windows_["Menu"] && windows_.contains(windowName))
-		{
-			LOG_INF(windowName);
-			static_pointer_cast<wndws::menuWindow>(windows_["Menu"])->addWindow(windows_[windowName]);
 		}
 		else
 		{

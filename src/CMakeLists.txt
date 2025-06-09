@@ -29,7 +29,7 @@ set(EXEC_SOURCES
 	data/actions.cpp
 	data/cache.cpp
 	data/storage.cpp
-	data/xmlActionseManager.cpp
+	data/xmlActionsManager.cpp
 	data/xmlCacheManager.cpp
 	data/xmlStorageManager.cpp
 	utils/generate_uuid.cpp
