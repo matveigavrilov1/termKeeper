@@ -76,7 +76,7 @@ bool controllerWindow::handleArrowRightDecorator(const core::inputEvent::keyModi
 
 bool controllerWindow::handleArrowUp(const core::inputEvent::keyModifiers& mods)
 {
-	if (!handleArrowUpDecorator(mods))
+	if (mods.alt || !handleArrowUpDecorator(mods))
 	{
 		giveControlToUpper();
 	}
@@ -85,7 +85,7 @@ bool controllerWindow::handleArrowUp(const core::inputEvent::keyModifiers& mods)
 
 bool controllerWindow::handleArrowDown(const core::inputEvent::keyModifiers& mods)
 {
-	if (!handleArrowDownDecorator(mods))
+	if (mods.alt || !handleArrowDownDecorator(mods))
 	{
 		giveControlToLower();
 	}
@@ -94,7 +94,7 @@ bool controllerWindow::handleArrowDown(const core::inputEvent::keyModifiers& mod
 
 bool controllerWindow::handleArrowLeft(const core::inputEvent::keyModifiers& mods)
 {
-	if (!handleArrowLeftDecorator(mods))
+	if (mods.alt || !handleArrowLeftDecorator(mods))
 	{
 		giveControlToLeft();
 	}
@@ -103,7 +103,7 @@ bool controllerWindow::handleArrowLeft(const core::inputEvent::keyModifiers& mod
 
 bool controllerWindow::handleArrowRight(const core::inputEvent::keyModifiers& mods)
 {
-	if (!handleArrowRightDecorator(mods))
+	if (mods.alt || !handleArrowRightDecorator(mods))
 	{
 		giveControlToRight();
 	}
