@@ -42,7 +42,7 @@ int main(int, char**)
 	utils::finally xmlCacheDump(xmlCacheDumpCallback);
 	LOG_INF("XML cache loaded");
 
-	std::thread([&]() { os::runApp("ActionControl"); }).detach();
+	std::thread([&]() { os::runApp("SaveAction"); }).detach();
 	LOG_INF("Event loop started");
 	auto screenWidth = conf::config::instance().screenWidth();
 	auto screenHeight = conf::config::instance().screenHeight();
