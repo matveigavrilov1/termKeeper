@@ -19,8 +19,11 @@ set(EXEC_SOURCES
 	forms/selectionListForm.cpp
 	windows/utils/borderedWindow.cpp
 	windows/utils/controllerWindow.cpp
+	windows/actionsWindow.cpp
 	windows/cacheWindow.cpp
+	windows/descriptionWindow.cpp
 	windows/menuWindow.cpp
+	windows/searchWindow.cpp
 	windows/storageWindow.cpp
 	config/config.cpp
 	config/configData.cpp

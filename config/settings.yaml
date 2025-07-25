@@ -9,12 +9,16 @@ tkExecutable:
       - Menu
       - Storage
       - Cache
+      - Search
+      - Actions
+      - Description
     activated: # Initially showed windows (order sensetive, colliding windows cannot be showed) 
       - Menu
       - Storage
     menu: # Windows showed at Menu (order sensetive)
       - Storage
       - Cache
+      - Actions
     initialController: Menu # Initial handling input window
   storage:
     storageFile: storage.xml

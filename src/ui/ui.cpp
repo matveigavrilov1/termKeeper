@@ -12,6 +12,10 @@
 #include "windows/menuWindow.h"
 #include "windows/storageWindow.h"
 
+#include "windows/searchWindow.h"
+#include "windows/actionsWindow.h"
+#include "windows/descriptionWindow.h"
+
 #include "utils/logger.h"
 #include <memory>
 
@@ -45,12 +49,43 @@ uiImpl::uiImpl(data::cache::shared_ptr_t cache, data::storage::shared_ptr_t stor
 	menuWindow->addWindow(menuWindow->createGroup("Storage"), storageWindow->uuid());
 	menuWindow->addWindow(menuWindow->createGroup("Cache"), cacheWindow->uuid());
 
+	auto searchWindow = std::make_shared<wndws::searchWindow>();
+	searchWindow->setRelativeSize({ 0.9, 0.1 });
+	searchWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
+	searchWindow->clear();
+	searchWindow->setRelativePos({.left = menuWindow->uuid()});
+
+	auto actionsWindow = std::make_shared<wndws::actionsWindow>();
+	actionsWindow->setRelativeSize({ 0.9, 0.5 });
+	actionsWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
+	actionsWindow->clear();
+	actionsWindow->setRelativePos({.left = menuWindow->uuid(), .upper = searchWindow->uuid()});
+
+	auto descriptionWindow = std::make_shared<wndws::descriptionWindow>();
+	descriptionWindow->setRelativeSize({ 0.9, 0.4 });
+	descriptionWindow->setPosition({ menuWindow->realPos().x + menuWindow->realWidth(), 0 });
+	descriptionWindow->clear();
+	descriptionWindow->setRelativePos({.left = menuWindow->uuid(), .upper = actionsWindow->uuid()});
+
+	auto uuid = menuWindow->createGroup("Actions");
+	menuWindow->addWindow(uuid, searchWindow->uuid());
+	menuWindow->addWindow(uuid, actionsWindow->uuid());
+	menuWindow->addWindow(uuid, descriptionWindow->uuid());
+	
+
 	LOG_DBG("Adding window: " << menuWindow->name());
 	windows_[menuWindow->name()] = menuWindow;
 	LOG_DBG("Adding window: " << storageWindow->name());
 	windows_[storageWindow->name()] = storageWindow;
 	LOG_DBG("Adding window: " << cacheWindow->name());
-	windows_[cacheWindow->name()] = cacheWindow;
+	windows_[cacheWindow->name()] = cacheWindow; 
+	
+	LOG_DBG("Adding window: " << searchWindow->name());
+	windows_[searchWindow->name()] = searchWindow;
+	LOG_DBG("Adding window: " << actionsWindow->name());
+	windows_[actionsWindow->name()] = actionsWindow;
+	LOG_DBG("Adding window: " << descriptionWindow->name());
+	windows_[descriptionWindow->name()] = descriptionWindow;
 }
 
 void uiImpl::init()
