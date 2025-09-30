@@ -1,1 +1,6 @@
+# poetry
+.venv
+poetry.lock
+
+# cmake
 build
