@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<storage>
-	<command>exampleCommand</command>
-	<folder name="exampleFolder">
-		<command>exampleCommandInFolder</command>
-	</folder>
-</storage>
