@@ -6,5 +6,8 @@ poetry.lock
 .doit.db
 __pycache__
 
+# conan
+.conan2
+
 # build artifacts
 out
