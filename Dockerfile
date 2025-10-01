@@ -37,4 +37,4 @@ WORKDIR /out
 CMD sudo chown -R $(id -u):$(id -g) /out 2>/dev/null || true && \
 	chmod -R 755 /out && \
 	rsync -av --exclude-from='/termKeeper/.gitignore' /termKeeper/ . && \
-	./tools/docker/build.sh
+	./tools/build/build.sh
