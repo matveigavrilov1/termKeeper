@@ -4,3 +4,7 @@ poetry.lock
 
 # cmake
 build
+
+# doit
+.doit.db
+__pycache__
